@@ -13,7 +13,6 @@ import { textureToolDocs } from "../server/tools/texture";
 import { armatureToolDocs } from "../server/tools/armature";
 import { animationToolDocs } from "../server/tools/animation";
 import { uiToolDocs } from "../server/tools/ui";
-import { hytaleToolDocs } from "../server/tools/hytale";
 import { materialInstanceToolDocs } from "../server/tools/material-instances";
 import { uvToolDocs } from "../server/tools/uv";
 import { historyToolDocs } from "../server/tools/history";
@@ -42,7 +41,6 @@ export const toolManifest: CategoryGroup[] = [
   { category: "Textures", tools: textureToolDocs },
   { category: "UI Interaction", tools: uiToolDocs },
   { category: "UV Mapping", tools: uvToolDocs },
-  { category: "Hytale Integration", tools: hytaleToolDocs },
 ];
 
 // Prompt specs defined inline — server/prompts.ts uses macros that complicate direct import
@@ -74,41 +72,6 @@ export const promptDocs: PromptSpec[] = [
         .describe("Creation approach to use."),
     }),
     status: "stable",
-  },
-  {
-    name: "hytale_model_creation",
-    title: "Hytale Model Creation Guide",
-    description:
-      "Comprehensive guide for creating Hytale character and prop models. Covers format selection, node limits, shading modes, stretch, quads, and best practices.",
-    argsSchema: z.object({
-      format_type: z
-        .enum(["character", "prop", "both"])
-        .describe("Which format type to focus on.")
-        .optional()
-        .default("both"),
-    }),
-    status: "experimental",
-  },
-  {
-    name: "hytale_animation_workflow",
-    title: "Hytale Animation Workflow",
-    description:
-      "Guide for creating animations for Hytale models. Covers 60 FPS timing, quaternion rotations, visibility keyframes, loop modes, and common animation patterns.",
-    argsSchema: z.object({
-      animation_type: z
-        .enum(["walk", "idle", "attack", "general"])
-        .describe("Type of animation to focus on.")
-        .optional()
-        .default("general"),
-    }),
-    status: "experimental",
-  },
-  {
-    name: "hytale_attachments",
-    title: "Hytale Attachments System",
-    description:
-      "Guide for creating and managing attachments in Hytale models. Covers attachment collections, piece bones, modular equipment, and best practices.",
-    status: "experimental",
   },
 ];
 
@@ -169,33 +132,5 @@ export const resourceDocs: ResourceSpec[] = [
     title: "Validator Errors",
     description:
       "Returns all current validation errors with element references where available.",
-  },
-  {
-    name: "hytale-format",
-    uriTemplate: "hytale://format",
-    title: "Hytale Format Information",
-    description:
-      "Returns comprehensive information about the current Hytale format, including format type, block size, node limits, and feature support.",
-  },
-  {
-    name: "hytale-attachments",
-    uriTemplate: "hytale://attachments/{id}",
-    title: "Hytale Attachments",
-    description:
-      "Returns information about attachment collections. List URIs use slugified collection names (e.g. `hytale://attachments/helmet`) with `~<uuid-prefix>` on collision. Reads accept UUID, exact name, or slug.",
-  },
-  {
-    name: "hytale-pieces",
-    uriTemplate: "hytale://pieces/{id}",
-    title: "Hytale Attachment Pieces",
-    description:
-      "Returns groups marked as attachment pieces — they connect to like-named bones in the main model. List URIs use slugified bone names (e.g. `hytale://pieces/hand-right`) with `~<uuid-prefix>` on collision.",
-  },
-  {
-    name: "hytale-cubes",
-    uriTemplate: "hytale://cubes/{id}",
-    title: "Hytale Cubes",
-    description:
-      "Returns cubes with Hytale-specific properties (shading_mode, double_sided, stretch). List URIs use slugified cube names (e.g. `hytale://cubes/torso`) with `~<uuid-prefix>` on collision.",
   },
 ];

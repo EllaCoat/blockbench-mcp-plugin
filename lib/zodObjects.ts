@@ -253,12 +253,6 @@ export const uvRotationAngleEnum = z.enum(["-90", "90", "180"]);
 /** Mouse button enum */
 export const mouseButtonEnum = z.enum(["left", "right"]);
 
-/** Stretch values for Hytale cubes */
-export const stretchSchema = z
-  .array(z.number())
-  .length(3)
-  .describe("Stretch values [x, y, z].");
-
 /** Size 2D schema */
 export const size2dSchema = z
   .array(z.number())

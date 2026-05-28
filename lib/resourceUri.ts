@@ -45,7 +45,7 @@ export interface INamedItem {
  *   3. `<uuid>` when the name is missing or produces an empty slug
  *
  * Use `makeResourceUri` to also prepend a scope; use `makeResourceId`
- * directly when the URI template is path-style (e.g. `hytale://attachments/{id}`).
+ * directly when the URI template is path-style (e.g. `validator://checks/{id}`).
  */
 export function makeResourceId(
   item: INamedItem,
