@@ -1,7 +1,78 @@
 {
   "version": "1.6.0",
-  "generatedAt": "2026-05-22T14:18:59.107Z",
+  "generatedAt": "2026-05-28T08:51:28.216Z",
   "tools": [
+    {
+      "name": "aj_blueprint_settings_get",
+      "title": "AJ: Get Blueprint Settings",
+      "description": "Returns all Animated Java Blueprint Settings for the active project as a JSON object (blueprint_id, export modes, TSB Optimized Export options, interpolation durations, etc.). Requires an Animated Java Blueprint project to be open. Use this before aj_blueprint_settings_set to discover valid keys and their value types.",
+      "status": "experimental",
+      "category": "Animated Java",
+      "annotations": {
+        "readOnlyHint": true
+      },
+      "parameters": {
+        "$ref": "#/definitions/aj_blueprint_settings_get",
+        "definitions": {
+          "aj_blueprint_settings_get": {
+            "type": "object",
+            "properties": {},
+            "additionalProperties": false
+          }
+        },
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    },
+    {
+      "name": "aj_blueprint_settings_set",
+      "title": "AJ: Set Blueprint Setting",
+      "description": "Sets a single Animated Java Blueprint Setting on the active project. Takes a `key` and a `value` whose type must match the setting's current type. Validates that the key exists and rejects type mismatches. Marks the project as having unsaved changes. Requires an Animated Java Blueprint project to be open.",
+      "status": "experimental",
+      "category": "Animated Java",
+      "annotations": {},
+      "parameters": {
+        "$ref": "#/definitions/aj_blueprint_settings_set",
+        "definitions": {
+          "aj_blueprint_settings_set": {
+            "type": "object",
+            "properties": {
+              "key": {
+                "type": "string",
+                "description": "Blueprint Setting key to update (e.g. `tsb_optimized_export`, `tsb_quantization_digits_default`, `interpolation_duration`). Call aj_blueprint_settings_get to discover valid keys and their current types.",
+                "markdownDescription": "Blueprint Setting key to update (e.g. `tsb_optimized_export`, `tsb_quantization_digits_default`, `interpolation_duration`). Call aj_blueprint_settings_get to discover valid keys and their current types."
+              },
+              "value": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "boolean"
+                  },
+                  {
+                    "type": "array",
+                    "items": {
+                      "type": "number"
+                    }
+                  }
+                ],
+                "description": "New value. Its type must match the existing value's type (boolean/number/string, or a number array for vector settings like render_box).",
+                "markdownDescription": "New value. Its type must match the existing value's type (boolean/number/string, or a number array for vector settings like render_box)."
+              }
+            },
+            "required": [
+              "key",
+              "value"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    },
     {
       "name": "place_cube",
       "title": "Place Cube",

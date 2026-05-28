@@ -19,6 +19,7 @@ import { registerMaterialInstanceTools } from "./tools/material-instances";
 import { registerArmatureTools } from "./tools/armature";
 import { registerHistoryTools } from "./tools/history";
 import { registerExportTools } from "./tools/export";
+import { registerAJTools } from "./tools/aj";
 
 // Core resource registrations
 import { registerValidatorResources } from "./resources/validator";
@@ -30,6 +31,7 @@ import { registerHytalePrompts } from "./prompts/hytale";
 
 // All registration functions - MUST be used to prevent tree-shaking
 const registrationFunctions = [
+  registerAJTools,
   registerAnimationTools,
   registerArmatureTools,
   registerCameraTools,

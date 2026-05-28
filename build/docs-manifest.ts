@@ -18,6 +18,7 @@ import { materialInstanceToolDocs } from "../server/tools/material-instances";
 import { uvToolDocs } from "../server/tools/uv";
 import { historyToolDocs } from "../server/tools/history";
 import { exportToolDocs } from "../server/tools/export";
+import { ajToolDocs } from "../server/tools/aj";
 
 export interface CategoryGroup {
   category: string;
@@ -25,6 +26,7 @@ export interface CategoryGroup {
 }
 
 export const toolManifest: CategoryGroup[] = [
+  { category: "Animated Java", tools: ajToolDocs },
   { category: "Cubes", tools: cubeToolDocs },
   { category: "Camera & Screenshots", tools: cameraToolDocs },
   { category: "Animation", tools: animationToolDocs },

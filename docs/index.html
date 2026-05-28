@@ -18,13 +18,14 @@
 
       <div class="nav-group">
         <p class="nav-heading">Overview</p>
-        <a href="#tools" class="nav-link">Tools <span class="count">(106)</span></a>
+        <a href="#tools" class="nav-link">Tools <span class="count">(108)</span></a>
         <a href="#prompts" class="nav-link">Prompts <span class="count">(6)</span></a>
         <a href="#resources" class="nav-link">Resources <span class="count">(12)</span></a>
       </div>
 
       <div class="nav-group">
         <p class="nav-heading">Categories</p>
+        <a href="#cat-animated-java" class="nav-link">Animated Java <span class="count">(2)</span></a>
         <a href="#cat-cubes" class="nav-link">Cubes <span class="count">(2)</span></a>
         <a href="#cat-camera-screenshots" class="nav-link">Camera &amp; Screenshots <span class="count">(3)</span></a>
         <a href="#cat-animation" class="nav-link">Animation <span class="count">(7)</span></a>
@@ -49,7 +50,7 @@
         <h1>Blockbench MCP Plugin</h1>
         <p class="subtitle">API Reference — v1.6.0</p>
         <nav class="stats">
-          <a href="#tools"><strong>106</strong> tools (39 stable, 67 experimental)</a>
+          <a href="#tools"><strong>108</strong> tools (39 stable, 69 experimental)</a>
           <a href="#prompts"><strong>6</strong> prompts</a>
           <a href="#resources"><strong>12</strong> resources</a>
         </nav>
@@ -66,7 +67,58 @@
 
       <section id="tools" class="doc-section">
         <h2 class="section-title">Tools</h2>
-        <section id="cat-cubes" class="category-section">
+        <section id="cat-animated-java" class="category-section">
+          <h3 class="category-title">Animated Java</h3>
+          <div id="tool-aj_blueprint_settings_get" class="card tool-card">
+      <div class="card-header">
+        <h3 class="card-name">aj_blueprint_settings_get</h3>
+        <div class="card-badges">
+          <span class="badge badge-experimental">experimental</span>
+          <span class="badge badge-readonly">read-only</span>
+        </div>
+      </div>
+      <p class="card-title">AJ: Get Blueprint Settings</p>
+      <p class="card-desc">Returns all Animated Java Blueprint Settings for the active project as a JSON object (blueprint_id, export modes, TSB Optimized Export options, interpolation durations, etc.). Requires an Animated Java Blueprint project to be open. Use this before aj_blueprint_settings_set to discover valid keys and their value types.</p>
+      <div class="overflow-x">
+        <p class="empty-params">No parameters</p>
+      </div>
+    </div>
+<div id="tool-aj_blueprint_settings_set" class="card tool-card">
+      <div class="card-header">
+        <h3 class="card-name">aj_blueprint_settings_set</h3>
+        <div class="card-badges">
+          <span class="badge badge-experimental">experimental</span>
+          
+        </div>
+      </div>
+      <p class="card-title">AJ: Set Blueprint Setting</p>
+      <p class="card-desc">Sets a single Animated Java Blueprint Setting on the active project. Takes a `key` and a `value` whose type must match the setting's current type. Validates that the key exists and rejects type mismatches. Marks the project as having unsaved changes. Requires an Animated Java Blueprint project to be open.</p>
+      <div class="overflow-x">
+        <table class="param-table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Required</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody><tr>
+      <td class="col-name">key</td>
+      <td class="col-type">string</td>
+      <td><span class="param-required">required</span></td>
+      <td class="col-desc">Blueprint Setting key to update (e.g. `tsb_optimized_export`, `tsb_quantization_digits_default`, `interpolation_duration`). Call aj_blueprint_settings_get to discover valid keys and their current types.</td>
+    </tr><tr>
+      <td class="col-name">value</td>
+      <td class="col-type">string | number | boolean | number[]</td>
+      <td><span class="param-required">required</span></td>
+      <td class="col-desc">New value. Its type must match the existing value's type (boolean/number/string, or a number array for vector settings like render_box).</td>
+    </tr></tbody>
+    </table>
+      </div>
+    </div>
+        </section>
+<section id="cat-cubes" class="category-section">
           <h3 class="category-title">Cubes</h3>
           <div id="tool-place_cube" class="card tool-card">
       <div class="card-header">
@@ -4484,7 +4536,7 @@
       </section>
 
       <footer class="page-footer">
-        Generated 2026-05-22T14:18:59.107Z from Zod schemas
+        Generated 2026-05-28T08:51:28.216Z from Zod schemas
       </footer>
     </main>
   </div>
