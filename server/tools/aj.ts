@@ -28,7 +28,7 @@ interface AnimatedJavaApiLike {
 
 type SettingValue = string | number | boolean | number[];
 
-const AJ_FORMAT_ID = "animated_java:format/blueprint";
+const AJ_FORMAT_ID = "animated-java:format/blueprint";
 
 function getAJProject(): AJBlueprintProject {
   if (!Project) {
@@ -59,6 +59,17 @@ function markUnsaved(): void {
 
 function typeName(value: unknown): string {
   return Array.isArray(value) ? "array" : typeof value;
+}
+
+/**
+ * Animated Java's NumberSlider-backed settings are sometimes stored as numeric
+ * strings (e.g. interpolation_duration = "2") rather than numbers. This lets
+ * the set tool treat numbers and numeric strings as interchangeable.
+ */
+function isNumericLike(value: unknown): boolean {
+  if (typeof value === "number") return Number.isFinite(value);
+  if (typeof value === "string") return value.trim() !== "" && Number.isFinite(Number(value));
+  return false;
 }
 
 /** Mirror of Animated Java's sanitizeStorageKey (src/util/minecraftUtil.ts). */
@@ -461,16 +472,24 @@ export function registerAJTools() {
         const current = settings[key];
         const expected = typeName(current);
         const actual = typeName(value);
+
+        let nextValue: SettingValue = value;
         if (expected !== actual) {
-          throw new Error(
-            `Type mismatch for "${key}": expected ${expected}, got ${actual}.`
-          );
+          if (isNumericLike(current) && isNumericLike(value)) {
+            // Coerce to the setting's current representation so NumberSlider
+            // settings stored as strings stay strings.
+            nextValue = expected === "string" ? String(value) : Number(value);
+          } else {
+            throw new Error(
+              `Type mismatch for "${key}": expected ${expected}, got ${actual}.`
+            );
+          }
         }
 
-        settings[key] = value;
+        settings[key] = nextValue;
         markUnsaved();
 
-        return `Set "${key}" from ${JSON.stringify(current)} to ${JSON.stringify(value)}.`;
+        return `Set "${key}" from ${JSON.stringify(current)} to ${JSON.stringify(nextValue)}.`;
       },
     },
     ajToolDocs[1].status
@@ -540,7 +559,7 @@ export function registerAJTools() {
         markUnsaved();
         const copy = Variant.selected;
         return copy
-          ? `Duplicated "${source.displayName}" into ${JSON.stringify(serializeVariant(copy))}.`
+          ? `Duplicated "${source.displayName}" into ${JSON.stringify(serializeVariant(copy, copy.uuid))}.`
           : `Duplicated "${source.displayName}".`;
       },
     },
