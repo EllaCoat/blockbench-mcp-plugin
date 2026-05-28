@@ -18,14 +18,14 @@
 
       <div class="nav-group">
         <p class="nav-heading">Overview</p>
-        <a href="#tools" class="nav-link">Tools <span class="count">(117)</span></a>
-        <a href="#prompts" class="nav-link">Prompts <span class="count">(6)</span></a>
-        <a href="#resources" class="nav-link">Resources <span class="count">(12)</span></a>
+        <a href="#tools" class="nav-link">Tools <span class="count">(106)</span></a>
+        <a href="#prompts" class="nav-link">Prompts <span class="count">(3)</span></a>
+        <a href="#resources" class="nav-link">Resources <span class="count">(8)</span></a>
       </div>
 
       <div class="nav-group">
         <p class="nav-heading">Categories</p>
-        <a href="#cat-animated-java" class="nav-link">Animated Java <span class="count">(11)</span></a>
+        <a href="#cat-animated-java" class="nav-link">Animated Java <span class="count">(12)</span></a>
         <a href="#cat-cubes" class="nav-link">Cubes <span class="count">(2)</span></a>
         <a href="#cat-camera-screenshots" class="nav-link">Camera &amp; Screenshots <span class="count">(3)</span></a>
         <a href="#cat-animation" class="nav-link">Animation <span class="count">(7)</span></a>
@@ -41,7 +41,6 @@
         <a href="#cat-textures" class="nav-link">Textures <span class="count">(13)</span></a>
         <a href="#cat-ui-interaction" class="nav-link">UI Interaction <span class="count">(4)</span></a>
         <a href="#cat-uv-mapping" class="nav-link">UV Mapping <span class="count">(3)</span></a>
-        <a href="#cat-hytale-integration" class="nav-link">Hytale Integration <span class="count">(12)</span></a>
       </div>
     </nav>
 
@@ -50,9 +49,9 @@
         <h1>Blockbench MCP Plugin</h1>
         <p class="subtitle">API Reference — v1.6.0</p>
         <nav class="stats">
-          <a href="#tools"><strong>117</strong> tools (39 stable, 78 experimental)</a>
-          <a href="#prompts"><strong>6</strong> prompts</a>
-          <a href="#resources"><strong>12</strong> resources</a>
+          <a href="#tools"><strong>106</strong> tools (39 stable, 67 experimental)</a>
+          <a href="#prompts"><strong>3</strong> prompts</a>
+          <a href="#resources"><strong>8</strong> resources</a>
         </nav>
       </header>
 
@@ -336,6 +335,60 @@
       <p class="card-desc">Returns the animation id ↔ name mapping used by TSB Optimized Export. Each entry is { id, name, storage_name, loop_mode, length }, where id is the animation's index in the project's animation list (the value stored in the `&lt;bp&gt;.current_anim` scoreboard, with -1 meaning stopped) and storage_name is the sanitized name used as the storage path key. Useful for debugging exported datapacks. Requires an Animated Java Blueprint project to be open.</p>
       <div class="overflow-x">
         <p class="empty-params">No parameters</p>
+      </div>
+    </div>
+<div id="tool-aj_keyframe_set_easing" class="card tool-card">
+      <div class="card-header">
+        <h3 class="card-name">aj_keyframe_set_easing</h3>
+        <div class="card-badges">
+          <span class="badge badge-experimental">experimental</span>
+          
+        </div>
+      </div>
+      <p class="card-title">AJ: Set Keyframe Easing</p>
+      <p class="card-desc">Sets the named easing (e.g. easeInOutSine) on an animation's keyframes in bulk. Easing only applies to keyframes whose interpolation is 'linear'; non-linear keyframes are skipped and reported. Optionally narrow the target set by bone_name, channel, and/or keyframe_range; by default it covers every linear keyframe in the animation. Pass 'linear' to clear easing. Back/Elastic/Bounce/step easings accept easing_arg. Requires an Animated Java Blueprint project.</p>
+      <div class="overflow-x">
+        <table class="param-table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Required</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody><tr>
+      <td class="col-name">easing</td>
+      <td class="col-type">&quot;linear&quot; | &quot;step&quot; | &quot;easeInQuad&quot; | &quot;easeOutQuad&quot; | &quot;easeInOutQuad&quot; | &quot;easeInCubic&quot; | &quot;easeOutCubic&quot; | &quot;easeInOutCubic&quot; | &quot;easeInQuart&quot; | &quot;easeOutQuart&quot; | &quot;easeInOutQuart&quot; | &quot;easeInQuint&quot; | &quot;easeOutQuint&quot; | &quot;easeInOutQuint&quot; | &quot;easeInSine&quot; | &quot;easeOutSine&quot; | &quot;easeInOutSine&quot; | &quot;easeInExpo&quot; | &quot;easeOutExpo&quot; | &quot;easeInOutExpo&quot; | &quot;easeInCirc&quot; | &quot;easeOutCirc&quot; | &quot;easeInOutCirc&quot; | &quot;easeInBack&quot; | &quot;easeOutBack&quot; | &quot;easeInOutBack&quot; | &quot;easeInElastic&quot; | &quot;easeOutElastic&quot; | &quot;easeInOutElastic&quot; | &quot;easeInBounce&quot; | &quot;easeOutBounce&quot; | &quot;easeInOutBounce&quot;</td>
+      <td><span class="param-required">required</span></td>
+      <td class="col-desc">Named easing function to apply to the keyframe `easing` field (e.g. easeInOutSine). Only affects keyframes whose interpolation is 'linear' — non-linear keyframes are skipped, mirroring the Animated Java panel. Use 'linear' to clear easing.</td>
+    </tr><tr>
+      <td class="col-name">easing_arg</td>
+      <td class="col-type">number</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">Optional easing argument. Only used by Back/Elastic (overshoot), Bounce (bounciness) and step (number of steps). Defaults when omitted: Back/Elastic=1, Bounce=0.25, step=5. Ignored for easings that take no argument.</td>
+    </tr><tr>
+      <td class="col-name">animation_id</td>
+      <td class="col-type">string</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">Animation UUID or name. If not provided, uses current animation.</td>
+    </tr><tr>
+      <td class="col-name">bone_name</td>
+      <td class="col-type">string</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">Restrict to this bone/group's keyframes. If omitted, applies across all bones in the animation.</td>
+    </tr><tr>
+      <td class="col-name">channel</td>
+      <td class="col-type">&quot;rotation&quot; | &quot;position&quot; | &quot;scale&quot;</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">Restrict to this channel (rotation/position/scale). If omitted, applies to all channels.</td>
+    </tr><tr>
+      <td class="col-name">keyframe_range</td>
+      <td class="col-type">object</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">Restrict to keyframes within this time range (seconds, inclusive). If omitted, applies to all keyframes.</td>
+    </tr></tbody>
+    </table>
       </div>
     </div>
         </section>
@@ -4190,362 +4243,6 @@
       </div>
     </div>
         </section>
-<section id="cat-hytale-integration" class="category-section">
-          <h3 class="category-title">Hytale Integration</h3>
-          <div id="tool-hytale_get_format_info" class="card tool-card">
-      <div class="card-header">
-        <h3 class="card-name">hytale_get_format_info</h3>
-        <div class="card-badges">
-          <span class="badge badge-experimental">experimental</span>
-          <span class="badge badge-readonly">read-only</span>
-        </div>
-      </div>
-      <p class="card-title">Get Hytale Format Info</p>
-      <p class="card-desc">Returns information about the current Hytale format. Requires the Hytale plugin and a Hytale format project to be active.</p>
-      <div class="overflow-x">
-        <p class="empty-params">No parameters</p>
-      </div>
-    </div>
-<div id="tool-hytale_validate_model" class="card tool-card">
-      <div class="card-header">
-        <h3 class="card-name">hytale_validate_model</h3>
-        <div class="card-badges">
-          <span class="badge badge-experimental">experimental</span>
-          <span class="badge badge-readonly">read-only</span>
-        </div>
-      </div>
-      <p class="card-title">Validate Hytale Model</p>
-      <p class="card-desc">Validates the current Hytale model against Hytale engine constraints (node count, UV sizes, etc.).</p>
-      <div class="overflow-x">
-        <p class="empty-params">No parameters</p>
-      </div>
-    </div>
-<div id="tool-hytale_set_cube_properties" class="card tool-card">
-      <div class="card-header">
-        <h3 class="card-name">hytale_set_cube_properties</h3>
-        <div class="card-badges">
-          <span class="badge badge-experimental">experimental</span>
-          
-        </div>
-      </div>
-      <p class="card-title">Set Hytale Cube Properties</p>
-      <p class="card-desc">Sets Hytale-specific properties on a cube: shading_mode (flat, standard, fullbright, reflective) and double_sided.</p>
-      <div class="overflow-x">
-        <table class="param-table">
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Type</th>
-          <th>Required</th>
-          <th>Description</th>
-        </tr>
-      </thead>
-      <tbody><tr>
-      <td class="col-name">cube_id</td>
-      <td class="col-type">string</td>
-      <td><span class="param-optional">optional</span></td>
-      <td class="col-desc">ID or name of the cube. If not provided, uses selected cube.</td>
-    </tr><tr>
-      <td class="col-name">shading_mode</td>
-      <td class="col-type">&quot;flat&quot; | &quot;standard&quot; | &quot;fullbright&quot; | &quot;reflective&quot;</td>
-      <td><span class="param-optional">optional</span></td>
-      <td class="col-desc">Shading mode: flat (no lighting), standard (normal), fullbright (emissive), reflective</td>
-    </tr><tr>
-      <td class="col-name">double_sided</td>
-      <td class="col-type">boolean</td>
-      <td><span class="param-optional">optional</span></td>
-      <td class="col-desc">Whether to render both sides of faces</td>
-    </tr></tbody>
-    </table>
-      </div>
-    </div>
-<div id="tool-hytale_get_cube_properties" class="card tool-card">
-      <div class="card-header">
-        <h3 class="card-name">hytale_get_cube_properties</h3>
-        <div class="card-badges">
-          <span class="badge badge-experimental">experimental</span>
-          <span class="badge badge-readonly">read-only</span>
-        </div>
-      </div>
-      <p class="card-title">Get Hytale Cube Properties</p>
-      <p class="card-desc">Gets Hytale-specific properties from a cube (shading_mode, double_sided).</p>
-      <div class="overflow-x">
-        <table class="param-table">
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Type</th>
-          <th>Required</th>
-          <th>Description</th>
-        </tr>
-      </thead>
-      <tbody><tr>
-      <td class="col-name">cube_id</td>
-      <td class="col-type">string</td>
-      <td><span class="param-optional">optional</span></td>
-      <td class="col-desc">ID or name of the cube. If not provided, uses selected cube.</td>
-    </tr></tbody>
-    </table>
-      </div>
-    </div>
-<div id="tool-hytale_create_quad" class="card tool-card">
-      <div class="card-header">
-        <h3 class="card-name">hytale_create_quad</h3>
-        <div class="card-badges">
-          <span class="badge badge-experimental">experimental</span>
-          
-        </div>
-      </div>
-      <p class="card-title">Create Hytale Quad</p>
-      <p class="card-desc">Creates a Hytale quad (2D plane) with a specified normal direction. Quads are single-face elements useful for flat surfaces.</p>
-      <div class="overflow-x">
-        <table class="param-table">
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Type</th>
-          <th>Required</th>
-          <th>Description</th>
-        </tr>
-      </thead>
-      <tbody><tr>
-      <td class="col-name">name</td>
-      <td class="col-type">string</td>
-      <td><span class="param-required">required</span></td>
-      <td class="col-desc">Name for the quad</td>
-    </tr><tr>
-      <td class="col-name">position</td>
-      <td class="col-type">number[]</td>
-      <td><span class="param-optional">optional</span></td>
-      <td class="col-desc">Position [x, y, z] <span class="param-meta">(default: <code>[0,0,0]</code>) [minItems: 3, maxItems: 3]</span></td>
-    </tr><tr>
-      <td class="col-name">normal</td>
-      <td class="col-type">&quot;+X&quot; | &quot;-X&quot; | &quot;+Y&quot; | &quot;-Y&quot; | &quot;+Z&quot; | &quot;-Z&quot;</td>
-      <td><span class="param-optional">optional</span></td>
-      <td class="col-desc">Normal direction: +X, -X, +Y, -Y, +Z, -Z <span class="param-meta">(default: <code>&quot;+Y&quot;</code>)</span></td>
-    </tr><tr>
-      <td class="col-name">size</td>
-      <td class="col-type">number[]</td>
-      <td><span class="param-optional">optional</span></td>
-      <td class="col-desc">Size [width, height]. <span class="param-meta">(default: <code>[16,16]</code>) [minItems: 2, maxItems: 2]</span></td>
-    </tr><tr>
-      <td class="col-name">group</td>
-      <td class="col-type">string</td>
-      <td><span class="param-optional">optional</span></td>
-      <td class="col-desc">Parent group/bone name</td>
-    </tr><tr>
-      <td class="col-name">double_sided</td>
-      <td class="col-type">boolean</td>
-      <td><span class="param-optional">optional</span></td>
-      <td class="col-desc">Whether to render both sides <span class="param-meta">(default: <code>true</code>)</span></td>
-    </tr></tbody>
-    </table>
-      </div>
-    </div>
-<div id="tool-hytale_list_attachments" class="card tool-card">
-      <div class="card-header">
-        <h3 class="card-name">hytale_list_attachments</h3>
-        <div class="card-badges">
-          <span class="badge badge-experimental">experimental</span>
-          <span class="badge badge-readonly">read-only</span>
-        </div>
-      </div>
-      <p class="card-title">List Hytale Attachments</p>
-      <p class="card-desc">Lists all attachment collections in the current Hytale project.</p>
-      <div class="overflow-x">
-        <p class="empty-params">No parameters</p>
-      </div>
-    </div>
-<div id="tool-hytale_set_attachment_piece" class="card tool-card">
-      <div class="card-header">
-        <h3 class="card-name">hytale_set_attachment_piece</h3>
-        <div class="card-badges">
-          <span class="badge badge-experimental">experimental</span>
-          
-        </div>
-      </div>
-      <p class="card-title">Set Attachment Piece</p>
-      <p class="card-desc">Marks or unmarks a group as an attachment piece. Attachment pieces attach to like-named bones in the main model.</p>
-      <div class="overflow-x">
-        <table class="param-table">
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Type</th>
-          <th>Required</th>
-          <th>Description</th>
-        </tr>
-      </thead>
-      <tbody><tr>
-      <td class="col-name">group_name</td>
-      <td class="col-type">string</td>
-      <td><span class="param-required">required</span></td>
-      <td class="col-desc">Name of the group to mark as attachment piece</td>
-    </tr><tr>
-      <td class="col-name">is_piece</td>
-      <td class="col-type">boolean</td>
-      <td><span class="param-required">required</span></td>
-      <td class="col-desc">Whether the group is an attachment piece</td>
-    </tr></tbody>
-    </table>
-      </div>
-    </div>
-<div id="tool-hytale_list_attachment_pieces" class="card tool-card">
-      <div class="card-header">
-        <h3 class="card-name">hytale_list_attachment_pieces</h3>
-        <div class="card-badges">
-          <span class="badge badge-experimental">experimental</span>
-          <span class="badge badge-readonly">read-only</span>
-        </div>
-      </div>
-      <p class="card-title">List Attachment Pieces</p>
-      <p class="card-desc">Lists all groups marked as attachment pieces.</p>
-      <div class="overflow-x">
-        <p class="empty-params">No parameters</p>
-      </div>
-    </div>
-<div id="tool-hytale_create_visibility_keyframe" class="card tool-card">
-      <div class="card-header">
-        <h3 class="card-name">hytale_create_visibility_keyframe</h3>
-        <div class="card-badges">
-          <span class="badge badge-experimental">experimental</span>
-          
-        </div>
-      </div>
-      <p class="card-title">Create Visibility Keyframe</p>
-      <p class="card-desc">Creates a visibility keyframe for a bone. Hytale supports toggling node visibility at keyframes.</p>
-      <div class="overflow-x">
-        <table class="param-table">
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Type</th>
-          <th>Required</th>
-          <th>Description</th>
-        </tr>
-      </thead>
-      <tbody><tr>
-      <td class="col-name">bone_name</td>
-      <td class="col-type">string</td>
-      <td><span class="param-required">required</span></td>
-      <td class="col-desc">Name of the bone/group.</td>
-    </tr><tr>
-      <td class="col-name">time</td>
-      <td class="col-type">number</td>
-      <td><span class="param-required">required</span></td>
-      <td class="col-desc">Time in seconds for the keyframe</td>
-    </tr><tr>
-      <td class="col-name">visible</td>
-      <td class="col-type">boolean</td>
-      <td><span class="param-required">required</span></td>
-      <td class="col-desc">Whether the bone is visible at this keyframe</td>
-    </tr><tr>
-      <td class="col-name">animation_id</td>
-      <td class="col-type">string</td>
-      <td><span class="param-optional">optional</span></td>
-      <td class="col-desc">Animation UUID or name. If not provided, uses current animation.</td>
-    </tr></tbody>
-    </table>
-      </div>
-    </div>
-<div id="tool-hytale_set_animation_loop" class="card tool-card">
-      <div class="card-header">
-        <h3 class="card-name">hytale_set_animation_loop</h3>
-        <div class="card-badges">
-          <span class="badge badge-experimental">experimental</span>
-          
-        </div>
-      </div>
-      <p class="card-title">Set Animation Loop Mode</p>
-      <p class="card-desc">Sets the loop mode for a Hytale animation. Hytale supports &quot;loop&quot; (continuous) or &quot;hold&quot; (freeze on last frame).</p>
-      <div class="overflow-x">
-        <table class="param-table">
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Type</th>
-          <th>Required</th>
-          <th>Description</th>
-        </tr>
-      </thead>
-      <tbody><tr>
-      <td class="col-name">animation_id</td>
-      <td class="col-type">string</td>
-      <td><span class="param-optional">optional</span></td>
-      <td class="col-desc">Animation UUID or name. If not provided, uses current animation.</td>
-    </tr><tr>
-      <td class="col-name">loop_mode</td>
-      <td class="col-type">&quot;loop&quot; | &quot;hold&quot; | &quot;once&quot;</td>
-      <td><span class="param-required">required</span></td>
-      <td class="col-desc">Loop mode: loop (continuous), hold (freeze on last frame), once (play once)</td>
-    </tr></tbody>
-    </table>
-      </div>
-    </div>
-<div id="tool-hytale_set_cube_stretch" class="card tool-card">
-      <div class="card-header">
-        <h3 class="card-name">hytale_set_cube_stretch</h3>
-        <div class="card-badges">
-          <span class="badge badge-experimental">experimental</span>
-          
-        </div>
-      </div>
-      <p class="card-title">Set Cube Stretch</p>
-      <p class="card-desc">Sets the stretch values for a cube. Hytale uses stretch instead of float sizes for better UV handling.</p>
-      <div class="overflow-x">
-        <table class="param-table">
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Type</th>
-          <th>Required</th>
-          <th>Description</th>
-        </tr>
-      </thead>
-      <tbody><tr>
-      <td class="col-name">cube_id</td>
-      <td class="col-type">string</td>
-      <td><span class="param-optional">optional</span></td>
-      <td class="col-desc">ID or name of the cube. If not provided, uses selected cube.</td>
-    </tr><tr>
-      <td class="col-name">stretch</td>
-      <td class="col-type">number[]</td>
-      <td><span class="param-required">required</span></td>
-      <td class="col-desc">Stretch values [x, y, z]. <span class="param-meta">[minItems: 3, maxItems: 3]</span></td>
-    </tr></tbody>
-    </table>
-      </div>
-    </div>
-<div id="tool-hytale_get_cube_stretch" class="card tool-card">
-      <div class="card-header">
-        <h3 class="card-name">hytale_get_cube_stretch</h3>
-        <div class="card-badges">
-          <span class="badge badge-experimental">experimental</span>
-          <span class="badge badge-readonly">read-only</span>
-        </div>
-      </div>
-      <p class="card-title">Get Cube Stretch</p>
-      <p class="card-desc">Gets the stretch values for a cube.</p>
-      <div class="overflow-x">
-        <table class="param-table">
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Type</th>
-          <th>Required</th>
-          <th>Description</th>
-        </tr>
-      </thead>
-      <tbody><tr>
-      <td class="col-name">cube_id</td>
-      <td class="col-type">string</td>
-      <td><span class="param-optional">optional</span></td>
-      <td class="col-desc">ID or name of the cube. If not provided, uses selected cube.</td>
-    </tr></tbody>
-    </table>
-      </div>
-    </div>
-        </section>
       </section>
 
       <section id="prompts" class="doc-section">
@@ -4596,63 +4293,6 @@
       <td class="col-desc">Creation approach to use.</td>
     </tr></tbody>
     </table></div>
-    </div>
-<div class="card">
-      <div class="card-header">
-        <h3 class="card-name">hytale_model_creation</h3>
-        <div class="card-badges"><span class="badge badge-experimental">experimental</span></div>
-      </div>
-      <p class="card-title">Hytale Model Creation Guide</p>
-      <p class="card-desc">Comprehensive guide for creating Hytale character and prop models. Covers format selection, node limits, shading modes, stretch, quads, and best practices.</p>
-      <div class="overflow-x"><table class="param-table">
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Type</th>
-          <th>Required</th>
-          <th>Description</th>
-        </tr>
-      </thead>
-      <tbody><tr>
-      <td class="col-name">format_type</td>
-      <td class="col-type">&quot;character&quot; | &quot;prop&quot; | &quot;both&quot;</td>
-      <td><span class="param-optional">optional</span></td>
-      <td class="col-desc">Which format type to focus on. <span class="param-meta">(default: <code>&quot;both&quot;</code>)</span></td>
-    </tr></tbody>
-    </table></div>
-    </div>
-<div class="card">
-      <div class="card-header">
-        <h3 class="card-name">hytale_animation_workflow</h3>
-        <div class="card-badges"><span class="badge badge-experimental">experimental</span></div>
-      </div>
-      <p class="card-title">Hytale Animation Workflow</p>
-      <p class="card-desc">Guide for creating animations for Hytale models. Covers 60 FPS timing, quaternion rotations, visibility keyframes, loop modes, and common animation patterns.</p>
-      <div class="overflow-x"><table class="param-table">
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Type</th>
-          <th>Required</th>
-          <th>Description</th>
-        </tr>
-      </thead>
-      <tbody><tr>
-      <td class="col-name">animation_type</td>
-      <td class="col-type">&quot;walk&quot; | &quot;idle&quot; | &quot;attack&quot; | &quot;general&quot;</td>
-      <td><span class="param-optional">optional</span></td>
-      <td class="col-desc">Type of animation to focus on. <span class="param-meta">(default: <code>&quot;general&quot;</code>)</span></td>
-    </tr></tbody>
-    </table></div>
-    </div>
-<div class="card">
-      <div class="card-header">
-        <h3 class="card-name">hytale_attachments</h3>
-        <div class="card-badges"><span class="badge badge-experimental">experimental</span></div>
-      </div>
-      <p class="card-title">Hytale Attachments System</p>
-      <p class="card-desc">Guide for creating and managing attachments in Hytale models. Covers attachment collections, piece bones, modular equipment, and best practices.</p>
-      <div class="overflow-x"><p class="empty-params">No arguments</p></div>
     </div>
       </section>
 
@@ -4722,42 +4362,10 @@
       <p class="uri-template">validator://errors</p>
       <p class="card-desc">Returns all current validation errors with element references where available.</p>
     </div>
-<div class="card">
-      <div class="card-header">
-        <h3 class="card-name">hytale-format</h3>
-      </div>
-      <p class="card-title">Hytale Format Information</p>
-      <p class="uri-template">hytale://format</p>
-      <p class="card-desc">Returns comprehensive information about the current Hytale format, including format type, block size, node limits, and feature support.</p>
-    </div>
-<div class="card">
-      <div class="card-header">
-        <h3 class="card-name">hytale-attachments</h3>
-      </div>
-      <p class="card-title">Hytale Attachments</p>
-      <p class="uri-template">hytale://attachments/{id}</p>
-      <p class="card-desc">Returns information about attachment collections. List URIs use slugified collection names (e.g. `hytale://attachments/helmet`) with `~&lt;uuid-prefix&gt;` on collision. Reads accept UUID, exact name, or slug.</p>
-    </div>
-<div class="card">
-      <div class="card-header">
-        <h3 class="card-name">hytale-pieces</h3>
-      </div>
-      <p class="card-title">Hytale Attachment Pieces</p>
-      <p class="uri-template">hytale://pieces/{id}</p>
-      <p class="card-desc">Returns groups marked as attachment pieces — they connect to like-named bones in the main model. List URIs use slugified bone names (e.g. `hytale://pieces/hand-right`) with `~&lt;uuid-prefix&gt;` on collision.</p>
-    </div>
-<div class="card">
-      <div class="card-header">
-        <h3 class="card-name">hytale-cubes</h3>
-      </div>
-      <p class="card-title">Hytale Cubes</p>
-      <p class="uri-template">hytale://cubes/{id}</p>
-      <p class="card-desc">Returns cubes with Hytale-specific properties (shading_mode, double_sided, stretch). List URIs use slugified cube names (e.g. `hytale://cubes/torso`) with `~&lt;uuid-prefix&gt;` on collision.</p>
-    </div>
       </section>
 
       <footer class="page-footer">
-        Generated 2026-05-28T09:13:09.662Z from Zod schemas
+        Generated 2026-05-28T10:34:17.621Z from Zod schemas
       </footer>
     </main>
   </div>

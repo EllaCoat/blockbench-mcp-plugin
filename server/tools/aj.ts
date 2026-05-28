@@ -3,6 +3,12 @@
 import { z } from "zod";
 import { createTool, type ToolSpec } from "@/lib/factories";
 import { STATUS_EXPERIMENTAL } from "@/lib/constants";
+import { findGroupOrThrow } from "@/lib/util";
+import {
+  animationIdOptionalSchema,
+  animationChannelEnum,
+  timeRangeSchema,
+} from "@/lib/zodObjects";
 
 /**
  * Animated Java augments the active Blockbench project with an `animated_java`
@@ -156,6 +162,79 @@ function serializeVariant(variant: AJVariant, selectedUuid?: string) {
 }
 
 // ============================================================================
+// Keyframe easing (mirrors Animated Java's src/util/easing.ts)
+// ============================================================================
+
+/**
+ * Structural view of a Blockbench Animation at runtime. blockbench-types omits
+ * the static `all`/`selected` members and the `animators` map, so this names
+ * just the fields the easing tool reads.
+ */
+interface AJAnimationRuntime {
+  uuid: string;
+  name: string;
+  animators?: Record<string, Record<string, unknown>>;
+}
+
+/**
+ * Named easing functions Animated Java understands on a keyframe's `easing`
+ * field. Easing only takes effect when the keyframe's interpolation is
+ * "linear" (the AJ panel hides the controls otherwise).
+ */
+const AJ_EASING_NAMES = [
+  "linear",
+  "step",
+  "easeInQuad",
+  "easeOutQuad",
+  "easeInOutQuad",
+  "easeInCubic",
+  "easeOutCubic",
+  "easeInOutCubic",
+  "easeInQuart",
+  "easeOutQuart",
+  "easeInOutQuart",
+  "easeInQuint",
+  "easeOutQuint",
+  "easeInOutQuint",
+  "easeInSine",
+  "easeOutSine",
+  "easeInOutSine",
+  "easeInExpo",
+  "easeOutExpo",
+  "easeInOutExpo",
+  "easeInCirc",
+  "easeOutCirc",
+  "easeInOutCirc",
+  "easeInBack",
+  "easeOutBack",
+  "easeInOutBack",
+  "easeInElastic",
+  "easeOutElastic",
+  "easeInOutElastic",
+  "easeInBounce",
+  "easeOutBounce",
+  "easeInOutBounce",
+] as const;
+
+/** Back/Elastic/Bounce (overshoot/bounciness) and step (step count) take an arg. */
+function easingHasArg(easing: string): boolean {
+  return (
+    easing.includes("Back") ||
+    easing.includes("Elastic") ||
+    easing.includes("Bounce") ||
+    easing === "step"
+  );
+}
+
+/** Default easing arg, matching AJ's getEasingArgDefault. */
+function easingArgDefault(easing: string): number | undefined {
+  if (easing.includes("Back") || easing.includes("Elastic")) return 1;
+  if (easing.includes("Bounce")) return 0.25;
+  if (easing === "step") return 5;
+  return undefined;
+}
+
+// ============================================================================
 // Parameter schemas
 // ============================================================================
 
@@ -222,6 +301,39 @@ export const variantApplyParameters = z.object({
 export const exportParameters = z.object({});
 
 export const animIdMappingParameters = z.object({});
+
+export const keyframeSetEasingParameters = z.object({
+  easing: z
+    .enum(AJ_EASING_NAMES)
+    .describe(
+      "Named easing function to apply to the keyframe `easing` field (e.g. easeInOutSine). " +
+        "Only affects keyframes whose interpolation is 'linear' — non-linear keyframes are " +
+        "skipped, mirroring the Animated Java panel. Use 'linear' to clear easing."
+    ),
+  easing_arg: z
+    .number()
+    .optional()
+    .describe(
+      "Optional easing argument. Only used by Back/Elastic (overshoot), Bounce (bounciness) and " +
+        "step (number of steps). Defaults when omitted: Back/Elastic=1, Bounce=0.25, step=5. " +
+        "Ignored for easings that take no argument."
+    ),
+  animation_id: animationIdOptionalSchema,
+  bone_name: z
+    .string()
+    .optional()
+    .describe(
+      "Restrict to this bone/group's keyframes. If omitted, applies across all bones in the animation."
+    ),
+  channel: animationChannelEnum
+    .optional()
+    .describe("Restrict to this channel (rotation/position/scale). If omitted, applies to all channels."),
+  keyframe_range: timeRangeSchema
+    .optional()
+    .describe(
+      "Restrict to keyframes within this time range (seconds, inclusive). If omitted, applies to all keyframes."
+    ),
+});
 
 // ============================================================================
 // Tool docs
@@ -371,6 +483,20 @@ export const ajToolDocs: ToolSpec[] = [
       readOnlyHint: true,
     },
     parameters: animIdMappingParameters,
+    status: STATUS_EXPERIMENTAL,
+  },
+  {
+    name: "aj_keyframe_set_easing",
+    description:
+      "Sets the named easing (e.g. easeInOutSine) on an animation's keyframes in bulk. Easing only " +
+      "applies to keyframes whose interpolation is 'linear'; non-linear keyframes are skipped and " +
+      "reported. Optionally narrow the target set by bone_name, channel, and/or keyframe_range; " +
+      "by default it covers every linear keyframe in the animation. Pass 'linear' to clear easing. " +
+      "Back/Elastic/Bounce/step easings accept easing_arg. Requires an Animated Java Blueprint project.",
+    annotations: {
+      title: "AJ: Set Keyframe Easing",
+    },
+    parameters: keyframeSetEasingParameters,
     status: STATUS_EXPERIMENTAL,
   },
 ];
@@ -669,5 +795,121 @@ export function registerAJTools() {
       },
     },
     ajToolDocs[10].status
+  );
+
+  createTool(
+    ajToolDocs[11].name,
+    {
+      ...ajToolDocs[11],
+      async execute({
+        easing,
+        easing_arg,
+        animation_id,
+        bone_name,
+        channel,
+        keyframe_range,
+      }: {
+        easing: string;
+        easing_arg?: number;
+        animation_id?: string;
+        bone_name?: string;
+        channel?: string;
+        keyframe_range?: { start: number; end: number };
+      }) {
+        getAJProject();
+
+        const AnimationRef = Animation as unknown as {
+          all: AJAnimationRuntime[];
+          selected?: AJAnimationRuntime;
+        };
+        const animation = animation_id
+          ? AnimationRef.all.find(
+              (a) => a.uuid === animation_id || a.name === animation_id
+            )
+          : AnimationRef.selected;
+        if (!animation) {
+          throw new Error(
+            "No animation found or selected. Pass animation_id, or select an animation in Blockbench."
+          );
+        }
+
+        const groupFilter = bone_name ? findGroupOrThrow(bone_name).uuid : undefined;
+        const channels = channel ? [channel] : ["rotation", "position", "scale"];
+
+        const needsArg = easingHasArg(easing);
+        const argValue = needsArg ? easing_arg ?? easingArgDefault(easing) : undefined;
+
+        const animators = animation.animators ?? {};
+
+        const targets: Array<{ easing?: string; easingArgs?: number[] }> = [];
+        let skippedNonLinear = 0;
+
+        for (const [uuid, animator] of Object.entries(animators)) {
+          if (groupFilter && uuid !== groupFilter) continue;
+          for (const ch of channels) {
+            const arr = animator[ch];
+            if (!Array.isArray(arr)) continue;
+            for (const kf of arr as Array<{
+              time: number;
+              interpolation?: string;
+              easing?: string;
+              easingArgs?: number[];
+            }>) {
+              if (
+                keyframe_range &&
+                (kf.time < keyframe_range.start || kf.time > keyframe_range.end)
+              ) {
+                continue;
+              }
+              if (kf.interpolation !== "linear") {
+                skippedNonLinear++;
+                continue;
+              }
+              targets.push(kf);
+            }
+          }
+        }
+
+        const skipNote =
+          skippedNonLinear > 0
+            ? ` Skipped ${skippedNonLinear} non-linear keyframe(s) (easing only applies to linear interpolation).`
+            : "";
+
+        if (targets.length === 0) {
+          return (
+            `No matching linear keyframes found in animation "${animation.name}".${skipNote} ` +
+            "Easing only applies to keyframes with 'linear' interpolation; relax the " +
+            "bone_name/channel/keyframe_range filters or switch the keyframes to linear first."
+          );
+        }
+
+        Undo.initEdit({
+          animations: [animation] as unknown as _Animation[],
+          keyframes: targets as unknown as _Keyframe[],
+        });
+
+        for (const kf of targets) {
+          if (easing === "linear") {
+            kf.easing = "linear";
+            delete kf.easingArgs;
+          } else {
+            kf.easing = easing;
+            if (argValue !== undefined && !Number.isNaN(argValue)) {
+              kf.easingArgs = [argValue];
+            } else {
+              delete kf.easingArgs;
+            }
+          }
+        }
+
+        Undo.finishEdit("Set keyframe easing");
+        Animator.preview();
+        markUnsaved();
+
+        const argNote = needsArg && argValue !== undefined ? ` (arg ${argValue})` : "";
+        return `Set easing "${easing}"${argNote} on ${targets.length} keyframe(s) in animation "${animation.name}".${skipNote}`;
+      },
+    },
+    ajToolDocs[11].status
   );
 }
