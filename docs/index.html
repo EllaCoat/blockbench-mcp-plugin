@@ -18,14 +18,14 @@
 
       <div class="nav-group">
         <p class="nav-heading">Overview</p>
-        <a href="#tools" class="nav-link">Tools <span class="count">(115)</span></a>
+        <a href="#tools" class="nav-link">Tools <span class="count">(117)</span></a>
         <a href="#prompts" class="nav-link">Prompts <span class="count">(6)</span></a>
         <a href="#resources" class="nav-link">Resources <span class="count">(12)</span></a>
       </div>
 
       <div class="nav-group">
         <p class="nav-heading">Categories</p>
-        <a href="#cat-animated-java" class="nav-link">Animated Java <span class="count">(9)</span></a>
+        <a href="#cat-animated-java" class="nav-link">Animated Java <span class="count">(11)</span></a>
         <a href="#cat-cubes" class="nav-link">Cubes <span class="count">(2)</span></a>
         <a href="#cat-camera-screenshots" class="nav-link">Camera &amp; Screenshots <span class="count">(3)</span></a>
         <a href="#cat-animation" class="nav-link">Animation <span class="count">(7)</span></a>
@@ -50,7 +50,7 @@
         <h1>Blockbench MCP Plugin</h1>
         <p class="subtitle">API Reference — v1.6.0</p>
         <nav class="stats">
-          <a href="#tools"><strong>115</strong> tools (39 stable, 76 experimental)</a>
+          <a href="#tools"><strong>117</strong> tools (39 stable, 78 experimental)</a>
           <a href="#prompts"><strong>6</strong> prompts</a>
           <a href="#resources"><strong>12</strong> resources</a>
         </nav>
@@ -308,6 +308,34 @@
       <td class="col-desc">Target variant: UUID, internal name, or display name.</td>
     </tr></tbody>
     </table>
+      </div>
+    </div>
+<div id="tool-aj_export" class="card tool-card">
+      <div class="card-header">
+        <h3 class="card-name">aj_export</h3>
+        <div class="card-badges">
+          <span class="badge badge-experimental">experimental</span>
+          <span class="badge badge-openworld">open-world</span>
+        </div>
+      </div>
+      <p class="card-title">AJ: Export</p>
+      <p class="card-desc">Exports the active Animated Java Blueprint using its configured export settings (data pack / resource pack paths and modes). This overwrites the existing output at those paths and may show progress or error dialogs in Blockbench. Returns whether the export completed. Requires an Animated Java Blueprint project to be open.</p>
+      <div class="overflow-x">
+        <p class="empty-params">No parameters</p>
+      </div>
+    </div>
+<div id="tool-aj_anim_id_mapping" class="card tool-card">
+      <div class="card-header">
+        <h3 class="card-name">aj_anim_id_mapping</h3>
+        <div class="card-badges">
+          <span class="badge badge-experimental">experimental</span>
+          <span class="badge badge-readonly">read-only</span>
+        </div>
+      </div>
+      <p class="card-title">AJ: Animation ID Mapping</p>
+      <p class="card-desc">Returns the animation id ↔ name mapping used by TSB Optimized Export. Each entry is { id, name, storage_name, loop_mode, length }, where id is the animation's index in the project's animation list (the value stored in the `&lt;bp&gt;.current_anim` scoreboard, with -1 meaning stopped) and storage_name is the sanitized name used as the storage path key. Useful for debugging exported datapacks. Requires an Animated Java Blueprint project to be open.</p>
+      <div class="overflow-x">
+        <p class="empty-params">No parameters</p>
       </div>
     </div>
         </section>
@@ -4729,7 +4757,7 @@
       </section>
 
       <footer class="page-footer">
-        Generated 2026-05-28T09:06:49.847Z from Zod schemas
+        Generated 2026-05-28T09:13:09.662Z from Zod schemas
       </footer>
     </main>
   </div>

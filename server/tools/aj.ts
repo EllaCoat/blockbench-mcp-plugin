@@ -9,9 +9,21 @@ import { STATUS_EXPERIMENTAL } from "@/lib/constants";
  * object holding all Blueprint Settings as a flat record. Only AJ Blueprint
  * projects carry it, so its presence is used to gate these tools.
  */
+interface AJAnimationLike {
+  name: string;
+  loop?: string;
+  length?: number;
+}
+
 interface AJBlueprintProject {
   animated_java?: Record<string, unknown>;
   saved?: boolean;
+  animations?: AJAnimationLike[];
+}
+
+interface AnimatedJavaApiLike {
+  Variant?: unknown;
+  exportProject?: (options?: unknown) => Promise<boolean>;
 }
 
 type SettingValue = string | number | boolean | number[];
@@ -49,6 +61,23 @@ function typeName(value: unknown): string {
   return Array.isArray(value) ? "array" : typeof value;
 }
 
+/** Mirror of Animated Java's sanitizeStorageKey (src/util/minecraftUtil.ts). */
+function sanitizeStorageKey(str: string): string {
+  return str.toLowerCase().replace(/[^a-z0-9_]+/g, "_");
+}
+
+function getAJApi(): AnimatedJavaApiLike {
+  getAJProject();
+  const api = (globalThis as { AnimatedJava?: AnimatedJavaApiLike }).AnimatedJava;
+  if (!api) {
+    throw new Error(
+      "The Animated Java API (window.AnimatedJava) is not available. " +
+        "Ensure the Animated Java plugin is loaded."
+    );
+  }
+  return api;
+}
+
 // ============================================================================
 // Animated Java Variant access (via window.AnimatedJava.Variant)
 // ============================================================================
@@ -77,12 +106,10 @@ interface AJVariantConstructor {
 }
 
 function getVariantClass(): AJVariantConstructor {
-  getAJProject();
-  const api = (globalThis as { AnimatedJava?: { Variant?: unknown } }).AnimatedJava;
-  if (!api?.Variant) {
+  const api = getAJApi();
+  if (!api.Variant) {
     throw new Error(
-      "The Animated Java API (window.AnimatedJava.Variant) is not available. " +
-        "Ensure the Animated Java plugin is loaded."
+      "window.AnimatedJava.Variant is not available. Ensure the Animated Java plugin is loaded."
     );
   }
   return api.Variant as AJVariantConstructor;
@@ -180,6 +207,10 @@ export const variantDeleteParameters = z.object({
 export const variantApplyParameters = z.object({
   variant: variantRefSchema,
 });
+
+export const exportParameters = z.object({});
+
+export const animIdMappingParameters = z.object({});
 
 // ============================================================================
 // Tool docs
@@ -300,6 +331,35 @@ export const ajToolDocs: ToolSpec[] = [
       title: "AJ: Apply Variant",
     },
     parameters: variantApplyParameters,
+    status: STATUS_EXPERIMENTAL,
+  },
+  {
+    name: "aj_export",
+    description:
+      "Exports the active Animated Java Blueprint using its configured export settings (data pack / " +
+      "resource pack paths and modes). This overwrites the existing output at those paths and may " +
+      "show progress or error dialogs in Blockbench. Returns whether the export completed. Requires " +
+      "an Animated Java Blueprint project to be open.",
+    annotations: {
+      title: "AJ: Export",
+      openWorldHint: true,
+    },
+    parameters: exportParameters,
+    status: STATUS_EXPERIMENTAL,
+  },
+  {
+    name: "aj_anim_id_mapping",
+    description:
+      "Returns the animation id ↔ name mapping used by TSB Optimized Export. Each entry is " +
+      "{ id, name, storage_name, loop_mode, length }, where id is the animation's index in the " +
+      "project's animation list (the value stored in the `<bp>.current_anim` scoreboard, with -1 " +
+      "meaning stopped) and storage_name is the sanitized name used as the storage path key. Useful " +
+      "for debugging exported datapacks. Requires an Animated Java Blueprint project to be open.",
+    annotations: {
+      title: "AJ: Animation ID Mapping",
+      readOnlyHint: true,
+    },
+    parameters: animIdMappingParameters,
     status: STATUS_EXPERIMENTAL,
   },
 ];
@@ -545,5 +605,50 @@ export function registerAJTools() {
       },
     },
     ajToolDocs[8].status
+  );
+
+  createTool(
+    ajToolDocs[9].name,
+    {
+      ...ajToolDocs[9],
+      async execute() {
+        const api = getAJApi();
+        if (typeof api.exportProject !== "function") {
+          throw new Error("window.AnimatedJava.exportProject is not available.");
+        }
+
+        const ok = await api.exportProject();
+        if (!ok) {
+          return (
+            "Export did not complete: it was cancelled or failed validation. " +
+            "Check Blockbench for an error dialog (e.g. missing data pack path or invalid " +
+            "blueprint settings)."
+          );
+        }
+        return "Export completed using the project's configured export settings.";
+      },
+    },
+    ajToolDocs[9].status
+  );
+
+  createTool(
+    ajToolDocs[10].name,
+    {
+      ...ajToolDocs[10],
+      async execute() {
+        const proj = getAJProject();
+        const animations = proj.animations ?? [];
+        const mapping = animations.map((a, i) => ({
+          id: i,
+          name: a.name,
+          storage_name: sanitizeStorageKey(a.name),
+          loop_mode: a.loop ?? null,
+          length: a.length ?? null,
+        }));
+
+        return JSON.stringify({ count: mapping.length, animations: mapping }, null, 2);
+      },
+    },
+    ajToolDocs[10].status
   );
 }

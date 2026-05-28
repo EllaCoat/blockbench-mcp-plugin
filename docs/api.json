@@ -1,6 +1,6 @@
 {
   "version": "1.6.0",
-  "generatedAt": "2026-05-28T09:06:49.847Z",
+  "generatedAt": "2026-05-28T09:13:09.662Z",
   "tools": [
     {
       "name": "aj_blueprint_settings_get",
@@ -264,6 +264,48 @@
             "required": [
               "variant"
             ],
+            "additionalProperties": false
+          }
+        },
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    },
+    {
+      "name": "aj_export",
+      "title": "AJ: Export",
+      "description": "Exports the active Animated Java Blueprint using its configured export settings (data pack / resource pack paths and modes). This overwrites the existing output at those paths and may show progress or error dialogs in Blockbench. Returns whether the export completed. Requires an Animated Java Blueprint project to be open.",
+      "status": "experimental",
+      "category": "Animated Java",
+      "annotations": {
+        "openWorldHint": true
+      },
+      "parameters": {
+        "$ref": "#/definitions/aj_export",
+        "definitions": {
+          "aj_export": {
+            "type": "object",
+            "properties": {},
+            "additionalProperties": false
+          }
+        },
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    },
+    {
+      "name": "aj_anim_id_mapping",
+      "title": "AJ: Animation ID Mapping",
+      "description": "Returns the animation id ↔ name mapping used by TSB Optimized Export. Each entry is { id, name, storage_name, loop_mode, length }, where id is the animation's index in the project's animation list (the value stored in the `<bp>.current_anim` scoreboard, with -1 meaning stopped) and storage_name is the sanitized name used as the storage path key. Useful for debugging exported datapacks. Requires an Animated Java Blueprint project to be open.",
+      "status": "experimental",
+      "category": "Animated Java",
+      "annotations": {
+        "readOnlyHint": true
+      },
+      "parameters": {
+        "$ref": "#/definitions/aj_anim_id_mapping",
+        "definitions": {
+          "aj_anim_id_mapping": {
+            "type": "object",
+            "properties": {},
             "additionalProperties": false
           }
         },
