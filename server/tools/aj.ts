@@ -41,8 +41,84 @@ function getAJSettings(): Record<string, unknown> {
   return getAJProject().animated_java as Record<string, unknown>;
 }
 
+function markUnsaved(): void {
+  (Project as unknown as AJBlueprintProject).saved = false;
+}
+
+function typeName(value: unknown): string {
+  return Array.isArray(value) ? "array" : typeof value;
+}
+
 // ============================================================================
-// Blueprint Settings
+// Animated Java Variant access (via window.AnimatedJava.Variant)
+// ============================================================================
+
+interface AJVariant {
+  id: number;
+  name: string;
+  displayName: string;
+  uuid: string;
+  isDefault: boolean;
+  generateNameFromDisplayName: boolean;
+  textureMap: { toJSON?: () => Record<string, string> };
+  excludedNodes: Array<{ name?: string; value: string }>;
+  select(): void;
+  delete(): void;
+  duplicate(): void;
+}
+
+interface AJVariantConstructor {
+  new (displayName: string, isDefault?: boolean): AJVariant;
+  all: AJVariant[];
+  selected?: AJVariant;
+  getByUUID(uuid: string): AJVariant | undefined;
+  makeDisplayNameUnique(variant: AJVariant, displayName: string): string;
+  makeNameUnique(variant: AJVariant, name: string): string;
+}
+
+function getVariantClass(): AJVariantConstructor {
+  getAJProject();
+  const api = (globalThis as { AnimatedJava?: { Variant?: unknown } }).AnimatedJava;
+  if (!api?.Variant) {
+    throw new Error(
+      "The Animated Java API (window.AnimatedJava.Variant) is not available. " +
+        "Ensure the Animated Java plugin is loaded."
+    );
+  }
+  return api.Variant as AJVariantConstructor;
+}
+
+function findVariantOrThrow(Variant: AJVariantConstructor, idOrName: string): AJVariant {
+  const variant =
+    Variant.all.find(
+      (v) => v.uuid === idOrName || v.name === idOrName || v.displayName === idOrName
+    ) ?? Variant.all.find((v) => v.uuid.startsWith(idOrName));
+  if (!variant) {
+    throw new Error(
+      `Variant not found: "${idOrName}". Use aj_variant_list to see available variants.`
+    );
+  }
+  return variant;
+}
+
+function serializeVariant(variant: AJVariant, selectedUuid?: string) {
+  return {
+    uuid: variant.uuid,
+    name: variant.name,
+    display_name: variant.displayName,
+    is_default: variant.isDefault,
+    selected: variant.uuid === selectedUuid,
+    texture_map:
+      typeof variant.textureMap?.toJSON === "function" ? variant.textureMap.toJSON() : {},
+    excluded_nodes: (variant.excludedNodes ?? []).map((n) => ({
+      name: n.name,
+      uuid: n.value,
+    })),
+  };
+}
+
+// ============================================================================
+// Parameter schemas
 // ============================================================================
 
 export const blueprintSettingsGetParameters = z.object({});
@@ -63,10 +139,6 @@ export const blueprintSettingsSetParameters = z.object({
     ),
 });
 
-// ============================================================================
-// Rig Tree
-// ============================================================================
-
 export const rigTreeParameters = z.object({
   include_geometry: z
     .boolean()
@@ -77,6 +149,41 @@ export const rigTreeParameters = z.object({
         "returning a bone/locator/armature skeleton only."
     ),
 });
+
+export const variantListParameters = z.object({});
+
+export const variantCreateParameters = z.object({
+  display_name: z
+    .string()
+    .describe("Display name for the new variant. Made unique automatically if it collides."),
+});
+
+const variantRefSchema = z
+  .string()
+  .describe("Target variant: UUID, internal name, or display name.");
+
+export const variantDuplicateParameters = z.object({
+  variant: variantRefSchema,
+});
+
+export const variantUpdateParameters = z.object({
+  variant: variantRefSchema,
+  display_name: z
+    .string()
+    .describe("New display name. The internal name is regenerated to match (made unique)."),
+});
+
+export const variantDeleteParameters = z.object({
+  variant: variantRefSchema,
+});
+
+export const variantApplyParameters = z.object({
+  variant: variantRefSchema,
+});
+
+// ============================================================================
+// Tool docs
+// ============================================================================
 
 export const ajToolDocs: ToolSpec[] = [
   {
@@ -122,11 +229,84 @@ export const ajToolDocs: ToolSpec[] = [
     parameters: rigTreeParameters,
     status: STATUS_EXPERIMENTAL,
   },
+  {
+    name: "aj_variant_list",
+    description:
+      "Lists all variants of the active Animated Java Blueprint. Each entry reports uuid, name, " +
+      "display_name, is_default, selected, texture_map (source→replacement texture UUIDs), and " +
+      "excluded_nodes. Use this to discover variant identifiers for the other aj_variant_* tools.",
+    annotations: {
+      title: "AJ: List Variants",
+      readOnlyHint: true,
+    },
+    parameters: variantListParameters,
+    status: STATUS_EXPERIMENTAL,
+  },
+  {
+    name: "aj_variant_create",
+    description:
+      "Creates a new (empty) variant with the given display name. The internal name and display " +
+      "name are made unique automatically. The new variant has no texture overrides yet — use the " +
+      "Blockbench UI or aj_variant_duplicate to populate its texture map. Marks the project unsaved.",
+    annotations: {
+      title: "AJ: Create Variant",
+    },
+    parameters: variantCreateParameters,
+    status: STATUS_EXPERIMENTAL,
+  },
+  {
+    name: "aj_variant_duplicate",
+    description:
+      "Duplicates an existing variant (copying its texture map and excluded nodes) and selects the " +
+      "copy. Identify the source by UUID, name, or display name. Marks the project unsaved. " +
+      "Use aj_variant_update afterwards to rename the copy.",
+    annotations: {
+      title: "AJ: Duplicate Variant",
+    },
+    parameters: variantDuplicateParameters,
+    status: STATUS_EXPERIMENTAL,
+  },
+  {
+    name: "aj_variant_update",
+    description:
+      "Renames a variant. Sets a new display_name (made unique) and regenerates the internal name " +
+      "to match. The default variant cannot be renamed. Marks the project unsaved. Note: the " +
+      "variants panel may need to be reopened to reflect the new name.",
+    annotations: {
+      title: "AJ: Update Variant",
+    },
+    parameters: variantUpdateParameters,
+    status: STATUS_EXPERIMENTAL,
+  },
+  {
+    name: "aj_variant_delete",
+    description:
+      "Deletes a variant by UUID, name, or display name. The default variant cannot be deleted. " +
+      "If the deleted variant was selected, the default variant becomes selected. Marks the " +
+      "project unsaved.",
+    annotations: {
+      title: "AJ: Delete Variant",
+      destructiveHint: true,
+    },
+    parameters: variantDeleteParameters,
+    status: STATUS_EXPERIMENTAL,
+  },
+  {
+    name: "aj_variant_apply",
+    description:
+      "Applies (selects) a variant by UUID, name, or display name so its texture overrides are " +
+      "shown in the editor viewport. This is the editor preview selection, not an export action.",
+    annotations: {
+      title: "AJ: Apply Variant",
+    },
+    parameters: variantApplyParameters,
+    status: STATUS_EXPERIMENTAL,
+  },
 ];
 
-function typeName(value: unknown): string {
-  return Array.isArray(value) ? "array" : typeof value;
-}
+// ============================================================================
+// Rig tree traversal
+// ============================================================================
 
 /**
  * Minimal structural view of a Blockbench OutlinerNode. Avoids importing
@@ -187,6 +367,10 @@ function serializeRigNode(input: unknown, includeGeometry: boolean): RigNode | n
   return node;
 }
 
+// ============================================================================
+// Registration
+// ============================================================================
+
 export function registerAJTools() {
   createTool(
     ajToolDocs[0].name,
@@ -224,7 +408,7 @@ export function registerAJTools() {
         }
 
         settings[key] = value;
-        (Project as unknown as AJBlueprintProject).saved = false;
+        markUnsaved();
 
         return `Set "${key}" from ${JSON.stringify(current)} to ${JSON.stringify(value)}.`;
       },
@@ -255,5 +439,111 @@ export function registerAJTools() {
       },
     },
     ajToolDocs[2].status
+  );
+
+  createTool(
+    ajToolDocs[3].name,
+    {
+      ...ajToolDocs[3],
+      async execute() {
+        const Variant = getVariantClass();
+        const selectedUuid = Variant.selected?.uuid;
+        const variants = Variant.all.map((v) => serializeVariant(v, selectedUuid));
+        return JSON.stringify({ count: variants.length, variants }, null, 2);
+      },
+    },
+    ajToolDocs[3].status
+  );
+
+  createTool(
+    ajToolDocs[4].name,
+    {
+      ...ajToolDocs[4],
+      async execute({ display_name }: { display_name: string }) {
+        const Variant = getVariantClass();
+        const variant = new Variant(display_name);
+        markUnsaved();
+        return `Created variant ${JSON.stringify(serializeVariant(variant))}.`;
+      },
+    },
+    ajToolDocs[4].status
+  );
+
+  createTool(
+    ajToolDocs[5].name,
+    {
+      ...ajToolDocs[5],
+      async execute({ variant }: { variant: string }) {
+        const Variant = getVariantClass();
+        const source = findVariantOrThrow(Variant, variant);
+        source.duplicate();
+        markUnsaved();
+        const copy = Variant.selected;
+        return copy
+          ? `Duplicated "${source.displayName}" into ${JSON.stringify(serializeVariant(copy))}.`
+          : `Duplicated "${source.displayName}".`;
+      },
+    },
+    ajToolDocs[5].status
+  );
+
+  createTool(
+    ajToolDocs[6].name,
+    {
+      ...ajToolDocs[6],
+      async execute({ variant, display_name }: { variant: string; display_name: string }) {
+        const Variant = getVariantClass();
+        const target = findVariantOrThrow(Variant, variant);
+        if (target.isDefault) {
+          throw new Error("The default variant cannot be renamed.");
+        }
+
+        const oldName = target.displayName;
+        target.displayName = Variant.makeDisplayNameUnique(target, display_name);
+        if (target.generateNameFromDisplayName) {
+          target.name = Variant.makeNameUnique(target, target.displayName);
+        }
+        target.select();
+        markUnsaved();
+
+        return `Renamed variant "${oldName}" to ${JSON.stringify(serializeVariant(target))}.`;
+      },
+    },
+    ajToolDocs[6].status
+  );
+
+  createTool(
+    ajToolDocs[7].name,
+    {
+      ...ajToolDocs[7],
+      async execute({ variant }: { variant: string }) {
+        const Variant = getVariantClass();
+        const target = findVariantOrThrow(Variant, variant);
+        if (target.isDefault) {
+          throw new Error("The default variant cannot be deleted.");
+        }
+
+        const { displayName, uuid } = target;
+        target.delete();
+        markUnsaved();
+
+        return `Deleted variant "${displayName}" (${uuid}).`;
+      },
+    },
+    ajToolDocs[7].status
+  );
+
+  createTool(
+    ajToolDocs[8].name,
+    {
+      ...ajToolDocs[8],
+      async execute({ variant }: { variant: string }) {
+        const Variant = getVariantClass();
+        const target = findVariantOrThrow(Variant, variant);
+        target.select();
+        return `Applied variant "${target.displayName}" (${target.uuid}).`;
+      },
+    },
+    ajToolDocs[8].status
   );
 }

@@ -1,6 +1,6 @@
 {
   "version": "1.6.0",
-  "generatedAt": "2026-05-28T08:59:11.661Z",
+  "generatedAt": "2026-05-28T09:06:49.847Z",
   "tools": [
     {
       "name": "aj_blueprint_settings_get",
@@ -95,6 +95,175 @@
                 "markdownDescription": "Include cube and mesh leaves under each bone. Defaults to false, returning a bone/locator/armature skeleton only."
               }
             },
+            "additionalProperties": false
+          }
+        },
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    },
+    {
+      "name": "aj_variant_list",
+      "title": "AJ: List Variants",
+      "description": "Lists all variants of the active Animated Java Blueprint. Each entry reports uuid, name, display_name, is_default, selected, texture_map (source→replacement texture UUIDs), and excluded_nodes. Use this to discover variant identifiers for the other aj_variant_* tools.",
+      "status": "experimental",
+      "category": "Animated Java",
+      "annotations": {
+        "readOnlyHint": true
+      },
+      "parameters": {
+        "$ref": "#/definitions/aj_variant_list",
+        "definitions": {
+          "aj_variant_list": {
+            "type": "object",
+            "properties": {},
+            "additionalProperties": false
+          }
+        },
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    },
+    {
+      "name": "aj_variant_create",
+      "title": "AJ: Create Variant",
+      "description": "Creates a new (empty) variant with the given display name. The internal name and display name are made unique automatically. The new variant has no texture overrides yet — use the Blockbench UI or aj_variant_duplicate to populate its texture map. Marks the project unsaved.",
+      "status": "experimental",
+      "category": "Animated Java",
+      "annotations": {},
+      "parameters": {
+        "$ref": "#/definitions/aj_variant_create",
+        "definitions": {
+          "aj_variant_create": {
+            "type": "object",
+            "properties": {
+              "display_name": {
+                "type": "string",
+                "description": "Display name for the new variant. Made unique automatically if it collides.",
+                "markdownDescription": "Display name for the new variant. Made unique automatically if it collides."
+              }
+            },
+            "required": [
+              "display_name"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    },
+    {
+      "name": "aj_variant_duplicate",
+      "title": "AJ: Duplicate Variant",
+      "description": "Duplicates an existing variant (copying its texture map and excluded nodes) and selects the copy. Identify the source by UUID, name, or display name. Marks the project unsaved. Use aj_variant_update afterwards to rename the copy.",
+      "status": "experimental",
+      "category": "Animated Java",
+      "annotations": {},
+      "parameters": {
+        "$ref": "#/definitions/aj_variant_duplicate",
+        "definitions": {
+          "aj_variant_duplicate": {
+            "type": "object",
+            "properties": {
+              "variant": {
+                "type": "string",
+                "description": "Target variant: UUID, internal name, or display name.",
+                "markdownDescription": "Target variant: UUID, internal name, or display name."
+              }
+            },
+            "required": [
+              "variant"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    },
+    {
+      "name": "aj_variant_update",
+      "title": "AJ: Update Variant",
+      "description": "Renames a variant. Sets a new display_name (made unique) and regenerates the internal name to match. The default variant cannot be renamed. Marks the project unsaved. Note: the variants panel may need to be reopened to reflect the new name.",
+      "status": "experimental",
+      "category": "Animated Java",
+      "annotations": {},
+      "parameters": {
+        "$ref": "#/definitions/aj_variant_update",
+        "definitions": {
+          "aj_variant_update": {
+            "type": "object",
+            "properties": {
+              "variant": {
+                "type": "string",
+                "description": "Target variant: UUID, internal name, or display name.",
+                "markdownDescription": "Target variant: UUID, internal name, or display name."
+              },
+              "display_name": {
+                "type": "string",
+                "description": "New display name. The internal name is regenerated to match (made unique).",
+                "markdownDescription": "New display name. The internal name is regenerated to match (made unique)."
+              }
+            },
+            "required": [
+              "variant",
+              "display_name"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    },
+    {
+      "name": "aj_variant_delete",
+      "title": "AJ: Delete Variant",
+      "description": "Deletes a variant by UUID, name, or display name. The default variant cannot be deleted. If the deleted variant was selected, the default variant becomes selected. Marks the project unsaved.",
+      "status": "experimental",
+      "category": "Animated Java",
+      "annotations": {
+        "destructiveHint": true
+      },
+      "parameters": {
+        "$ref": "#/definitions/aj_variant_delete",
+        "definitions": {
+          "aj_variant_delete": {
+            "type": "object",
+            "properties": {
+              "variant": {
+                "type": "string",
+                "description": "Target variant: UUID, internal name, or display name.",
+                "markdownDescription": "Target variant: UUID, internal name, or display name."
+              }
+            },
+            "required": [
+              "variant"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    },
+    {
+      "name": "aj_variant_apply",
+      "title": "AJ: Apply Variant",
+      "description": "Applies (selects) a variant by UUID, name, or display name so its texture overrides are shown in the editor viewport. This is the editor preview selection, not an export action.",
+      "status": "experimental",
+      "category": "Animated Java",
+      "annotations": {},
+      "parameters": {
+        "$ref": "#/definitions/aj_variant_apply",
+        "definitions": {
+          "aj_variant_apply": {
+            "type": "object",
+            "properties": {
+              "variant": {
+                "type": "string",
+                "description": "Target variant: UUID, internal name, or display name.",
+                "markdownDescription": "Target variant: UUID, internal name, or display name."
+              }
+            },
+            "required": [
+              "variant"
+            ],
             "additionalProperties": false
           }
         },
