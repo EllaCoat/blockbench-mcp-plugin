@@ -18,15 +18,15 @@ type SettingValue = string | number | boolean | number[];
 
 const AJ_FORMAT_ID = "animated_java:format/blueprint";
 
-function getAJSettings(): Record<string, unknown> {
+function getAJProject(): AJBlueprintProject {
   if (!Project) {
     throw new Error(
       "No project is open. Open or create an Animated Java Blueprint first."
     );
   }
 
-  const settings = (Project as unknown as AJBlueprintProject).animated_java;
-  if (!settings) {
+  const proj = Project as unknown as AJBlueprintProject;
+  if (!proj.animated_java) {
     const formatId = (Format as { id?: string } | undefined)?.id ?? "unknown";
     throw new Error(
       `The active project is not an Animated Java Blueprint (format: ${formatId}). ` +
@@ -34,8 +34,16 @@ function getAJSettings(): Record<string, unknown> {
     );
   }
 
-  return settings;
+  return proj;
 }
+
+function getAJSettings(): Record<string, unknown> {
+  return getAJProject().animated_java as Record<string, unknown>;
+}
+
+// ============================================================================
+// Blueprint Settings
+// ============================================================================
 
 export const blueprintSettingsGetParameters = z.object({});
 
@@ -52,6 +60,21 @@ export const blueprintSettingsSetParameters = z.object({
     .describe(
       "New value. Its type must match the existing value's type " +
         "(boolean/number/string, or a number array for vector settings like render_box)."
+    ),
+});
+
+// ============================================================================
+// Rig Tree
+// ============================================================================
+
+export const rigTreeParameters = z.object({
+  include_geometry: z
+    .boolean()
+    .optional()
+    .default(false)
+    .describe(
+      "Include cube and mesh leaves under each bone. Defaults to false, " +
+        "returning a bone/locator/armature skeleton only."
     ),
 });
 
@@ -83,10 +106,85 @@ export const ajToolDocs: ToolSpec[] = [
     parameters: blueprintSettingsSetParameters,
     status: STATUS_EXPERIMENTAL,
   },
+  {
+    name: "aj_rig_tree",
+    description:
+      "Returns the active Animated Java Blueprint's rig as a single hierarchical JSON tree, " +
+      "unifying regular bones (groups) and Armature bones — which Blockbench otherwise exposes " +
+      "through separate windows (list_outline vs list_armatures). Each node reports " +
+      "{ name, uuid, type, children? } plus type-specific fields (armature bones add origin/rotation/" +
+      "length/connected; locators and null objects add position). Geometry (cubes/meshes) is omitted " +
+      "unless include_geometry is true. Requires an Animated Java Blueprint project to be open.",
+    annotations: {
+      title: "AJ: Rig Tree",
+      readOnlyHint: true,
+    },
+    parameters: rigTreeParameters,
+    status: STATUS_EXPERIMENTAL,
+  },
 ];
 
 function typeName(value: unknown): string {
   return Array.isArray(value) ? "array" : typeof value;
+}
+
+/**
+ * Minimal structural view of a Blockbench OutlinerNode. Avoids importing
+ * AJ-specific node classes (TextDisplay, etc.) that aren't available to this
+ * plugin — node identity is read from the runtime `type` string instead.
+ */
+interface OutlinerLike {
+  name?: string;
+  uuid?: string;
+  type?: string;
+  children?: unknown[];
+  position?: unknown;
+  origin?: unknown;
+  rotation?: unknown;
+  length?: unknown;
+  connected?: unknown;
+}
+
+interface RigNode {
+  name: string;
+  uuid: string;
+  type: string;
+  position?: unknown;
+  origin?: unknown;
+  rotation?: unknown;
+  length?: unknown;
+  connected?: unknown;
+  children?: RigNode[];
+}
+
+function serializeRigNode(input: unknown, includeGeometry: boolean): RigNode | null {
+  const el = input as OutlinerLike;
+  const type = el.type ?? "unknown";
+
+  if (type === "cube" || type === "mesh") {
+    if (!includeGeometry) return null;
+    return { name: el.name ?? "", uuid: el.uuid ?? "", type };
+  }
+
+  const node: RigNode = { name: el.name ?? "", uuid: el.uuid ?? "", type };
+
+  if (type === "locator" || type === "null_object") {
+    if (el.position !== undefined) node.position = el.position;
+  } else if (type === "armature_bone") {
+    node.origin = el.origin;
+    node.rotation = el.rotation;
+    node.length = el.length;
+    node.connected = el.connected;
+  }
+
+  if (Array.isArray(el.children) && el.children.length > 0) {
+    const children = el.children
+      .map((child) => serializeRigNode(child, includeGeometry))
+      .filter((c): c is RigNode => c !== null);
+    if (children.length > 0) node.children = children;
+  }
+
+  return node;
 }
 
 export function registerAJTools() {
@@ -132,5 +230,30 @@ export function registerAJTools() {
       },
     },
     ajToolDocs[1].status
+  );
+
+  createTool(
+    ajToolDocs[2].name,
+    {
+      ...ajToolDocs[2],
+      async execute({ include_geometry }: { include_geometry: boolean }) {
+        getAJProject();
+
+        const roots = Outliner.root
+          .map((el) => serializeRigNode(el, include_geometry))
+          .filter((n): n is RigNode => n !== null);
+
+        const counts = {
+          groups: Group.all.length,
+          armatures: Armature.all.length,
+          armature_bones: ArmatureBone.all.length,
+          cubes: Cube.all.length,
+          meshes: Mesh.all.length,
+        };
+
+        return JSON.stringify({ counts, roots }, null, 2);
+      },
+    },
+    ajToolDocs[2].status
   );
 }

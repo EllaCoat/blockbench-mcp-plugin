@@ -1,6 +1,6 @@
 {
   "version": "1.6.0",
-  "generatedAt": "2026-05-28T08:51:28.216Z",
+  "generatedAt": "2026-05-28T08:59:11.661Z",
   "tools": [
     {
       "name": "aj_blueprint_settings_get",
@@ -67,6 +67,34 @@
               "key",
               "value"
             ],
+            "additionalProperties": false
+          }
+        },
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    },
+    {
+      "name": "aj_rig_tree",
+      "title": "AJ: Rig Tree",
+      "description": "Returns the active Animated Java Blueprint's rig as a single hierarchical JSON tree, unifying regular bones (groups) and Armature bones — which Blockbench otherwise exposes through separate windows (list_outline vs list_armatures). Each node reports { name, uuid, type, children? } plus type-specific fields (armature bones add origin/rotation/length/connected; locators and null objects add position). Geometry (cubes/meshes) is omitted unless include_geometry is true. Requires an Animated Java Blueprint project to be open.",
+      "status": "experimental",
+      "category": "Animated Java",
+      "annotations": {
+        "readOnlyHint": true
+      },
+      "parameters": {
+        "$ref": "#/definitions/aj_rig_tree",
+        "definitions": {
+          "aj_rig_tree": {
+            "type": "object",
+            "properties": {
+              "include_geometry": {
+                "type": "boolean",
+                "default": false,
+                "description": "Include cube and mesh leaves under each bone. Defaults to false, returning a bone/locator/armature skeleton only.",
+                "markdownDescription": "Include cube and mesh leaves under each bone. Defaults to false, returning a bone/locator/armature skeleton only."
+              }
+            },
             "additionalProperties": false
           }
         },
