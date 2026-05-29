@@ -20,6 +20,7 @@ import { registerArmatureTools } from "./tools/armature";
 import { registerHistoryTools } from "./tools/history";
 import { registerExportTools } from "./tools/export";
 import { registerAJTools } from "./tools/aj";
+import { registerNullObjectTools } from "./tools/null-object";
 
 // Core resource registrations
 import { registerValidatorResources } from "./resources/validator";
@@ -37,6 +38,7 @@ const registrationFunctions = [
   registerImportTools,
   registerMaterialInstanceTools,
   registerMeshTools,
+  registerNullObjectTools,
   registerPaintTools,
   registerProjectTools,
   registerTextureTools,

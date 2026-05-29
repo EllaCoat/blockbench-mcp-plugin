@@ -18,7 +18,7 @@
 
       <div class="nav-group">
         <p class="nav-heading">Overview</p>
-        <a href="#tools" class="nav-link">Tools <span class="count">(106)</span></a>
+        <a href="#tools" class="nav-link">Tools <span class="count">(110)</span></a>
         <a href="#prompts" class="nav-link">Prompts <span class="count">(3)</span></a>
         <a href="#resources" class="nav-link">Resources <span class="count">(8)</span></a>
       </div>
@@ -36,6 +36,7 @@
         <a href="#cat-import-export" class="nav-link">Import/Export <span class="count">(1)</span></a>
         <a href="#cat-material-instances" class="nav-link">Material Instances <span class="count">(5)</span></a>
         <a href="#cat-mesh-editing" class="nav-link">Mesh Editing <span class="count">(11)</span></a>
+        <a href="#cat-null-objects-ik" class="nav-link">Null Objects / IK <span class="count">(4)</span></a>
         <a href="#cat-paint-tools" class="nav-link">Paint Tools <span class="count">(12)</span></a>
         <a href="#cat-project" class="nav-link">Project <span class="count">(2)</span></a>
         <a href="#cat-textures" class="nav-link">Textures <span class="count">(13)</span></a>
@@ -49,7 +50,7 @@
         <h1>Blockbench MCP Plugin</h1>
         <p class="subtitle">API Reference — v1.6.0</p>
         <nav class="stats">
-          <a href="#tools"><strong>106</strong> tools (39 stable, 67 experimental)</a>
+          <a href="#tools"><strong>110</strong> tools (40 stable, 70 experimental)</a>
           <a href="#prompts"><strong>3</strong> prompts</a>
           <a href="#resources"><strong>8</strong> resources</a>
         </nav>
@@ -2772,6 +2773,170 @@
       </div>
     </div>
         </section>
+<section id="cat-null-objects-ik" class="category-section">
+          <h3 class="category-title">Null Objects / IK</h3>
+          <div id="tool-list_null_objects" class="card tool-card">
+      <div class="card-header">
+        <h3 class="card-name">list_null_objects</h3>
+        <div class="card-badges">
+          <span class="badge badge-stable">stable</span>
+          <span class="badge badge-readonly">read-only</span>
+        </div>
+      </div>
+      <p class="card-title">List Null Objects</p>
+      <p class="card-desc">Lists all null objects in the current project with their position and IK settings.</p>
+      <div class="overflow-x">
+        <p class="empty-params">No parameters</p>
+      </div>
+    </div>
+<div id="tool-add_null_object" class="card tool-card">
+      <div class="card-header">
+        <h3 class="card-name">add_null_object</h3>
+        <div class="card-badges">
+          <span class="badge badge-experimental">experimental</span>
+          <span class="badge badge-destructive">destructive</span>
+        </div>
+      </div>
+      <p class="card-title">Add Null Object</p>
+      <p class="card-desc">Creates a null object. Null objects are IK targets: set ik_target to a chain-end node and the chain bones rotate so that node reaches the null object's animated position. Requires an animation_mode format (e.g. Animated Java Blueprint) for the IK settings to apply.</p>
+      <div class="overflow-x">
+        <table class="param-table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Required</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody><tr>
+      <td class="col-name">name</td>
+      <td class="col-type">string</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">Name for the new null object. <span class="param-meta">(default: <code>&quot;null_object&quot;</code>)</span></td>
+    </tr><tr>
+      <td class="col-name">position</td>
+      <td class="col-type">number[]</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">Position [x, y, z]. Defaults to [0, 0, 0]. <span class="param-meta">[minItems: 3, maxItems: 3]</span></td>
+    </tr><tr>
+      <td class="col-name">parent</td>
+      <td class="col-type">string</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">Parent group (name or UUID) to nest the null object under. Defaults to the outliner root. For IK, place the null object inside the chain's root group.</td>
+    </tr><tr>
+      <td class="col-name">ik_target</td>
+      <td class="col-type">string</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">IK chain end node (Group/Locator/ArmatureBone, by name or UUID). The chain bones rotate so this node reaches the null object's position. Requires an animation_mode format.</td>
+    </tr><tr>
+      <td class="col-name">ik_source</td>
+      <td class="col-type">string</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">IK chain start node (Group/Locator/ArmatureBone, by name or UUID). Optional; bounds the upper end of the solved chain. Requires an animation_mode format.</td>
+    </tr><tr>
+      <td class="col-name">lock_ik_target_rotation</td>
+      <td class="col-type">boolean</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">Lock the IK target's rotation while solving. <span class="param-meta">(default: <code>false</code>)</span></td>
+    </tr></tbody>
+    </table>
+      </div>
+    </div>
+<div id="tool-update_null_object" class="card tool-card">
+      <div class="card-header">
+        <h3 class="card-name">update_null_object</h3>
+        <div class="card-badges">
+          <span class="badge badge-experimental">experimental</span>
+          <span class="badge badge-destructive">destructive</span>
+        </div>
+      </div>
+      <p class="card-title">Update Null Object</p>
+      <p class="card-desc">Updates an existing null object's name, position, IK target/source, lock or visibility.</p>
+      <div class="overflow-x">
+        <table class="param-table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Required</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody><tr>
+      <td class="col-name">id</td>
+      <td class="col-type">string</td>
+      <td><span class="param-required">required</span></td>
+      <td class="col-desc">UUID or name of the null object.</td>
+    </tr><tr>
+      <td class="col-name">name</td>
+      <td class="col-type">string</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc"></td>
+    </tr><tr>
+      <td class="col-name">position</td>
+      <td class="col-type">number[]</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">New position [x, y, z]. <span class="param-meta">[minItems: 3, maxItems: 3]</span></td>
+    </tr><tr>
+      <td class="col-name">ik_target</td>
+      <td class="col-type">string</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">New IK target node (name or UUID). Pass empty string to clear.</td>
+    </tr><tr>
+      <td class="col-name">ik_source</td>
+      <td class="col-type">string</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">New IK source node (name or UUID). Pass empty string to clear.</td>
+    </tr><tr>
+      <td class="col-name">lock_ik_target_rotation</td>
+      <td class="col-type">boolean</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc"></td>
+    </tr><tr>
+      <td class="col-name">visibility</td>
+      <td class="col-type">boolean</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc"></td>
+    </tr><tr>
+      <td class="col-name">locked</td>
+      <td class="col-type">boolean</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc"></td>
+    </tr></tbody>
+    </table>
+      </div>
+    </div>
+<div id="tool-remove_null_object" class="card tool-card">
+      <div class="card-header">
+        <h3 class="card-name">remove_null_object</h3>
+        <div class="card-badges">
+          <span class="badge badge-experimental">experimental</span>
+          <span class="badge badge-destructive">destructive</span>
+        </div>
+      </div>
+      <p class="card-title">Remove Null Object</p>
+      <p class="card-desc">Removes a null object from the project.</p>
+      <div class="overflow-x">
+        <table class="param-table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Required</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody><tr>
+      <td class="col-name">id</td>
+      <td class="col-type">string</td>
+      <td><span class="param-required">required</span></td>
+      <td class="col-desc">UUID or name of the null object to remove.</td>
+    </tr></tbody>
+    </table>
+      </div>
+    </div>
+        </section>
 <section id="cat-paint-tools" class="category-section">
           <h3 class="category-title">Paint Tools</h3>
           <div id="tool-paint_fill_tool" class="card tool-card">
@@ -4365,7 +4530,7 @@
       </section>
 
       <footer class="page-footer">
-        Generated 2026-05-28T10:34:17.621Z from Zod schemas
+        Generated 2026-05-29T02:47:13.328Z from Zod schemas
       </footer>
     </main>
   </div>

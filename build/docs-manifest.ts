@@ -18,6 +18,7 @@ import { uvToolDocs } from "../server/tools/uv";
 import { historyToolDocs } from "../server/tools/history";
 import { exportToolDocs } from "../server/tools/export";
 import { ajToolDocs } from "../server/tools/aj";
+import { nullObjectToolDocs } from "../server/tools/null-object";
 
 export interface CategoryGroup {
   category: string;
@@ -36,6 +37,7 @@ export const toolManifest: CategoryGroup[] = [
   { category: "Import/Export", tools: importToolDocs },
   { category: "Material Instances", tools: materialInstanceToolDocs },
   { category: "Mesh Editing", tools: meshToolDocs },
+  { category: "Null Objects / IK", tools: nullObjectToolDocs },
   { category: "Paint Tools", tools: paintToolDocs },
   { category: "Project", tools: projectToolDocs },
   { category: "Textures", tools: textureToolDocs },

@@ -1,6 +1,6 @@
 {
   "version": "1.6.0",
-  "generatedAt": "2026-05-28T10:34:17.621Z",
+  "generatedAt": "2026-05-29T02:47:13.328Z",
   "tools": [
     {
       "name": "aj_blueprint_settings_get",
@@ -3982,6 +3982,178 @@
             "required": [
               "mesh_id",
               "points"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    },
+    {
+      "name": "list_null_objects",
+      "title": "List Null Objects",
+      "description": "Lists all null objects in the current project with their position and IK settings.",
+      "status": "stable",
+      "category": "Null Objects / IK",
+      "annotations": {
+        "readOnlyHint": true
+      },
+      "parameters": {
+        "$ref": "#/definitions/list_null_objects",
+        "definitions": {
+          "list_null_objects": {
+            "type": "object",
+            "properties": {},
+            "additionalProperties": false
+          }
+        },
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    },
+    {
+      "name": "add_null_object",
+      "title": "Add Null Object",
+      "description": "Creates a null object. Null objects are IK targets: set ik_target to a chain-end node and the chain bones rotate so that node reaches the null object's animated position. Requires an animation_mode format (e.g. Animated Java Blueprint) for the IK settings to apply.",
+      "status": "experimental",
+      "category": "Null Objects / IK",
+      "annotations": {
+        "destructiveHint": true
+      },
+      "parameters": {
+        "$ref": "#/definitions/add_null_object",
+        "definitions": {
+          "add_null_object": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "default": "null_object",
+                "description": "Name for the new null object.",
+                "markdownDescription": "Name for the new null object."
+              },
+              "position": {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                },
+                "minItems": 3,
+                "maxItems": 3,
+                "description": "Position [x, y, z]. Defaults to [0, 0, 0].",
+                "markdownDescription": "Position [x, y, z]. Defaults to [0, 0, 0]."
+              },
+              "parent": {
+                "type": "string",
+                "description": "Parent group (name or UUID) to nest the null object under. Defaults to the outliner root. For IK, place the null object inside the chain's root group.",
+                "markdownDescription": "Parent group (name or UUID) to nest the null object under. Defaults to the outliner root. For IK, place the null object inside the chain's root group."
+              },
+              "ik_target": {
+                "type": "string",
+                "description": "IK chain end node (Group/Locator/ArmatureBone, by name or UUID). The chain bones rotate so this node reaches the null object's position. Requires an animation_mode format.",
+                "markdownDescription": "IK chain end node (Group/Locator/ArmatureBone, by name or UUID). The chain bones rotate so this node reaches the null object's position. Requires an animation_mode format."
+              },
+              "ik_source": {
+                "type": "string",
+                "description": "IK chain start node (Group/Locator/ArmatureBone, by name or UUID). Optional; bounds the upper end of the solved chain. Requires an animation_mode format.",
+                "markdownDescription": "IK chain start node (Group/Locator/ArmatureBone, by name or UUID). Optional; bounds the upper end of the solved chain. Requires an animation_mode format."
+              },
+              "lock_ik_target_rotation": {
+                "type": "boolean",
+                "default": false,
+                "description": "Lock the IK target's rotation while solving.",
+                "markdownDescription": "Lock the IK target's rotation while solving."
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    },
+    {
+      "name": "update_null_object",
+      "title": "Update Null Object",
+      "description": "Updates an existing null object's name, position, IK target/source, lock or visibility.",
+      "status": "experimental",
+      "category": "Null Objects / IK",
+      "annotations": {
+        "destructiveHint": true
+      },
+      "parameters": {
+        "$ref": "#/definitions/update_null_object",
+        "definitions": {
+          "update_null_object": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "description": "UUID or name of the null object.",
+                "markdownDescription": "UUID or name of the null object."
+              },
+              "name": {
+                "type": "string"
+              },
+              "position": {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                },
+                "minItems": 3,
+                "maxItems": 3,
+                "description": "New position [x, y, z].",
+                "markdownDescription": "New position [x, y, z]."
+              },
+              "ik_target": {
+                "type": "string",
+                "description": "New IK target node (name or UUID). Pass empty string to clear.",
+                "markdownDescription": "New IK target node (name or UUID). Pass empty string to clear."
+              },
+              "ik_source": {
+                "type": "string",
+                "description": "New IK source node (name or UUID). Pass empty string to clear.",
+                "markdownDescription": "New IK source node (name or UUID). Pass empty string to clear."
+              },
+              "lock_ik_target_rotation": {
+                "type": "boolean"
+              },
+              "visibility": {
+                "type": "boolean"
+              },
+              "locked": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "id"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    },
+    {
+      "name": "remove_null_object",
+      "title": "Remove Null Object",
+      "description": "Removes a null object from the project.",
+      "status": "experimental",
+      "category": "Null Objects / IK",
+      "annotations": {
+        "destructiveHint": true
+      },
+      "parameters": {
+        "$ref": "#/definitions/remove_null_object",
+        "definitions": {
+          "remove_null_object": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "description": "UUID or name of the null object to remove.",
+                "markdownDescription": "UUID or name of the null object to remove."
+              }
+            },
+            "required": [
+              "id"
             ],
             "additionalProperties": false
           }
