@@ -3,12 +3,14 @@
 import { z } from "zod";
 import { createTool, type ToolSpec } from "@/lib/factories";
 import { captureAppScreenshot } from "@/lib/util";
-import { STATUS_EXPERIMENTAL, STATUS_STABLE } from "@/lib/constants";
+import { STATUS_EXPERIMENTAL } from "@/lib/constants";
 import { mouseButtonEnum, coordinateSchema } from "@/lib/zodObjects";
 
 // ============================================================================
 // UI Tool Parameter Schemas
 // ============================================================================
+// Note: risky_eval was moved to server/tools/_redesign/risky_eval.ts as part of
+// the stage-II redesign. See docs/animated-java/blockbench-features/14-mcp-tool-redesign-stage2.md § 7.
 
 /** Parameters for triggering an action */
 export const triggerActionParametersSchema = z.object({
@@ -26,19 +28,6 @@ export const triggerActionParametersSchema = z.object({
     .string()
     .optional()
     .describe("Stringified form of event arguments."),
-});
-
-/** Parameters for risky eval */
-export const riskyEvalParametersSchema = z.object({
-  code: z
-    .string()
-    .refine((val) => !/console\.|\/\/|\/\*/.test(val), {
-      message:
-        "Code must not include 'console.', '//' or '/* */' comments.",
-    })
-    .describe(
-      "JavaScript code to evaluate. Do not pass `console` commands or comments."
-    ),
 });
 
 /** Click position with optional button */
@@ -96,18 +85,6 @@ export const uiToolDocs: ToolSpec[] = [
     },
     parameters: triggerActionParametersSchema,
     status: STATUS_EXPERIMENTAL,
-  },
-  {
-    name: "risky_eval",
-    description:
-      "Evaluates the given expression and logs it to the console. Do not pass `console` commands as they will not work.",
-    annotations: {
-      title: "Eval",
-      destructiveHint: true,
-      openWorldHint: true,
-    },
-    parameters: riskyEvalParametersSchema,
-    status: STATUS_STABLE,
   },
   {
     name: "emulate_clicks",
@@ -193,35 +170,6 @@ export function registerUITools() {
     uiToolDocs[1].name,
     {
       ...uiToolDocs[1],
-      async execute({ code }) {
-        try {
-          Undo.initEdit({
-            elements: [],
-            outliner: true,
-            collections: [],
-          });
-
-          const result = await eval(code.trim());
-
-          if (result !== undefined) {
-            return JSON.stringify(result);
-          }
-
-          return "(Code executed successfully, but no result was returned.)";
-        } catch (error) {
-          return `Error executing code: ${error}`;
-        } finally {
-          Undo.finishEdit("Agent executed code");
-        }
-      },
-    },
-    uiToolDocs[1].status
-  );
-
-  createTool(
-    uiToolDocs[2].name,
-    {
-      ...uiToolDocs[2],
       async execute({ position, drag }) {
         // Emulate a click at the specified position
         const { x, y, button } = position;
@@ -252,13 +200,13 @@ export function registerUITools() {
         return await captureAppScreenshot();
       },
     },
-    uiToolDocs[2].status
+    uiToolDocs[1].status
   );
 
   createTool(
-    uiToolDocs[3].name,
+    uiToolDocs[2].name,
     {
-      ...uiToolDocs[3],
+      ...uiToolDocs[2],
       async execute({ values, confirm }) {
         if (!Dialog.stack.length) {
           throw new Error("No dialogs found in the Blockbench editor.");
@@ -302,6 +250,6 @@ export function registerUITools() {
         });
       },
     },
-    uiToolDocs[3].status
+    uiToolDocs[2].status
   );
 }

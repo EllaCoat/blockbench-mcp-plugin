@@ -20,12 +20,17 @@ import { exportToolDocs } from "../server/tools/export";
 import { ajToolDocs } from "../server/tools/aj";
 import { nullObjectToolDocs } from "../server/tools/null-object";
 
+// Stage-II redesigned tools
+import { riskyEvalToolDocs } from "../server/tools/_redesign/risky_eval";
+import { inspectToolDocs } from "../server/tools/_redesign/inspect";
+
 export interface CategoryGroup {
   category: string;
   tools: ToolSpec[];
 }
 
 export const toolManifest: CategoryGroup[] = [
+  { category: "Inspect (Stage II)", tools: inspectToolDocs },
   { category: "Animated Java", tools: ajToolDocs },
   { category: "Cubes", tools: cubeToolDocs },
   { category: "Camera & Screenshots", tools: cameraToolDocs },
@@ -41,7 +46,7 @@ export const toolManifest: CategoryGroup[] = [
   { category: "Paint Tools", tools: paintToolDocs },
   { category: "Project", tools: projectToolDocs },
   { category: "Textures", tools: textureToolDocs },
-  { category: "UI Interaction", tools: uiToolDocs },
+  { category: "UI Interaction", tools: [...uiToolDocs, ...riskyEvalToolDocs] },
   { category: "UV Mapping", tools: uvToolDocs },
 ];
 

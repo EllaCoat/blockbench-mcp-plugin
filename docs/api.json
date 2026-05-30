@@ -1,7 +1,187 @@
 {
   "version": "1.6.0",
-  "generatedAt": "2026-05-29T02:47:13.328Z",
+  "generatedAt": "2026-05-30T13:24:04.392Z",
   "tools": [
+    {
+      "name": "inspect",
+      "title": "Inspect",
+      "description": "Read-only inspection of the current Blockbench project. `target` selects which slice of state to return; remaining fields are per-target filters. Replaces 28 legacy read tools (list_*/get_*/find_*/filter_*). See docs for the full target list. Returns structured JSON wrapped in { ok, data, meta }.",
+      "status": "experimental",
+      "category": "Inspect (Stage II)",
+      "annotations": {
+        "readOnlyHint": true
+      },
+      "parameters": {
+        "$ref": "#/definitions/inspect",
+        "definitions": {
+          "inspect": {
+            "type": "object",
+            "properties": {
+              "target": {
+                "type": "string",
+                "enum": [
+                  "outline",
+                  "find",
+                  "selection",
+                  "by_material",
+                  "armatures",
+                  "bones",
+                  "null_objects",
+                  "rig",
+                  "variants",
+                  "settings",
+                  "anim_mapping",
+                  "textures",
+                  "materials",
+                  "material_instances",
+                  "history",
+                  "project",
+                  "screenshot",
+                  "export_formats",
+                  "vertex_weights"
+                ],
+                "description": "Which slice of Blockbench state to read. Each target accepts a subset of the optional filters below; unrelated filters are ignored.",
+                "markdownDescription": "Which slice of Blockbench state to read. Each target accepts a subset of the optional filters below; unrelated filters are ignored."
+              },
+              "id": {
+                "type": "string"
+              },
+              "include_cubes": {
+                "type": "boolean"
+              },
+              "include_meshes": {
+                "type": "boolean"
+              },
+              "max_depth": {
+                "type": "integer",
+                "exclusiveMinimum": 0
+              },
+              "include_bones": {
+                "type": "boolean"
+              },
+              "include_weights": {
+                "type": "boolean"
+              },
+              "armature_id": {
+                "type": "string"
+              },
+              "include_geometry": {
+                "type": "boolean"
+              },
+              "name_pattern": {
+                "type": "string"
+              },
+              "name_contains": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "cube",
+                  "mesh",
+                  "group",
+                  "any"
+                ]
+              },
+              "parent_group": {
+                "type": "string"
+              },
+              "min_size": {
+                "type": "array",
+                "minItems": 3,
+                "maxItems": 3,
+                "items": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "number"
+                  }
+                ]
+              },
+              "max_size": {
+                "type": "array",
+                "minItems": 3,
+                "maxItems": 3,
+                "items": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "number"
+                  }
+                ]
+              },
+              "selected_only": {
+                "type": "boolean"
+              },
+              "limit": {
+                "type": "integer",
+                "exclusiveMinimum": 0
+              },
+              "texture": {
+                "type": "string"
+              },
+              "include_face_keys": {
+                "type": "boolean"
+              },
+              "cube_id": {
+                "type": "string"
+              },
+              "faces": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "north",
+                    "south",
+                    "east",
+                    "west",
+                    "up",
+                    "down"
+                  ]
+                }
+              },
+              "history_limit": {
+                "type": "integer",
+                "exclusiveMinimum": 0,
+                "maximum": 200
+              },
+              "screenshot_kind": {
+                "type": "string",
+                "enum": [
+                  "viewport",
+                  "app"
+                ]
+              },
+              "screenshot_project": {
+                "type": "string"
+              },
+              "only_current_format": {
+                "type": "boolean"
+              },
+              "mesh_id": {
+                "type": "string"
+              },
+              "bone_id": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "target"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    },
     {
       "name": "aj_blueprint_settings_get",
       "title": "AJ: Get Blueprint Settings",
@@ -5971,37 +6151,6 @@
       }
     },
     {
-      "name": "risky_eval",
-      "title": "Eval",
-      "description": "Evaluates the given expression and logs it to the console. Do not pass `console` commands as they will not work.",
-      "status": "stable",
-      "category": "UI Interaction",
-      "annotations": {
-        "destructiveHint": true,
-        "openWorldHint": true
-      },
-      "parameters": {
-        "$ref": "#/definitions/risky_eval",
-        "definitions": {
-          "risky_eval": {
-            "type": "object",
-            "properties": {
-              "code": {
-                "type": "string",
-                "description": "JavaScript code to evaluate. Do not pass `console` commands or comments.",
-                "markdownDescription": "JavaScript code to evaluate. Do not pass `console` commands or comments."
-              }
-            },
-            "required": [
-              "code"
-            ],
-            "additionalProperties": false
-          }
-        },
-        "$schema": "http://json-schema.org/draft-07/schema#"
-      }
-    },
-    {
       "name": "emulate_clicks",
       "title": "Emulate Clicks",
       "description": "Emulates clicks on the given interface elements.",
@@ -6120,6 +6269,49 @@
             },
             "required": [
               "values"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    },
+    {
+      "name": "risky_eval",
+      "title": "Eval",
+      "description": "Evaluates the given JavaScript expression inside Blockbench and returns the result. Use read_only=true for observation-only code so the Undo stack is not polluted.",
+      "status": "stable",
+      "category": "UI Interaction",
+      "annotations": {
+        "destructiveHint": true,
+        "openWorldHint": true
+      },
+      "parameters": {
+        "$ref": "#/definitions/risky_eval",
+        "definitions": {
+          "risky_eval": {
+            "type": "object",
+            "properties": {
+              "code": {
+                "type": "string",
+                "description": "JavaScript code to evaluate inside Blockbench. The last expression's value is returned. Promises are awaited.",
+                "markdownDescription": "JavaScript code to evaluate inside Blockbench. The last expression's value is returned. Promises are awaited."
+              },
+              "read_only": {
+                "type": "boolean",
+                "default": false,
+                "description": "If true, skip Undo.initEdit/finishEdit so no Undo history entry is created. Use this when the code only reads state.",
+                "markdownDescription": "If true, skip Undo.initEdit/finishEdit so no Undo history entry is created. Use this when the code only reads state."
+              },
+              "truncate_limit": {
+                "type": "integer",
+                "exclusiveMinimum": 0,
+                "description": "Override the default truncate limit (8192 chars). Larger values risk bloating caller context.",
+                "markdownDescription": "Override the default truncate limit (8192 chars). Larger values risk bloating caller context."
+              }
+            },
+            "required": [
+              "code"
             ],
             "additionalProperties": false
           }

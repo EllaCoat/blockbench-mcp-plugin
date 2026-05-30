@@ -18,13 +18,14 @@
 
       <div class="nav-group">
         <p class="nav-heading">Overview</p>
-        <a href="#tools" class="nav-link">Tools <span class="count">(110)</span></a>
+        <a href="#tools" class="nav-link">Tools <span class="count">(111)</span></a>
         <a href="#prompts" class="nav-link">Prompts <span class="count">(3)</span></a>
         <a href="#resources" class="nav-link">Resources <span class="count">(8)</span></a>
       </div>
 
       <div class="nav-group">
         <p class="nav-heading">Categories</p>
+        <a href="#cat-inspect-stage-ii" class="nav-link">Inspect (Stage II) <span class="count">(1)</span></a>
         <a href="#cat-animated-java" class="nav-link">Animated Java <span class="count">(12)</span></a>
         <a href="#cat-cubes" class="nav-link">Cubes <span class="count">(2)</span></a>
         <a href="#cat-camera-screenshots" class="nav-link">Camera &amp; Screenshots <span class="count">(3)</span></a>
@@ -50,7 +51,7 @@
         <h1>Blockbench MCP Plugin</h1>
         <p class="subtitle">API Reference — v1.6.0</p>
         <nav class="stats">
-          <a href="#tools"><strong>110</strong> tools (40 stable, 70 experimental)</a>
+          <a href="#tools"><strong>111</strong> tools (40 stable, 71 experimental)</a>
           <a href="#prompts"><strong>3</strong> prompts</a>
           <a href="#resources"><strong>8</strong> resources</a>
         </nav>
@@ -67,7 +68,169 @@
 
       <section id="tools" class="doc-section">
         <h2 class="section-title">Tools</h2>
-        <section id="cat-animated-java" class="category-section">
+        <section id="cat-inspect-stage-ii" class="category-section">
+          <h3 class="category-title">Inspect (Stage II)</h3>
+          <div id="tool-inspect" class="card tool-card">
+      <div class="card-header">
+        <h3 class="card-name">inspect</h3>
+        <div class="card-badges">
+          <span class="badge badge-experimental">experimental</span>
+          <span class="badge badge-readonly">read-only</span>
+        </div>
+      </div>
+      <p class="card-title">Inspect</p>
+      <p class="card-desc">Read-only inspection of the current Blockbench project. `target` selects which slice of state to return; remaining fields are per-target filters. Replaces 28 legacy read tools (list_*/get_*/find_*/filter_*). See docs for the full target list. Returns structured JSON wrapped in { ok, data, meta }.</p>
+      <div class="overflow-x">
+        <table class="param-table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Required</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody><tr>
+      <td class="col-name">target</td>
+      <td class="col-type">&quot;outline&quot; | &quot;find&quot; | &quot;selection&quot; | &quot;by_material&quot; | &quot;armatures&quot; | &quot;bones&quot; | &quot;null_objects&quot; | &quot;rig&quot; | &quot;variants&quot; | &quot;settings&quot; | &quot;anim_mapping&quot; | &quot;textures&quot; | &quot;materials&quot; | &quot;material_instances&quot; | &quot;history&quot; | &quot;project&quot; | &quot;screenshot&quot; | &quot;export_formats&quot; | &quot;vertex_weights&quot;</td>
+      <td><span class="param-required">required</span></td>
+      <td class="col-desc">Which slice of Blockbench state to read. Each target accepts a subset of the optional filters below; unrelated filters are ignored.</td>
+    </tr><tr>
+      <td class="col-name">id</td>
+      <td class="col-type">string</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc"></td>
+    </tr><tr>
+      <td class="col-name">include_cubes</td>
+      <td class="col-type">boolean</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc"></td>
+    </tr><tr>
+      <td class="col-name">include_meshes</td>
+      <td class="col-type">boolean</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc"></td>
+    </tr><tr>
+      <td class="col-name">max_depth</td>
+      <td class="col-type">integer</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc"></td>
+    </tr><tr>
+      <td class="col-name">include_bones</td>
+      <td class="col-type">boolean</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc"></td>
+    </tr><tr>
+      <td class="col-name">include_weights</td>
+      <td class="col-type">boolean</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc"></td>
+    </tr><tr>
+      <td class="col-name">armature_id</td>
+      <td class="col-type">string</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc"></td>
+    </tr><tr>
+      <td class="col-name">include_geometry</td>
+      <td class="col-type">boolean</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc"></td>
+    </tr><tr>
+      <td class="col-name">name_pattern</td>
+      <td class="col-type">string</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc"></td>
+    </tr><tr>
+      <td class="col-name">name_contains</td>
+      <td class="col-type">string</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc"></td>
+    </tr><tr>
+      <td class="col-name">type</td>
+      <td class="col-type">&quot;cube&quot; | &quot;mesh&quot; | &quot;group&quot; | &quot;any&quot;</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc"></td>
+    </tr><tr>
+      <td class="col-name">parent_group</td>
+      <td class="col-type">string</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc"></td>
+    </tr><tr>
+      <td class="col-name">min_size</td>
+      <td class="col-type">unknown[]</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc"> <span class="param-meta">[minItems: 3, maxItems: 3]</span></td>
+    </tr><tr>
+      <td class="col-name">max_size</td>
+      <td class="col-type">unknown[]</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc"> <span class="param-meta">[minItems: 3, maxItems: 3]</span></td>
+    </tr><tr>
+      <td class="col-name">selected_only</td>
+      <td class="col-type">boolean</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc"></td>
+    </tr><tr>
+      <td class="col-name">limit</td>
+      <td class="col-type">integer</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc"></td>
+    </tr><tr>
+      <td class="col-name">texture</td>
+      <td class="col-type">string</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc"></td>
+    </tr><tr>
+      <td class="col-name">include_face_keys</td>
+      <td class="col-type">boolean</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc"></td>
+    </tr><tr>
+      <td class="col-name">cube_id</td>
+      <td class="col-type">string</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc"></td>
+    </tr><tr>
+      <td class="col-name">faces</td>
+      <td class="col-type">&quot;north&quot; | &quot;south&quot; | &quot;east&quot; | &quot;west&quot; | &quot;up&quot; | &quot;down&quot;[]</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc"></td>
+    </tr><tr>
+      <td class="col-name">history_limit</td>
+      <td class="col-type">integer</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc"> <span class="param-meta">[max: 200]</span></td>
+    </tr><tr>
+      <td class="col-name">screenshot_kind</td>
+      <td class="col-type">&quot;viewport&quot; | &quot;app&quot;</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc"></td>
+    </tr><tr>
+      <td class="col-name">screenshot_project</td>
+      <td class="col-type">string</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc"></td>
+    </tr><tr>
+      <td class="col-name">only_current_format</td>
+      <td class="col-type">boolean</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc"></td>
+    </tr><tr>
+      <td class="col-name">mesh_id</td>
+      <td class="col-type">string</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc"></td>
+    </tr><tr>
+      <td class="col-name">bone_id</td>
+      <td class="col-type">string</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc"></td>
+    </tr></tbody>
+    </table>
+      </div>
+    </div>
+        </section>
+<section id="cat-animated-java" class="category-section">
           <h3 class="category-title">Animated Java</h3>
           <div id="tool-aj_blueprint_settings_get" class="card tool-card">
       <div class="card-header">
@@ -4190,35 +4353,6 @@
     </table>
       </div>
     </div>
-<div id="tool-risky_eval" class="card tool-card">
-      <div class="card-header">
-        <h3 class="card-name">risky_eval</h3>
-        <div class="card-badges">
-          <span class="badge badge-stable">stable</span>
-          <span class="badge badge-destructive">destructive</span><span class="badge badge-openworld">open-world</span>
-        </div>
-      </div>
-      <p class="card-title">Eval</p>
-      <p class="card-desc">Evaluates the given expression and logs it to the console. Do not pass `console` commands as they will not work.</p>
-      <div class="overflow-x">
-        <table class="param-table">
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Type</th>
-          <th>Required</th>
-          <th>Description</th>
-        </tr>
-      </thead>
-      <tbody><tr>
-      <td class="col-name">code</td>
-      <td class="col-type">string</td>
-      <td><span class="param-required">required</span></td>
-      <td class="col-desc">JavaScript code to evaluate. Do not pass `console` commands or comments.</td>
-    </tr></tbody>
-    </table>
-      </div>
-    </div>
 <div id="tool-emulate_clicks" class="card tool-card">
       <div class="card-header">
         <h3 class="card-name">emulate_clicks</h3>
@@ -4283,6 +4417,45 @@
       <td class="col-type">boolean</td>
       <td><span class="param-optional">optional</span></td>
       <td class="col-desc">Whether to confirm or cancel the dialog after filling it. True to confirm, false to cancel. <span class="param-meta">(default: <code>true</code>)</span></td>
+    </tr></tbody>
+    </table>
+      </div>
+    </div>
+<div id="tool-risky_eval" class="card tool-card">
+      <div class="card-header">
+        <h3 class="card-name">risky_eval</h3>
+        <div class="card-badges">
+          <span class="badge badge-stable">stable</span>
+          <span class="badge badge-destructive">destructive</span><span class="badge badge-openworld">open-world</span>
+        </div>
+      </div>
+      <p class="card-title">Eval</p>
+      <p class="card-desc">Evaluates the given JavaScript expression inside Blockbench and returns the result. Use read_only=true for observation-only code so the Undo stack is not polluted.</p>
+      <div class="overflow-x">
+        <table class="param-table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Required</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody><tr>
+      <td class="col-name">code</td>
+      <td class="col-type">string</td>
+      <td><span class="param-required">required</span></td>
+      <td class="col-desc">JavaScript code to evaluate inside Blockbench. The last expression's value is returned. Promises are awaited.</td>
+    </tr><tr>
+      <td class="col-name">read_only</td>
+      <td class="col-type">boolean</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">If true, skip Undo.initEdit/finishEdit so no Undo history entry is created. Use this when the code only reads state. <span class="param-meta">(default: <code>false</code>)</span></td>
+    </tr><tr>
+      <td class="col-name">truncate_limit</td>
+      <td class="col-type">integer</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">Override the default truncate limit (8192 chars). Larger values risk bloating caller context.</td>
     </tr></tbody>
     </table>
       </div>
@@ -4530,7 +4703,7 @@
       </section>
 
       <footer class="page-footer">
-        Generated 2026-05-29T02:47:13.328Z from Zod schemas
+        Generated 2026-05-30T13:24:04.392Z from Zod schemas
       </footer>
     </main>
   </div>

@@ -22,6 +22,10 @@ import { registerExportTools } from "./tools/export";
 import { registerAJTools } from "./tools/aj";
 import { registerNullObjectTools } from "./tools/null-object";
 
+// Stage-II redesigned tools (server/tools/_redesign/)
+import { registerRiskyEvalTool } from "./tools/_redesign/risky_eval";
+import { registerInspectTool } from "./tools/_redesign/inspect";
+
 // Core resource registrations
 import { registerValidatorResources } from "./resources/validator";
 
@@ -44,6 +48,9 @@ const registrationFunctions = [
   registerTextureTools,
   registerUITools,
   registerUVTools,
+  // Stage-II redesigned tools
+  registerRiskyEvalTool,
+  registerInspectTool,
   registerValidatorResources,
 ];
 
