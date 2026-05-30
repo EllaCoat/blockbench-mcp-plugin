@@ -202,6 +202,137 @@ export const nullObjectToolDocs: ToolSpec[] = [
 ];
 
 // ============================================================================
+// Stage-II op implementations (named exports for _redesign/null_object_op.ts)
+// ============================================================================
+
+export function nullObjectAdd(params: {
+  name?: string;
+  position?: [number, number, number];
+  parent?: string;
+  ik_target?: string;
+  ik_source?: string;
+  lock_ik_target_rotation?: boolean;
+}) {
+  // @ts-ignore - Format global.
+  const animationMode = !!Format?.animation_mode;
+  if ((params.ik_target || params.ik_source) && !animationMode) {
+    throw new Error(
+      "Current format does not support IK (ik_target/ik_source require an animation_mode format like Animated Java Blueprint)."
+    );
+  }
+
+  const parentTarget = resolveParent(params.parent);
+  const targetUuid = params.ik_target
+    ? resolveAnimatableUuid(params.ik_target)
+    : undefined;
+  const sourceUuid = params.ik_source
+    ? resolveAnimatableUuid(params.ik_source)
+    : undefined;
+
+  Undo.initEdit({ outliner: true, elements: [] });
+
+  const nullObject = new NullObject({
+    name: params.name,
+    position: (params.position ?? [0, 0, 0]) as [number, number, number],
+  });
+  // @ts-ignore — addTo accepts Group | Outliner.root.
+  nullObject.addTo(parentTarget);
+  nullObject.init();
+  nullObject.createUniqueName();
+
+  if (targetUuid !== undefined) {
+    // @ts-ignore
+    nullObject.ik_target = targetUuid;
+  }
+  if (sourceUuid !== undefined) {
+    // @ts-ignore
+    nullObject.ik_source = sourceUuid;
+  }
+  if (params.lock_ik_target_rotation !== undefined) {
+    // @ts-ignore
+    nullObject.lock_ik_target_rotation = params.lock_ik_target_rotation;
+  }
+
+  Undo.finishEdit("Agent added null object", {
+    outliner: true,
+    elements: [nullObject],
+  });
+  Canvas.updateAll();
+
+  return {
+    message: `Created null object "${nullObject.name}"`,
+    null_object: serializeNullObject(nullObject),
+  };
+}
+
+export function nullObjectUpdate(params: {
+  id: string;
+  name?: string;
+  position?: [number, number, number];
+  ik_target?: string;
+  ik_source?: string;
+  lock_ik_target_rotation?: boolean;
+  visibility?: boolean;
+  locked?: boolean;
+}) {
+  const nullObject = findNullObjectOrThrow(params.id);
+
+  // @ts-ignore - Format global.
+  const animationMode = !!Format?.animation_mode;
+  if ((params.ik_target || params.ik_source) && !animationMode) {
+    throw new Error(
+      "Current format does not support IK (ik_target/ik_source require an animation_mode format)."
+    );
+  }
+
+  Undo.initEdit({ outliner: true, elements: [nullObject] });
+
+  if (params.name !== undefined) nullObject.name = params.name;
+  if (params.position !== undefined) {
+    nullObject.position.V3_set(params.position);
+  }
+  if (params.ik_target !== undefined) {
+    // @ts-ignore — empty string clears the target.
+    nullObject.ik_target =
+      params.ik_target === "" ? "" : resolveAnimatableUuid(params.ik_target);
+  }
+  if (params.ik_source !== undefined) {
+    // @ts-ignore
+    nullObject.ik_source =
+      params.ik_source === "" ? "" : resolveAnimatableUuid(params.ik_source);
+  }
+  if (params.lock_ik_target_rotation !== undefined) {
+    // @ts-ignore
+    nullObject.lock_ik_target_rotation = params.lock_ik_target_rotation;
+  }
+  // @ts-ignore — visibility missing from NullObject type, exists at runtime.
+  if (params.visibility !== undefined) nullObject.visibility = params.visibility;
+  if (params.locked !== undefined) nullObject.locked = params.locked;
+
+  nullObject.preview_controller.updateTransform(nullObject);
+  nullObject.createUniqueName();
+  Undo.finishEdit("Agent updated null object");
+  Canvas.updateAll();
+
+  return {
+    message: `Updated null object "${nullObject.name}"`,
+    null_object: serializeNullObject(nullObject),
+  };
+}
+
+export function nullObjectRemove(id: string) {
+  const nullObject = findNullObjectOrThrow(id);
+  const name = nullObject.name;
+
+  Undo.initEdit({ outliner: true, elements: [] });
+  nullObject.remove();
+  Undo.finishEdit("Agent removed null object");
+  Canvas.updateAll();
+
+  return { message: `Removed null object "${name}"`, removed: { name } };
+}
+
+// ============================================================================
 // NullObject Tools
 // ============================================================================
 

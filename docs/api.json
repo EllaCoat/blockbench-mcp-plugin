@@ -1,6 +1,6 @@
 {
   "version": "1.6.0",
-  "generatedAt": "2026-05-30T13:47:52.639Z",
+  "generatedAt": "2026-05-30T13:49:29.617Z",
   "tools": [
     {
       "name": "inspect",
@@ -4368,6 +4368,99 @@
             },
             "required": [
               "id"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    },
+    {
+      "name": "null_object_op",
+      "title": "Null Object Op",
+      "description": "Null object operations (create/update/remove) collapsed into a single tool. Null objects act as IK targets in animation_mode formats. Returns { ok, data, error?, meta? }. Replaces legacy add_null_object / update_null_object / remove_null_object. Use inspect(target='null_objects') to list.",
+      "status": "experimental",
+      "category": "Null Objects / IK",
+      "annotations": {
+        "destructiveHint": true
+      },
+      "parameters": {
+        "$ref": "#/definitions/null_object_op",
+        "definitions": {
+          "null_object_op": {
+            "type": "object",
+            "properties": {
+              "action": {
+                "type": "string",
+                "enum": [
+                  "create",
+                  "update",
+                  "remove"
+                ],
+                "description": "Operation. create: new null object (IK target). update: mutate fields by id. remove: delete by id.",
+                "markdownDescription": "Operation. create: new null object (IK target). update: mutate fields by id. remove: delete by id."
+              },
+              "id": {
+                "type": "string",
+                "description": "Target null object UUID or name. Required for update/remove.",
+                "markdownDescription": "Target null object UUID or name. Required for update/remove."
+              },
+              "name": {
+                "type": "string",
+                "description": "Name (create) or new name (update).",
+                "markdownDescription": "Name (create) or new name (update)."
+              },
+              "position": {
+                "type": "array",
+                "minItems": 3,
+                "maxItems": 3,
+                "items": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "number"
+                  }
+                ],
+                "description": "Position [x, y, z].",
+                "markdownDescription": "Position [x, y, z]."
+              },
+              "parent": {
+                "type": "string",
+                "description": "Parent group (name/UUID) for create. Defaults to outliner root.",
+                "markdownDescription": "Parent group (name/UUID) for create. Defaults to outliner root."
+              },
+              "ik_target": {
+                "type": "string",
+                "description": "IK chain end node (Group/Locator/ArmatureBone, by name or UUID). Pass empty string in update to clear.",
+                "markdownDescription": "IK chain end node (Group/Locator/ArmatureBone, by name or UUID). Pass empty string in update to clear."
+              },
+              "ik_source": {
+                "type": "string",
+                "description": "IK chain start node. Pass empty string in update to clear.",
+                "markdownDescription": "IK chain start node. Pass empty string in update to clear."
+              },
+              "lock_ik_target_rotation": {
+                "type": "boolean",
+                "description": "Lock the IK target's rotation while solving.",
+                "markdownDescription": "Lock the IK target's rotation while solving."
+              },
+              "visibility": {
+                "type": "boolean",
+                "description": "Visibility (update only).",
+                "markdownDescription": "Visibility (update only)."
+              },
+              "locked": {
+                "type": "boolean",
+                "description": "Lock flag (update only).",
+                "markdownDescription": "Lock flag (update only)."
+              }
+            },
+            "required": [
+              "action"
             ],
             "additionalProperties": false
           }

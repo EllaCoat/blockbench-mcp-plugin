@@ -18,7 +18,7 @@
 
       <div class="nav-group">
         <p class="nav-heading">Overview</p>
-        <a href="#tools" class="nav-link">Tools <span class="count">(112)</span></a>
+        <a href="#tools" class="nav-link">Tools <span class="count">(113)</span></a>
         <a href="#prompts" class="nav-link">Prompts <span class="count">(3)</span></a>
         <a href="#resources" class="nav-link">Resources <span class="count">(8)</span></a>
       </div>
@@ -37,7 +37,7 @@
         <a href="#cat-import-export" class="nav-link">Import/Export <span class="count">(1)</span></a>
         <a href="#cat-material-instances" class="nav-link">Material Instances <span class="count">(5)</span></a>
         <a href="#cat-mesh-editing" class="nav-link">Mesh Editing <span class="count">(11)</span></a>
-        <a href="#cat-null-objects-ik" class="nav-link">Null Objects / IK <span class="count">(4)</span></a>
+        <a href="#cat-null-objects-ik" class="nav-link">Null Objects / IK <span class="count">(5)</span></a>
         <a href="#cat-paint-tools" class="nav-link">Paint Tools <span class="count">(12)</span></a>
         <a href="#cat-project" class="nav-link">Project <span class="count">(2)</span></a>
         <a href="#cat-textures" class="nav-link">Textures <span class="count">(13)</span></a>
@@ -51,7 +51,7 @@
         <h1>Blockbench MCP Plugin</h1>
         <p class="subtitle">API Reference — v1.6.0</p>
         <nav class="stats">
-          <a href="#tools"><strong>112</strong> tools (40 stable, 72 experimental)</a>
+          <a href="#tools"><strong>113</strong> tools (40 stable, 73 experimental)</a>
           <a href="#prompts"><strong>3</strong> prompts</a>
           <a href="#resources"><strong>8</strong> resources</a>
         </nav>
@@ -3128,6 +3128,80 @@
     </table>
       </div>
     </div>
+<div id="tool-null_object_op" class="card tool-card">
+      <div class="card-header">
+        <h3 class="card-name">null_object_op</h3>
+        <div class="card-badges">
+          <span class="badge badge-experimental">experimental</span>
+          <span class="badge badge-destructive">destructive</span>
+        </div>
+      </div>
+      <p class="card-title">Null Object Op</p>
+      <p class="card-desc">Null object operations (create/update/remove) collapsed into a single tool. Null objects act as IK targets in animation_mode formats. Returns { ok, data, error?, meta? }. Replaces legacy add_null_object / update_null_object / remove_null_object. Use inspect(target='null_objects') to list.</p>
+      <div class="overflow-x">
+        <table class="param-table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Required</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody><tr>
+      <td class="col-name">action</td>
+      <td class="col-type">&quot;create&quot; | &quot;update&quot; | &quot;remove&quot;</td>
+      <td><span class="param-required">required</span></td>
+      <td class="col-desc">Operation. create: new null object (IK target). update: mutate fields by id. remove: delete by id.</td>
+    </tr><tr>
+      <td class="col-name">id</td>
+      <td class="col-type">string</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">Target null object UUID or name. Required for update/remove.</td>
+    </tr><tr>
+      <td class="col-name">name</td>
+      <td class="col-type">string</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">Name (create) or new name (update).</td>
+    </tr><tr>
+      <td class="col-name">position</td>
+      <td class="col-type">unknown[]</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">Position [x, y, z]. <span class="param-meta">[minItems: 3, maxItems: 3]</span></td>
+    </tr><tr>
+      <td class="col-name">parent</td>
+      <td class="col-type">string</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">Parent group (name/UUID) for create. Defaults to outliner root.</td>
+    </tr><tr>
+      <td class="col-name">ik_target</td>
+      <td class="col-type">string</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">IK chain end node (Group/Locator/ArmatureBone, by name or UUID). Pass empty string in update to clear.</td>
+    </tr><tr>
+      <td class="col-name">ik_source</td>
+      <td class="col-type">string</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">IK chain start node. Pass empty string in update to clear.</td>
+    </tr><tr>
+      <td class="col-name">lock_ik_target_rotation</td>
+      <td class="col-type">boolean</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">Lock the IK target's rotation while solving.</td>
+    </tr><tr>
+      <td class="col-name">visibility</td>
+      <td class="col-type">boolean</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">Visibility (update only).</td>
+    </tr><tr>
+      <td class="col-name">locked</td>
+      <td class="col-type">boolean</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">Lock flag (update only).</td>
+    </tr></tbody>
+    </table>
+      </div>
+    </div>
         </section>
 <section id="cat-paint-tools" class="category-section">
           <h3 class="category-title">Paint Tools</h3>
@@ -4732,7 +4806,7 @@
       </section>
 
       <footer class="page-footer">
-        Generated 2026-05-30T13:47:52.639Z from Zod schemas
+        Generated 2026-05-30T13:49:29.617Z from Zod schemas
       </footer>
     </main>
   </div>

@@ -24,6 +24,7 @@ import { nullObjectToolDocs } from "../server/tools/null-object";
 import { riskyEvalToolDocs } from "../server/tools/_redesign/risky_eval";
 import { inspectToolDocs } from "../server/tools/_redesign/inspect";
 import { ajVariantOpToolDocs } from "../server/tools/_redesign/aj_variant_op";
+import { nullObjectOpToolDocs } from "../server/tools/_redesign/null_object_op";
 
 export interface CategoryGroup {
   category: string;
@@ -43,7 +44,7 @@ export const toolManifest: CategoryGroup[] = [
   { category: "Import/Export", tools: importToolDocs },
   { category: "Material Instances", tools: materialInstanceToolDocs },
   { category: "Mesh Editing", tools: meshToolDocs },
-  { category: "Null Objects / IK", tools: nullObjectToolDocs },
+  { category: "Null Objects / IK", tools: [...nullObjectToolDocs, ...nullObjectOpToolDocs] },
   { category: "Paint Tools", tools: paintToolDocs },
   { category: "Project", tools: projectToolDocs },
   { category: "Textures", tools: textureToolDocs },

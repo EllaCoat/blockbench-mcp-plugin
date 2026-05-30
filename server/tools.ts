@@ -26,6 +26,7 @@ import { registerNullObjectTools } from "./tools/null-object";
 import { registerRiskyEvalTool } from "./tools/_redesign/risky_eval";
 import { registerInspectTool } from "./tools/_redesign/inspect";
 import { registerAJVariantOpTool } from "./tools/_redesign/aj_variant_op";
+import { registerNullObjectOpTool } from "./tools/_redesign/null_object_op";
 
 // Core resource registrations
 import { registerValidatorResources } from "./resources/validator";
@@ -53,6 +54,7 @@ const registrationFunctions = [
   registerRiskyEvalTool,
   registerInspectTool,
   registerAJVariantOpTool,
+  registerNullObjectOpTool,
   registerValidatorResources,
 ];
 
