@@ -1142,7 +1142,7 @@ async function dispatchInspect(args: InspectArgs): Promise<unknown> {
         include_weights: args.include_weights,
       });
     case "textures":
-      return inspectTextures(args.id ?? args.texture);
+      return inspectTextures(args.id);
     case "materials":
       return inspectMaterials(args.id);
     case "material_instances":

@@ -1,6 +1,6 @@
 {
   "version": "1.6.0",
-  "generatedAt": "2026-05-30T13:50:18.653Z",
+  "generatedAt": "2026-05-30T14:09:41.650Z",
   "tools": [
     {
       "name": "inspect",
@@ -6471,8 +6471,8 @@
             "properties": {
               "code": {
                 "type": "string",
-                "description": "JavaScript code to evaluate inside Blockbench. The last expression's value is returned. Promises are awaited.",
-                "markdownDescription": "JavaScript code to evaluate inside Blockbench. The last expression's value is returned. Promises are awaited."
+                "description": "JavaScript code to evaluate inside Blockbench. The last expression's value is returned; if it is a Promise it is awaited. Use an async IIFE — `(async () => { ... })()` — for async code; top-level `await` is not supported in this eval context (script, not module).",
+                "markdownDescription": "JavaScript code to evaluate inside Blockbench. The last expression's value is returned; if it is a Promise it is awaited. Use an async IIFE — `(async () => { ... })()` — for async code; top-level `await` is not supported in this eval context (script, not module)."
               },
               "read_only": {
                 "type": "boolean",

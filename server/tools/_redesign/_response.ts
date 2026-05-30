@@ -84,6 +84,17 @@ export const truncate = (
   };
 };
 
+/**
+ * JSON.stringify wrapper that absorbs values JSON.stringify cannot serialize:
+ * circular references → "[Circular]", BigInt → `${n}n`, function →
+ * "[Function: name]", Symbol → "Symbol(desc)", Map / Set / Error → tagged
+ * plain objects.
+ *
+ * NOTE: WeakSet-based cycle detection treats any object visited more than once
+ * as circular, so a DAG (= the same object referenced from multiple parents)
+ * also collapses to "[Circular]" from the second visit onward. If DAG fidelity
+ * matters, pass a plain shallow copy with shared references already inlined.
+ */
 export const safeStringify = (value: unknown): string => {
   const seen = new WeakSet<object>();
   return JSON.stringify(value, (_key, val) => {

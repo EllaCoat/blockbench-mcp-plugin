@@ -20,7 +20,7 @@ export const riskyEvalParametersSchema = z.object({
   code: z
     .string()
     .describe(
-      "JavaScript code to evaluate inside Blockbench. The last expression's value is returned. Promises are awaited."
+      "JavaScript code to evaluate inside Blockbench. The last expression's value is returned; if it is a Promise it is awaited. Use an async IIFE — `(async () => { ... })()` — for async code; top-level `await` is not supported in this eval context (script, not module)."
     ),
   read_only: z
     .boolean()
@@ -60,12 +60,17 @@ export function registerRiskyEvalTool() {
     {
       ...riskyEvalToolDocs[0],
       async execute({ code, read_only, truncate_limit }) {
+        // Track whether initEdit actually succeeded — if initEdit itself
+        // throws, calling finishEdit in finally would leave the Undo stack in
+        // an inconsistent state. (Review finding, session 23.)
+        let editStarted = false;
         if (!read_only) {
           Undo.initEdit({
             elements: [],
             outliner: true,
             collections: [],
           });
+          editStarted = true;
         }
         try {
           const result = await indirectEval(code.trim());
@@ -92,7 +97,7 @@ export function registerRiskyEvalTool() {
             )
           );
         } finally {
-          if (!read_only) {
+          if (editStarted) {
             Undo.finishEdit("Agent executed code");
           }
         }
