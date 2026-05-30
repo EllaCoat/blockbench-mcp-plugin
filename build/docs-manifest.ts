@@ -23,6 +23,7 @@ import { nullObjectToolDocs } from "../server/tools/null-object";
 // Stage-II redesigned tools
 import { riskyEvalToolDocs } from "../server/tools/_redesign/risky_eval";
 import { inspectToolDocs } from "../server/tools/_redesign/inspect";
+import { ajVariantOpToolDocs } from "../server/tools/_redesign/aj_variant_op";
 
 export interface CategoryGroup {
   category: string;
@@ -31,7 +32,7 @@ export interface CategoryGroup {
 
 export const toolManifest: CategoryGroup[] = [
   { category: "Inspect (Stage II)", tools: inspectToolDocs },
-  { category: "Animated Java", tools: ajToolDocs },
+  { category: "Animated Java", tools: [...ajToolDocs, ...ajVariantOpToolDocs] },
   { category: "Cubes", tools: cubeToolDocs },
   { category: "Camera & Screenshots", tools: cameraToolDocs },
   { category: "Animation", tools: animationToolDocs },

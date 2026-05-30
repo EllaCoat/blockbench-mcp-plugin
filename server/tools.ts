@@ -25,6 +25,7 @@ import { registerNullObjectTools } from "./tools/null-object";
 // Stage-II redesigned tools (server/tools/_redesign/)
 import { registerRiskyEvalTool } from "./tools/_redesign/risky_eval";
 import { registerInspectTool } from "./tools/_redesign/inspect";
+import { registerAJVariantOpTool } from "./tools/_redesign/aj_variant_op";
 
 // Core resource registrations
 import { registerValidatorResources } from "./resources/validator";
@@ -51,6 +52,7 @@ const registrationFunctions = [
   // Stage-II redesigned tools
   registerRiskyEvalTool,
   registerInspectTool,
+  registerAJVariantOpTool,
   registerValidatorResources,
 ];
 

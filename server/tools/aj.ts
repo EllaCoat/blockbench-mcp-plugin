@@ -565,6 +565,68 @@ function serializeRigNode(input: unknown, includeGeometry: boolean): RigNode | n
 }
 
 // ============================================================================
+// Stage-II op implementations (named exports for _redesign/*_op.ts reuse)
+// ============================================================================
+// These extract the inner logic of the variant-* tools so the stage-II
+// `aj_variant_op` dispatcher can import and reuse them. Existing legacy tools
+// (registerAJTools below) still wrap their own inline logic — kept untouched
+// until the register switchover lands.
+
+export function ajVariantCreate(displayName: string) {
+  const Variant = getVariantClass();
+  const variant = new Variant(displayName);
+  markUnsaved();
+  return serializeVariant(variant);
+}
+
+export function ajVariantDuplicate(variantId: string) {
+  const Variant = getVariantClass();
+  const source = findVariantOrThrow(Variant, variantId);
+  source.duplicate();
+  markUnsaved();
+  const copy = Variant.selected;
+  return {
+    source: { uuid: source.uuid, display_name: source.displayName },
+    copy: copy ? serializeVariant(copy, copy.uuid) : null,
+  };
+}
+
+export function ajVariantUpdate(variantId: string, displayName: string) {
+  const Variant = getVariantClass();
+  const target = findVariantOrThrow(Variant, variantId);
+  if (target.isDefault) {
+    throw new Error("The default variant cannot be renamed.");
+  }
+  const oldName = target.displayName;
+  target.displayName = Variant.makeDisplayNameUnique(target, displayName);
+  if (target.generateNameFromDisplayName) {
+    target.name = Variant.makeNameUnique(target, target.displayName);
+  }
+  target.select();
+  markUnsaved();
+  return { renamed_from: oldName, variant: serializeVariant(target) };
+}
+
+export function ajVariantDelete(variantId: string) {
+  const Variant = getVariantClass();
+  const target = findVariantOrThrow(Variant, variantId);
+  if (target.isDefault) {
+    throw new Error("The default variant cannot be deleted.");
+  }
+  const { displayName, uuid } = target;
+  target.delete();
+  markUnsaved();
+  return { deleted: { display_name: displayName, uuid } };
+}
+
+export function ajVariantApply(variantId: string) {
+  const Variant = getVariantClass();
+  const target = findVariantOrThrow(Variant, variantId);
+  target.select();
+  return { applied: serializeVariant(target, target.uuid) };
+}
+
+// ============================================================================
 // Registration
 // ============================================================================
 

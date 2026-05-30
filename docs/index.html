@@ -18,7 +18,7 @@
 
       <div class="nav-group">
         <p class="nav-heading">Overview</p>
-        <a href="#tools" class="nav-link">Tools <span class="count">(111)</span></a>
+        <a href="#tools" class="nav-link">Tools <span class="count">(112)</span></a>
         <a href="#prompts" class="nav-link">Prompts <span class="count">(3)</span></a>
         <a href="#resources" class="nav-link">Resources <span class="count">(8)</span></a>
       </div>
@@ -26,7 +26,7 @@
       <div class="nav-group">
         <p class="nav-heading">Categories</p>
         <a href="#cat-inspect-stage-ii" class="nav-link">Inspect (Stage II) <span class="count">(1)</span></a>
-        <a href="#cat-animated-java" class="nav-link">Animated Java <span class="count">(12)</span></a>
+        <a href="#cat-animated-java" class="nav-link">Animated Java <span class="count">(13)</span></a>
         <a href="#cat-cubes" class="nav-link">Cubes <span class="count">(2)</span></a>
         <a href="#cat-camera-screenshots" class="nav-link">Camera &amp; Screenshots <span class="count">(3)</span></a>
         <a href="#cat-animation" class="nav-link">Animation <span class="count">(7)</span></a>
@@ -51,7 +51,7 @@
         <h1>Blockbench MCP Plugin</h1>
         <p class="subtitle">API Reference — v1.6.0</p>
         <nav class="stats">
-          <a href="#tools"><strong>111</strong> tools (40 stable, 71 experimental)</a>
+          <a href="#tools"><strong>112</strong> tools (40 stable, 72 experimental)</a>
           <a href="#prompts"><strong>3</strong> prompts</a>
           <a href="#resources"><strong>8</strong> resources</a>
         </nav>
@@ -541,6 +541,45 @@
       <td class="col-type">object</td>
       <td><span class="param-optional">optional</span></td>
       <td class="col-desc">Restrict to keyframes within this time range (seconds, inclusive). If omitted, applies to all keyframes.</td>
+    </tr></tbody>
+    </table>
+      </div>
+    </div>
+<div id="tool-aj_variant_op" class="card tool-card">
+      <div class="card-header">
+        <h3 class="card-name">aj_variant_op</h3>
+        <div class="card-badges">
+          <span class="badge badge-experimental">experimental</span>
+          
+        </div>
+      </div>
+      <p class="card-title">AJ: Variant Op</p>
+      <p class="card-desc">Animated Java variant operations (create/duplicate/update/delete/apply) collapsed into a single tool. Specify `action` plus the relevant fields. Returns { ok, data, error?, meta? }. Replaces legacy aj_variant_create / aj_variant_duplicate / aj_variant_update / aj_variant_delete / aj_variant_apply.</p>
+      <div class="overflow-x">
+        <table class="param-table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Required</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody><tr>
+      <td class="col-name">action</td>
+      <td class="col-type">&quot;create&quot; | &quot;duplicate&quot; | &quot;update&quot; | &quot;delete&quot; | &quot;apply&quot;</td>
+      <td><span class="param-required">required</span></td>
+      <td class="col-desc">Operation to perform. create: new empty variant. duplicate: copy an existing variant. update: rename. delete: remove. apply: select for the preview viewport.</td>
+    </tr><tr>
+      <td class="col-name">variant</td>
+      <td class="col-type">string</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">Target variant for duplicate/update/delete/apply. UUID, internal name, or display name.</td>
+    </tr><tr>
+      <td class="col-name">display_name</td>
+      <td class="col-type">string</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">Display name for create/update. Made unique automatically if it collides.</td>
     </tr></tbody>
     </table>
       </div>
@@ -4693,7 +4732,7 @@
       </section>
 
       <footer class="page-footer">
-        Generated 2026-05-30T13:44:21.441Z from Zod schemas
+        Generated 2026-05-30T13:47:52.639Z from Zod schemas
       </footer>
     </main>
   </div>
