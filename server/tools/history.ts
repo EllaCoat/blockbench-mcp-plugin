@@ -142,6 +142,76 @@ function summarizeHistory(limit: number): {
   };
 }
 
+// ============================================================================
+// Stage-II op implementations (named exports for _redesign/history_op.ts)
+// ============================================================================
+
+export function historyUndo(steps: number) {
+  const history = Undo.history ?? [];
+  const available = Undo.index ?? 0;
+  if (available === 0) {
+    throw new Error("Nothing to undo. The undo stack is empty.");
+  }
+  const count = Math.min(steps, available);
+  const undone: string[] = [];
+  for (let i = 0; i < count; i++) {
+    const entry = history[(Undo.index ?? 0) - 1] as
+      | { action?: string }
+      | undefined;
+    undone.push(entry?.action ?? "(unnamed edit)");
+    Undo.undo();
+  }
+  Canvas.updateAll();
+  return {
+    undone_count: undone.length,
+    requested: steps,
+    undone,
+    new_index: Undo.index,
+  };
+}
+
+export function historyRedo(steps: number) {
+  const history = Undo.history ?? [];
+  const available = history.length - (Undo.index ?? 0);
+  if (available === 0) {
+    throw new Error(
+      "Nothing to redo. No edits have been undone or the redo stack has been cleared."
+    );
+  }
+  const count = Math.min(steps, available);
+  const redone: string[] = [];
+  for (let i = 0; i < count; i++) {
+    const entry = history[Undo.index ?? 0] as
+      | { action?: string }
+      | undefined;
+    redone.push(entry?.action ?? "(unnamed edit)");
+    Undo.redo();
+  }
+  Canvas.updateAll();
+  return {
+    redone_count: redone.length,
+    requested: steps,
+    redone,
+    new_index: Undo.index,
+  };
+}
+
+export function historySaveCheckpoint(name: string) {
+  const label = `[checkpoint] ${name}`;
+  Undo.initEdit({
+    elements: [],
+    outliner: true,
+    collections: [],
+  });
+  Undo.finishEdit(label);
+  return {
+    name,
+    label,
+    index: Undo.index,
+    total: Undo.history?.length ?? 0,
+  };
+}
+
 export function registerHistoryTools() {
   createTool(historyToolDocs[0].name, {
     ...historyToolDocs[0],
