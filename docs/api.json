@@ -1,6 +1,6 @@
 {
   "version": "1.6.0",
-  "generatedAt": "2026-05-30T13:24:04.392Z",
+  "generatedAt": "2026-05-30T13:44:21.441Z",
   "tools": [
     {
       "name": "inspect",
@@ -36,7 +36,6 @@
                   "material_instances",
                   "history",
                   "project",
-                  "screenshot",
                   "export_formats",
                   "vertex_weights"
                 ],
@@ -152,16 +151,6 @@
                 "type": "integer",
                 "exclusiveMinimum": 0,
                 "maximum": 200
-              },
-              "screenshot_kind": {
-                "type": "string",
-                "enum": [
-                  "viewport",
-                  "app"
-                ]
-              },
-              "screenshot_project": {
-                "type": "string"
               },
               "only_current_format": {
                 "type": "boolean"

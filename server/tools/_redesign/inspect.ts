@@ -12,6 +12,11 @@ import {
   type ToolResponse,
   type WrappedToolResult,
 } from "./_response";
+import {
+  findTextureOrThrow,
+  findTextureGroupOrThrow,
+  getChannelTextureInfo,
+} from "@/lib/util";
 
 // ============================================================================
 // Schema
@@ -37,10 +42,11 @@ const TARGETS = [
   "material_instances",
   "history",
   "project",
-  "screenshot",
   "export_formats",
   "vertex_weights",
 ] as const;
+// Note: `screenshot` (capture_screenshot/capture_app_screenshot) is deliberately
+// excluded — image content is not JSON-shaped and stays as standalone tools.
 
 export const inspectParameters = z.object({
   target: z
@@ -88,11 +94,6 @@ export const inspectParameters = z.object({
   // history
   history_limit: z.number().int().positive().max(200).optional(),
 
-  // screenshot
-  screenshot_kind: z.enum(["viewport", "app"]).optional(),
-  // Named `screenshot_project` (not `project`) to avoid shadowing the `project` target.
-  screenshot_project: z.string().optional(),
-
   // export_formats
   only_current_format: z.boolean().optional(),
 
@@ -134,6 +135,165 @@ function wrapInspect<T>(response: ToolResponse<T>): WrappedToolResult {
   );
   return { content: [{ type: "text", text: JSON.stringify(errResponse) }] };
 }
+
+// ============================================================================
+// Element / Armature / Texture helpers
+// ============================================================================
+// Mirror of helpers in element.ts / armature.ts / texture.ts / material-instances.ts.
+// Intentional duplication per the stage-II "case 2" plan (legacy files stay,
+// register is dropped; consolidate after all targets migrate).
+
+const MAX_REGEX_PATTERN_LENGTH = 512;
+// Reject quantifiers applied to a group whose body already contains a quantifier
+// (classic catastrophic-backtracking shape: `(a+)+`, `(.*)*`, etc).
+const CATASTROPHIC_BACKTRACK_HEURISTIC = /\([^)]*[+*?][^)]*\)\s*[+*?{]/;
+
+function safeCompileRegex(pattern: string | undefined): RegExp | null {
+  if (!pattern) return null;
+  if (pattern.length > MAX_REGEX_PATTERN_LENGTH) return null;
+  if (CATASTROPHIC_BACKTRACK_HEURISTIC.test(pattern)) return null;
+  try {
+    return new RegExp(pattern);
+  } catch {
+    return null;
+  }
+}
+
+function getElementType(el: unknown): "cube" | "mesh" | "group" | null {
+  if (el instanceof Cube) return "cube";
+  if (el instanceof Mesh) return "mesh";
+  if (el instanceof Group) return "group";
+  return null;
+}
+
+function getParentName(el: { parent?: unknown }): string | null {
+  const parent = el.parent as { name?: string; uuid?: string } | undefined;
+  if (!parent || typeof parent !== "object") return null;
+  return parent.name ?? parent.uuid ?? null;
+}
+
+function isDescendantOf(
+  el: { parent?: unknown },
+  targetGroup: Group
+): boolean {
+  let current: { parent?: unknown } | undefined = el;
+  while (current && current.parent && typeof current.parent === "object") {
+    if (current.parent === targetGroup) return true;
+    current = current.parent as { parent?: unknown };
+  }
+  return false;
+}
+
+function cubeSize(cube: Cube): [number, number, number] {
+  return [
+    cube.to[0] - cube.from[0],
+    cube.to[1] - cube.from[1],
+    cube.to[2] - cube.from[2],
+  ];
+}
+
+function exceedsBounds(
+  size: [number, number, number],
+  min?: number[],
+  max?: number[]
+): boolean {
+  if (min && size.some((v, i) => v < (min[i] ?? -Infinity))) return true;
+  if (max && size.some((v, i) => v > (max[i] ?? Infinity))) return true;
+  return false;
+}
+
+function findArmature(id: string): Armature | undefined {
+  return Armature.all.find(
+    (a) => a.uuid === id || a.name === id || a.uuid.startsWith(id)
+  );
+}
+
+function findArmatureOrThrow(id: string): Armature {
+  const armature = findArmature(id);
+  if (!armature) {
+    throw new Error(
+      `Armature not found: ${id}. Use inspect(target='armatures') to list available armatures.`
+    );
+  }
+  return armature;
+}
+
+function findArmatureBone(id: string): ArmatureBone | undefined {
+  return ArmatureBone.all.find(
+    (b) => b.uuid === id || b.name === id || b.uuid.startsWith(id)
+  );
+}
+
+function findArmatureBoneOrThrow(id: string): ArmatureBone {
+  const bone = findArmatureBone(id);
+  if (!bone) {
+    throw new Error(
+      `Armature bone not found: ${id}. Use inspect(target='bones') to list available bones.`
+    );
+  }
+  return bone;
+}
+
+function findMeshById(id: string): Mesh | undefined {
+  return Mesh.all.find(
+    (m) => m.uuid === id || m.name === id || m.uuid.startsWith(id)
+  );
+}
+
+function findCubeOrThrowById(id: string): Cube {
+  const cube = Cube.all.find(
+    (c) => c.uuid === id || c.name === id || c.uuid.startsWith(id)
+  );
+  if (!cube) {
+    throw new Error(
+      `Cube not found: ${id}. Material instances are only supported on cube faces.`
+    );
+  }
+  return cube;
+}
+
+function serializeArmature(armature: Armature) {
+  return {
+    uuid: armature.uuid,
+    name: armature.name,
+    type: armature.type,
+    visibility: armature.visibility,
+    locked: armature.locked,
+    export: armature.export,
+    isOpen: armature.isOpen,
+    origin: armature.origin,
+    childCount: armature.children.length,
+    boneCount: armature.getAllBones().length,
+  };
+}
+
+function serializeArmatureBone(bone: ArmatureBone) {
+  const armature = bone.getArmature();
+  return {
+    uuid: bone.uuid,
+    name: bone.name,
+    type: bone.type,
+    armature: armature ? { uuid: armature.uuid, name: armature.name } : null,
+    origin: bone.origin,
+    rotation: bone.rotation,
+    length: bone.length,
+    width: bone.width,
+    connected: bone.connected,
+    color: bone.color,
+    visibility: bone.visibility,
+    locked: bone.locked,
+    export: bone.export,
+    parentBone:
+      bone.parent instanceof ArmatureBone
+        ? { uuid: bone.parent.uuid, name: bone.parent.name }
+        : null,
+    childCount: bone.children.length,
+    vertexWeightCount: Object.keys(bone.vertex_weights).length,
+  };
+}
+
+const FACE_KEYS = ["north", "south", "east", "west", "up", "down"] as const;
+type FaceKey = (typeof FACE_KEYS)[number];
 
 // ============================================================================
 // AJ Blueprint helpers
@@ -431,6 +591,45 @@ function inspectRig(includeGeometry: boolean): unknown {
   return { counts, roots };
 }
 
+interface CodecLike {
+  id?: string;
+  name?: string;
+  extension?: string;
+  compile?: unknown;
+  export?: unknown;
+  support_partial_export?: boolean;
+}
+
+function inspectExportFormats(onlyCurrentFormat: boolean): unknown {
+  // @ts-ignore - Codecs is a Blockbench global
+  const registry = Codecs as Record<string, unknown>;
+  const currentFormatCodecId = (Format as { codec?: { id?: string } } | undefined)
+    ?.codec?.id;
+
+  const summaries = Object.entries(registry).map(([id, codec]) => {
+    const c = codec as CodecLike;
+    return {
+      id,
+      name: c.name ?? id,
+      extension: c.extension ?? null,
+      has_compile: typeof c.compile === "function",
+      has_export: typeof c.export === "function",
+      supports_partial_export: Boolean(c.support_partial_export),
+      belongs_to_current_format: c.id === currentFormatCodecId,
+    };
+  });
+
+  const filtered = onlyCurrentFormat
+    ? summaries.filter((s) => s.belongs_to_current_format)
+    : summaries;
+
+  return {
+    current_format_codec: currentFormatCodecId ?? null,
+    count: filtered.length,
+    codecs: filtered.sort((a, b) => a.id.localeCompare(b.id)),
+  };
+}
+
 function inspectSelection(): unknown {
   const cubes = Cube.selected.map((c: Cube) => ({
     uuid: c.uuid,
@@ -489,6 +688,401 @@ function inspectNullObjects(id?: string): unknown {
   return { count: nullObjects.length, null_objects: nullObjects };
 }
 
+interface IOutlineNode {
+  name: string;
+  uuid: string;
+  type: "cube" | "mesh" | "group";
+  children?: IOutlineNode[];
+}
+
+function inspectOutline(
+  includeCubes: boolean,
+  includeMeshes: boolean,
+  maxDepth: number
+): unknown {
+  const truncated: string[] = [];
+  const nodeFor = (el: unknown, depth: number): IOutlineNode | null => {
+    if (el instanceof Group) {
+      const node: IOutlineNode = {
+        name: el.name,
+        uuid: el.uuid,
+        type: "group",
+        children: [],
+      };
+      if (depth >= maxDepth) {
+        truncated.push(el.name);
+        delete node.children;
+        return node;
+      }
+      for (const child of el.children ?? []) {
+        const childNode = nodeFor(child, depth + 1);
+        if (childNode) node.children!.push(childNode);
+      }
+      return node;
+    }
+    if (el instanceof Cube) {
+      if (!includeCubes) return null;
+      return { name: el.name, uuid: el.uuid, type: "cube" };
+    }
+    if (el instanceof Mesh) {
+      if (!includeMeshes) return null;
+      return { name: el.name, uuid: el.uuid, type: "mesh" };
+    }
+    return null;
+  };
+  const roots = Outliner.root
+    .map((el) => nodeFor(el, 0))
+    .filter((n): n is IOutlineNode => n !== null);
+  const counts = {
+    groups: Group.all.length,
+    cubes: Cube.all.length,
+    meshes: Mesh.all.length,
+  };
+  return {
+    counts,
+    truncated_at_max_depth: truncated.length ? truncated : undefined,
+    roots,
+  };
+}
+
+interface IFindMatch {
+  uuid: string;
+  name: string;
+  type: "cube" | "mesh" | "group";
+  parent: string | null;
+}
+
+function inspectFind(args: {
+  name_pattern?: string;
+  name_contains?: string;
+  type?: "cube" | "mesh" | "group" | "any";
+  parent_group?: string;
+  min_size?: [number, number, number];
+  max_size?: [number, number, number];
+  selected_only?: boolean;
+  limit?: number;
+}): unknown {
+  const type = args.type ?? "any";
+  const selectedOnly = args.selected_only ?? false;
+  const limit = args.limit ?? 50;
+
+  const regex = safeCompileRegex(args.name_pattern);
+  const needle = args.name_contains?.toLowerCase() ?? null;
+  const parentScope = args.parent_group
+    ? (Group.all.find(
+        (g: Group) =>
+          g.uuid === args.parent_group || g.name === args.parent_group
+      ) ?? null)
+    : null;
+  if (args.parent_group && !parentScope) {
+    throw new Error(
+      `Parent group "${args.parent_group}" not found. Use inspect(target='outline') to see available groups.`
+    );
+  }
+
+  const candidates: Array<Cube | Mesh | Group> = [
+    ...(selectedOnly ? Cube.selected : Cube.all),
+    ...(selectedOnly ? Mesh.selected : Mesh.all),
+    ...(selectedOnly ? Group.all.filter((g: Group) => g.selected) : Group.all),
+  ];
+
+  const matches: IFindMatch[] = [];
+  for (const el of candidates) {
+    if (matches.length >= limit) break;
+    const elType = getElementType(el);
+    if (!elType) continue;
+    if (type !== "any" && elType !== type) continue;
+    if (regex && !regex.test(el.name)) continue;
+    if (needle && !el.name.toLowerCase().includes(needle)) continue;
+    if (parentScope && !isDescendantOf(el, parentScope)) continue;
+    if (el instanceof Cube && (args.min_size || args.max_size)) {
+      if (exceedsBounds(cubeSize(el), args.min_size, args.max_size)) continue;
+    }
+    matches.push({
+      uuid: el.uuid,
+      name: el.name,
+      type: elType,
+      parent: getParentName(el),
+    });
+  }
+
+  return {
+    count: matches.length,
+    truncated: matches.length >= limit,
+    matches,
+  };
+}
+
+interface IByMaterialMatch {
+  uuid: string;
+  name: string;
+  type: "cube" | "mesh";
+  faces?: string[];
+}
+
+function inspectByMaterial(
+  textureId: string,
+  includeFaceKeys: boolean
+): unknown {
+  const tex = findTextureOrThrow(textureId);
+  const matches: IByMaterialMatch[] = [];
+
+  for (const cube of Cube.all) {
+    const faceKeys: string[] = [];
+    for (const [key, face] of Object.entries(cube.faces ?? {})) {
+      const faceTexId = (face as { texture?: unknown }).texture;
+      if (faceTexId === tex.uuid || faceTexId === tex.id) {
+        faceKeys.push(key);
+      }
+    }
+    if (faceKeys.length > 0) {
+      matches.push({
+        uuid: cube.uuid,
+        name: cube.name,
+        type: "cube",
+        ...(includeFaceKeys ? { faces: faceKeys } : {}),
+      });
+    }
+  }
+
+  for (const mesh of Mesh.all) {
+    const faceKeys: string[] = [];
+    for (const [key, face] of Object.entries(mesh.faces ?? {})) {
+      const faceTexId = (face as { texture?: unknown }).texture;
+      if (faceTexId === tex.uuid || faceTexId === tex.id) {
+        faceKeys.push(key);
+      }
+    }
+    if (faceKeys.length > 0) {
+      matches.push({
+        uuid: mesh.uuid,
+        name: mesh.name,
+        type: "mesh",
+        ...(includeFaceKeys ? { faces: faceKeys } : {}),
+      });
+    }
+  }
+
+  return {
+    texture: { uuid: tex.uuid, name: tex.name },
+    count: matches.length,
+    matches,
+  };
+}
+
+function inspectArmatures(id?: string, includeBones?: boolean): unknown {
+  if (id) {
+    const armature = findArmatureOrThrow(id);
+    const result: Record<string, unknown> = serializeArmature(armature);
+    if (includeBones) {
+      result.bones = armature.getAllBones().map(serializeArmatureBone);
+    }
+    return result;
+  }
+  const armatures = Armature.all.map(serializeArmature);
+  return { count: armatures.length, armatures };
+}
+
+function inspectBones(args: {
+  id?: string;
+  armature_id?: string;
+  include_weights?: boolean;
+}): unknown {
+  if (args.id) {
+    const bone = findArmatureBoneOrThrow(args.id);
+    const result: Record<string, unknown> = serializeArmatureBone(bone);
+    if (args.include_weights) {
+      result.vertex_weights = bone.vertex_weights;
+    }
+    return result;
+  }
+  const bones = args.armature_id
+    ? findArmatureOrThrow(args.armature_id).getAllBones()
+    : ArmatureBone.all;
+  const serialized = bones.map(serializeArmatureBone);
+  return { count: serialized.length, bones: serialized };
+}
+
+function inspectTextures(id?: string): unknown {
+  const all = Project?.textures ?? Texture.all;
+  if (id) {
+    const tex = findTextureOrThrow(id);
+    return {
+      texture: {
+        name: tex.name,
+        uuid: tex.uuid,
+        id: tex.id,
+        group: tex.group,
+        width: tex.width,
+        height: tex.height,
+        // Image bytes deliberately omitted — use the standalone `get_texture`
+        // tool to fetch the data URL, since image content is not JSON-shaped.
+      },
+    };
+  }
+  return {
+    count: all.length,
+    textures: all.map((t) => ({
+      name: t.name,
+      uuid: t.uuid,
+      id: t.id,
+      group: t.group,
+    })),
+  };
+}
+
+function inspectMaterials(id?: string): unknown {
+  if (id) {
+    const group = findTextureGroupOrThrow(id);
+    const textures = group.getTextures();
+    let textureSetJson = null;
+    try {
+      textureSetJson = group.material_config.compileForBedrock();
+    } catch {
+      // Format may not support texture_set.json
+    }
+    return {
+      material: {
+        name: group.name,
+        uuid: group.uuid,
+        is_material: group.is_material,
+        textures: textures.map((tex: Texture) => ({
+          name: tex.name,
+          uuid: tex.uuid,
+          pbr_channel: tex.pbr_channel,
+          width: tex.width,
+          height: tex.height,
+          render_mode: tex.render_mode,
+          render_sides: tex.render_sides,
+        })),
+        config: {
+          color_value: group.material_config.color_value,
+          mer_value: group.material_config.mer_value,
+          subsurface_value: group.material_config.subsurface_value,
+          saved: group.material_config.saved,
+          file_path: group.material_config.getFilePath(),
+        },
+        texture_set_json: textureSetJson,
+      },
+    };
+  }
+  // @ts-ignore - TextureGroup is globally available
+  const materials = TextureGroup.all.filter(
+    (g: TextureGroup) => g.is_material
+  );
+  const result = materials.map((group: TextureGroup) => {
+    const textures = group.getTextures();
+    return {
+      name: group.name,
+      uuid: group.uuid,
+      channels: {
+        color: getChannelTextureInfo(textures, "color"),
+        normal: getChannelTextureInfo(textures, "normal"),
+        height: getChannelTextureInfo(textures, "height"),
+        mer: getChannelTextureInfo(textures, "mer"),
+      },
+      config: {
+        color_value: group.material_config.color_value,
+        mer_value: group.material_config.mer_value,
+        subsurface_value: group.material_config.subsurface_value,
+        saved: group.material_config.saved,
+      },
+    };
+  });
+  return { count: result.length, materials: result };
+}
+
+function inspectMaterialInstances(
+  cubeId?: string,
+  faces?: FaceKey[]
+): unknown {
+  if (cubeId) {
+    const cube = findCubeOrThrowById(cubeId);
+    const facesToCheck = faces ?? FACE_KEYS;
+    const result: Record<
+      string,
+      { material_name: string; texture: string | null }
+    > = {};
+    for (const faceDir of facesToCheck) {
+      const face = cube.faces[faceDir];
+      if (face) {
+        result[faceDir] = {
+          material_name: face.material_name || "",
+          texture: face.texture
+            ? (face.getTexture()?.name || face.texture.toString())
+            : null,
+        };
+      }
+    }
+    return {
+      cube: { name: cube.name, uuid: cube.uuid },
+      faces: result,
+    };
+  }
+  // Aggregate listing — group cubes by material_name.
+  const materialMap: Record<
+    string,
+    Array<{ cube_name: string; cube_uuid: string; face: string }>
+  > = {};
+  for (const cube of Cube.all) {
+    for (const faceDir of FACE_KEYS) {
+      const face = cube.faces[faceDir];
+      if (face && face.material_name) {
+        if (!materialMap[face.material_name]) materialMap[face.material_name] = [];
+        materialMap[face.material_name].push({
+          cube_name: cube.name,
+          cube_uuid: cube.uuid,
+          face: faceDir,
+        });
+      }
+    }
+  }
+  const materialInstances = Object.entries(materialMap).map(
+    ([name, usages]) => ({ name, usage_count: usages.length, usages })
+  );
+  return {
+    total_unique_instances: materialInstances.length,
+    material_instances: materialInstances,
+  };
+}
+
+function inspectVertexWeights(meshId?: string, boneId?: string): unknown {
+  const mesh = meshId ? findMeshById(meshId) : Mesh.selected[0];
+  if (!mesh) {
+    throw new Error(
+      "No mesh found. Provide mesh_id, or select a mesh in Blockbench."
+    );
+  }
+  const armature = (mesh as unknown as { getArmature?: () => Armature | undefined })
+    .getArmature?.();
+  if (!armature) {
+    throw new Error(
+      `Mesh "${mesh.name}" is not associated with an armature.`
+    );
+  }
+  const bones = boneId
+    ? [findArmatureBoneOrThrow(boneId)]
+    : armature.getAllBones();
+  const weights: Record<string, Record<string, number>> = {};
+  for (const bone of bones) {
+    const boneWeights: Record<string, number> = {};
+    for (const vkey in mesh.vertices) {
+      const weight = bone.getVertexWeight(mesh, vkey);
+      if (weight > 0) {
+        boneWeights[vkey] = weight;
+      }
+    }
+    if (Object.keys(boneWeights).length > 0) {
+      weights[bone.name] = boneWeights;
+    }
+  }
+  return {
+    mesh: { uuid: mesh.uuid, name: mesh.name },
+    armature: { uuid: armature.uuid, name: armature.name },
+    weights,
+  };
+}
+
 // ============================================================================
 // Dispatcher
 // ============================================================================
@@ -513,6 +1107,51 @@ async function dispatchInspect(args: InspectArgs): Promise<unknown> {
       return inspectNullObjects(args.id);
     case "selection":
       return inspectSelection();
+    case "export_formats":
+      return inspectExportFormats(args.only_current_format ?? false);
+    case "outline":
+      return inspectOutline(
+        args.include_cubes ?? true,
+        args.include_meshes ?? true,
+        args.max_depth ?? 6
+      );
+    case "find":
+      return inspectFind({
+        name_pattern: args.name_pattern,
+        name_contains: args.name_contains,
+        type: args.type,
+        parent_group: args.parent_group,
+        min_size: args.min_size,
+        max_size: args.max_size,
+        selected_only: args.selected_only,
+        limit: args.limit,
+      });
+    case "by_material":
+      if (!args.texture) {
+        throw new Error(
+          "target='by_material' requires the 'texture' field (texture UUID / id / name)."
+        );
+      }
+      return inspectByMaterial(args.texture, args.include_face_keys ?? false);
+    case "armatures":
+      return inspectArmatures(args.id, args.include_bones);
+    case "bones":
+      return inspectBones({
+        id: args.id,
+        armature_id: args.armature_id,
+        include_weights: args.include_weights,
+      });
+    case "textures":
+      return inspectTextures(args.id ?? args.texture);
+    case "materials":
+      return inspectMaterials(args.id);
+    case "material_instances":
+      return inspectMaterialInstances(
+        args.cube_id,
+        args.faces as FaceKey[] | undefined
+      );
+    case "vertex_weights":
+      return inspectVertexWeights(args.mesh_id, args.bone_id);
     default:
       // Stage-II growth point: each target is migrated from its legacy tool
       // one at a time. Until then, fall through with a structured error so
