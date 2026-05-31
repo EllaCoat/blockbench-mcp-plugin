@@ -380,6 +380,210 @@ export const textureToolDocs: ToolSpec[] = [
 ];
 
 // ============================================================================
+// Stage-II op implementations (named exports for _redesign/material_op.ts)
+// ============================================================================
+
+export function materialCreatePbr(params: {
+  name: string;
+  color_texture?: string;
+  normal_texture?: string;
+  height_texture?: string;
+  mer_texture?: string;
+  color_value?: number[];
+  mer_value?: number[];
+  subsurface_value?: number;
+}) {
+  const texturesToAdd: Texture[] = [];
+
+  if (params.color_texture) texturesToAdd.push(findTextureOrThrow(params.color_texture));
+  if (params.normal_texture) texturesToAdd.push(findTextureOrThrow(params.normal_texture));
+  if (params.height_texture) texturesToAdd.push(findTextureOrThrow(params.height_texture));
+  if (params.mer_texture) texturesToAdd.push(findTextureOrThrow(params.mer_texture));
+
+  Undo.initEdit({
+    // @ts-ignore - texture_groups is a valid Blockbench Undo property
+    texture_groups: [],
+    textures: texturesToAdd,
+  });
+
+  // @ts-ignore - TextureGroup is globally available
+  const textureGroup = new TextureGroup({
+    name: params.name,
+    is_material: true,
+  });
+
+  if (params.color_value) textureGroup.material_config.color_value = params.color_value;
+  if (params.mer_value) textureGroup.material_config.mer_value = params.mer_value;
+  if (params.subsurface_value !== undefined) {
+    textureGroup.material_config.subsurface_value = params.subsurface_value;
+  }
+  textureGroup.material_config.saved = false;
+  textureGroup.add();
+
+  if (params.color_texture) {
+    findTextureOrThrow(params.color_texture).extend({
+      group: textureGroup.uuid,
+      pbr_channel: "color",
+    });
+  }
+  if (params.normal_texture) {
+    findTextureOrThrow(params.normal_texture).extend({
+      group: textureGroup.uuid,
+      pbr_channel: "normal",
+    });
+  }
+  if (params.height_texture) {
+    findTextureOrThrow(params.height_texture).extend({
+      group: textureGroup.uuid,
+      pbr_channel: "height",
+    });
+  }
+  if (params.mer_texture) {
+    findTextureOrThrow(params.mer_texture).extend({
+      group: textureGroup.uuid,
+      pbr_channel: "mer",
+    });
+  }
+
+  textureGroup.updateMaterial();
+
+  Undo.finishEdit("Agent created PBR material");
+  Canvas.updateAll();
+
+  return {
+    message: `Created PBR material "${textureGroup.name}"`,
+    material: {
+      name: textureGroup.name,
+      uuid: textureGroup.uuid,
+      is_material: true,
+      channels: {
+        color: params.color_texture ? true : !!params.color_value,
+        normal: !!params.normal_texture,
+        height: !!params.height_texture,
+        mer: params.mer_texture ? true : !!params.mer_value,
+      },
+    },
+  };
+}
+
+export function materialConfigure(params: {
+  material: string;
+  color_texture?: string;
+  normal_texture?: string;
+  height_texture?: string;
+  mer_texture?: string;
+  color_value?: number[];
+  mer_value?: number[];
+  subsurface_value?: number;
+}) {
+  const textureGroup = findTextureGroupOrThrow(params.material);
+  const textures = textureGroup.getTextures();
+
+  Undo.initEdit({
+    // @ts-ignore - texture_groups is a valid Blockbench Undo property
+    texture_groups: [textureGroup],
+    textures,
+  });
+
+  const channelHandlers: Array<["color" | "normal" | "height" | "mer", string | undefined]> = [
+    ["color", params.color_texture],
+    ["normal", params.normal_texture],
+    ["height", params.height_texture],
+    ["mer", params.mer_texture],
+  ];
+
+  for (const [channel, value] of channelHandlers) {
+    if (value === "none") {
+      textures
+        .filter((t: Texture) => t.pbr_channel === channel)
+        .forEach((t: Texture) => (t.group = ""));
+    } else if (value) {
+      const tex = findTextureOrThrow(value);
+      tex.extend({ group: textureGroup.uuid, pbr_channel: channel });
+    }
+  }
+
+  if (params.color_value) textureGroup.material_config.color_value = params.color_value;
+  if (params.mer_value) textureGroup.material_config.mer_value = params.mer_value;
+  if (params.subsurface_value !== undefined) {
+    textureGroup.material_config.subsurface_value = params.subsurface_value;
+  }
+
+  textureGroup.material_config.saved = false;
+  textureGroup.updateMaterial();
+
+  Undo.finishEdit("Agent configured material");
+  Canvas.updateAll();
+
+  return {
+    message: `Configured material "${textureGroup.name}"`,
+    material: { name: textureGroup.name, uuid: textureGroup.uuid },
+  };
+}
+
+export function materialAssignChannel(params: {
+  material: string;
+  texture: string;
+  channel: "color" | "normal" | "height" | "mer";
+}) {
+  const textureGroup = findTextureGroupOrThrow(params.material);
+  const tex = findTextureOrThrow(params.texture);
+
+  Undo.initEdit({
+    // @ts-ignore - texture_groups is a valid Blockbench Undo property
+    texture_groups: [textureGroup],
+    textures: [tex],
+  });
+
+  const existingTextures = textureGroup.getTextures();
+  existingTextures
+    .filter(
+      (t: Texture) =>
+        t.pbr_channel === params.channel && t.uuid !== tex.uuid
+    )
+    .forEach((t: Texture) => {
+      t.pbr_channel = "color";
+    });
+
+  tex.extend({
+    group: textureGroup.uuid,
+    pbr_channel: params.channel,
+  });
+
+  textureGroup.material_config.saved = false;
+  textureGroup.updateMaterial();
+
+  Undo.finishEdit("Agent assigned texture channel");
+  Canvas.updateAll();
+
+  return {
+    message: `Assigned texture "${tex.name}" to ${params.channel} channel of material "${textureGroup.name}"`,
+    material: { name: textureGroup.name, uuid: textureGroup.uuid },
+    texture: { name: tex.name, uuid: tex.uuid },
+    channel: params.channel,
+  };
+}
+
+export function materialSaveConfig(params: { material: string }) {
+  const textureGroup = findTextureGroupOrThrow(params.material);
+  const filePath = textureGroup.material_config.getFilePath();
+
+  if (!filePath) {
+    throw new Error(
+      "Cannot save: Material needs a color texture with a valid file path. Save the color texture first, then try again."
+    );
+  }
+
+  textureGroup.material_config.save();
+
+  return {
+    message: `Saved material config to "${filePath}"`,
+    material: { name: textureGroup.name, uuid: textureGroup.uuid },
+    file_path: filePath,
+  };
+}
+
+// ============================================================================
 // Tool Registration
 // ============================================================================
 

@@ -1,6 +1,6 @@
 {
   "version": "1.6.0",
-  "generatedAt": "2026-05-31T22:55:25.152Z",
+  "generatedAt": "2026-05-31T22:56:35.404Z",
   "tools": [
     {
       "name": "inspect",
@@ -7001,6 +7001,119 @@
             },
             "required": [
               "texture"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    },
+    {
+      "name": "material_op",
+      "title": "Material Op",
+      "description": "PBR material operations (create_pbr/configure/assign_channel/save_config) collapsed into a single tool. Materials are texture groups with is_material=true. Returns { ok, data, error?, meta? }. Replaces legacy create_pbr_material / configure_material / assign_texture_channel / save_material_config. Use inspect(target='materials') to list.",
+      "status": "experimental",
+      "category": "Textures",
+      "annotations": {
+        "destructiveHint": true
+      },
+      "parameters": {
+        "$ref": "#/definitions/material_op",
+        "definitions": {
+          "material_op": {
+            "type": "object",
+            "properties": {
+              "action": {
+                "type": "string",
+                "enum": [
+                  "create_pbr",
+                  "configure",
+                  "assign_channel",
+                  "save_config"
+                ],
+                "description": "Operation. create_pbr: new PBR material (texture group is_material=true). configure: mutate channel assignments / uniform values. assign_channel: bind one texture to a PBR channel. save_config: write texture_set.json to disk (Bedrock).",
+                "markdownDescription": "Operation. create_pbr: new PBR material (texture group is_material=true). configure: mutate channel assignments / uniform values. assign_channel: bind one texture to a PBR channel. save_config: write texture_set.json to disk (Bedrock)."
+              },
+              "name": {
+                "type": "string",
+                "description": "Material name. Required for action='create_pbr'.",
+                "markdownDescription": "Material name. Required for action='create_pbr'."
+              },
+              "material": {
+                "type": "string",
+                "description": "Material name or UUID. Required for action='configure'/'assign_channel'/'save_config'.",
+                "markdownDescription": "Material name or UUID. Required for action='configure'/'assign_channel'/'save_config'."
+              },
+              "texture": {
+                "type": "string",
+                "description": "Texture name or UUID to assign. Required for action='assign_channel'.",
+                "markdownDescription": "Texture name or UUID to assign. Required for action='assign_channel'."
+              },
+              "channel": {
+                "type": "string",
+                "enum": [
+                  "color",
+                  "normal",
+                  "height",
+                  "mer"
+                ],
+                "description": "PBR channel. Required for action='assign_channel'.",
+                "markdownDescription": "PBR channel. Required for action='assign_channel'."
+              },
+              "color_texture": {
+                "type": "string",
+                "description": "Texture for color channel. Pass 'none' in configure to unbind.",
+                "markdownDescription": "Texture for color channel. Pass 'none' in configure to unbind."
+              },
+              "normal_texture": {
+                "type": "string",
+                "description": "Texture for normal channel. Pass 'none' in configure to unbind.",
+                "markdownDescription": "Texture for normal channel. Pass 'none' in configure to unbind."
+              },
+              "height_texture": {
+                "type": "string",
+                "description": "Texture for height channel. Pass 'none' in configure to unbind.",
+                "markdownDescription": "Texture for height channel. Pass 'none' in configure to unbind."
+              },
+              "mer_texture": {
+                "type": "string",
+                "description": "Texture for MER channel. Pass 'none' in configure to unbind.",
+                "markdownDescription": "Texture for MER channel. Pass 'none' in configure to unbind."
+              },
+              "color_value": {
+                "type": "array",
+                "items": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 255
+                },
+                "minItems": 4,
+                "maxItems": 4,
+                "description": "Uniform RGBA color [R,G,B,A].",
+                "markdownDescription": "Uniform RGBA color [R,G,B,A]."
+              },
+              "mer_value": {
+                "type": "array",
+                "items": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 255
+                },
+                "minItems": 3,
+                "maxItems": 3,
+                "description": "Uniform MER values [Metalness, Emissive, Roughness] (0-255).",
+                "markdownDescription": "Uniform MER values [Metalness, Emissive, Roughness] (0-255)."
+              },
+              "subsurface_value": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 255,
+                "description": "Subsurface scattering value (0-255).",
+                "markdownDescription": "Subsurface scattering value (0-255)."
+              }
+            },
+            "required": [
+              "action"
             ],
             "additionalProperties": false
           }

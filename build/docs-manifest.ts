@@ -33,6 +33,7 @@ import { materialInstanceOpToolDocs } from "../server/tools/_redesign/material_i
 import { cubeOpToolDocs } from "../server/tools/_redesign/cube_op";
 import { meshPrimitiveOpToolDocs } from "../server/tools/_redesign/mesh_primitive_op";
 import { meshUvOpToolDocs } from "../server/tools/_redesign/mesh_uv_op";
+import { materialOpToolDocs } from "../server/tools/_redesign/material_op";
 
 export interface CategoryGroup {
   category: string;
@@ -55,7 +56,7 @@ export const toolManifest: CategoryGroup[] = [
   { category: "Null Objects / IK", tools: [...nullObjectToolDocs, ...nullObjectOpToolDocs] },
   { category: "Paint Tools", tools: paintToolDocs },
   { category: "Project", tools: projectToolDocs },
-  { category: "Textures", tools: textureToolDocs },
+  { category: "Textures", tools: [...textureToolDocs, ...materialOpToolDocs] },
   { category: "UI Interaction", tools: [...uiToolDocs, ...riskyEvalToolDocs] },
   { category: "UV Mapping", tools: [...uvToolDocs, ...meshUvOpToolDocs] },
 ];
