@@ -408,6 +408,61 @@ export const paintToolDocs: ToolSpec[] = [
   },
 ];
 
+// ============================================================================
+// Stage-II op implementations (named exports for _redesign/brush_preset_op.ts)
+// ============================================================================
+
+export function brushPresetCreate(params: {
+  name: string;
+  size?: number;
+  opacity?: number;
+  softness?: number;
+  shape?: string;
+  color?: string;
+  blend_mode?: string;
+  pixel_perfect?: boolean;
+}) {
+  const preset = {
+    name: params.name,
+    size: params.size ?? null,
+    opacity: params.opacity ?? null,
+    softness: params.softness ?? null,
+    shape: params.shape || "square",
+    color: params.color || null,
+    blend_mode: params.blend_mode || "default",
+    pixel_perfect: params.pixel_perfect || false,
+  };
+
+  // @ts-ignore
+  StateMemory.brush_presets.push(preset);
+  // @ts-ignore
+  StateMemory.save("brush_presets");
+
+  return {
+    message: `Created brush preset "${params.name}"`,
+    preset,
+  };
+}
+
+export function brushPresetLoad(params: { preset_name: string }) {
+  // @ts-ignore
+  const preset = StateMemory.brush_presets.find(
+    (p: { name: string }) => p.name === params.preset_name
+  );
+
+  if (!preset) {
+    throw new Error(`Brush preset "${params.preset_name}" not found.`);
+  }
+
+  // @ts-ignore
+  Painter.loadBrushPreset(preset);
+
+  return {
+    message: `Loaded brush preset "${params.preset_name}"`,
+    preset,
+  };
+}
+
 export function registerPaintTools() {
   createTool(
     paintToolDocs[0].name,

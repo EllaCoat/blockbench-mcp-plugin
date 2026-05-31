@@ -34,6 +34,7 @@ import { cubeOpToolDocs } from "../server/tools/_redesign/cube_op";
 import { meshPrimitiveOpToolDocs } from "../server/tools/_redesign/mesh_primitive_op";
 import { meshUvOpToolDocs } from "../server/tools/_redesign/mesh_uv_op";
 import { materialOpToolDocs } from "../server/tools/_redesign/material_op";
+import { brushPresetOpToolDocs } from "../server/tools/_redesign/brush_preset_op";
 
 export interface CategoryGroup {
   category: string;
@@ -54,7 +55,7 @@ export const toolManifest: CategoryGroup[] = [
   { category: "Material Instances", tools: [...materialInstanceToolDocs, ...materialInstanceOpToolDocs] },
   { category: "Mesh Editing", tools: [...meshToolDocs, ...meshPrimitiveOpToolDocs] },
   { category: "Null Objects / IK", tools: [...nullObjectToolDocs, ...nullObjectOpToolDocs] },
-  { category: "Paint Tools", tools: paintToolDocs },
+  { category: "Paint Tools", tools: [...paintToolDocs, ...brushPresetOpToolDocs] },
   { category: "Project", tools: projectToolDocs },
   { category: "Textures", tools: [...textureToolDocs, ...materialOpToolDocs] },
   { category: "UI Interaction", tools: [...uiToolDocs, ...riskyEvalToolDocs] },

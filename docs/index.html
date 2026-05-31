@@ -18,7 +18,7 @@
 
       <div class="nav-group">
         <p class="nav-heading">Overview</p>
-        <a href="#tools" class="nav-link">Tools <span class="count">(122)</span></a>
+        <a href="#tools" class="nav-link">Tools <span class="count">(123)</span></a>
         <a href="#prompts" class="nav-link">Prompts <span class="count">(3)</span></a>
         <a href="#resources" class="nav-link">Resources <span class="count">(8)</span></a>
       </div>
@@ -38,7 +38,7 @@
         <a href="#cat-material-instances" class="nav-link">Material Instances <span class="count">(6)</span></a>
         <a href="#cat-mesh-editing" class="nav-link">Mesh Editing <span class="count">(12)</span></a>
         <a href="#cat-null-objects-ik" class="nav-link">Null Objects / IK <span class="count">(5)</span></a>
-        <a href="#cat-paint-tools" class="nav-link">Paint Tools <span class="count">(12)</span></a>
+        <a href="#cat-paint-tools" class="nav-link">Paint Tools <span class="count">(13)</span></a>
         <a href="#cat-project" class="nav-link">Project <span class="count">(2)</span></a>
         <a href="#cat-textures" class="nav-link">Textures <span class="count">(14)</span></a>
         <a href="#cat-ui-interaction" class="nav-link">UI Interaction <span class="count">(4)</span></a>
@@ -51,7 +51,7 @@
         <h1>Blockbench MCP Plugin</h1>
         <p class="subtitle">API Reference — v1.6.0</p>
         <nav class="stats">
-          <a href="#tools"><strong>122</strong> tools (40 stable, 82 experimental)</a>
+          <a href="#tools"><strong>123</strong> tools (40 stable, 83 experimental)</a>
           <a href="#prompts"><strong>3</strong> prompts</a>
           <a href="#resources"><strong>8</strong> resources</a>
         </nav>
@@ -4326,6 +4326,75 @@
     </table>
       </div>
     </div>
+<div id="tool-brush_preset_op" class="card tool-card">
+      <div class="card-header">
+        <h3 class="card-name">brush_preset_op</h3>
+        <div class="card-badges">
+          <span class="badge badge-experimental">experimental</span>
+          <span class="badge badge-destructive">destructive</span>
+        </div>
+      </div>
+      <p class="card-title">Brush Preset Op</p>
+      <p class="card-desc">Brush preset operations (create/load) collapsed into a single tool. Presets are persisted via StateMemory.brush_presets. Returns { ok, data, error?, meta? }. Replaces legacy create_brush_preset / load_brush_preset.</p>
+      <div class="overflow-x">
+        <table class="param-table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Required</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody><tr>
+      <td class="col-name">action</td>
+      <td class="col-type">&quot;create&quot; | &quot;load&quot;</td>
+      <td><span class="param-required">required</span></td>
+      <td class="col-desc">Operation. create: save a new brush preset with the given settings. load: activate an existing preset by name.</td>
+    </tr><tr>
+      <td class="col-name">name</td>
+      <td class="col-type">string</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">Preset name. Required for action='create' (saved as the preset's id) and action='load' (look up by this name).</td>
+    </tr><tr>
+      <td class="col-name">size</td>
+      <td class="col-type">number</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">Brush size (create). <span class="param-meta">[min: 1, max: 100]</span></td>
+    </tr><tr>
+      <td class="col-name">opacity</td>
+      <td class="col-type">number</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">Brush opacity (create). <span class="param-meta">[min: 0, max: 255]</span></td>
+    </tr><tr>
+      <td class="col-name">softness</td>
+      <td class="col-type">number</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">Brush softness (create). <span class="param-meta">[min: 0, max: 100]</span></td>
+    </tr><tr>
+      <td class="col-name">shape</td>
+      <td class="col-type">&quot;square&quot; | &quot;circle&quot;</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">Brush shape (create).</td>
+    </tr><tr>
+      <td class="col-name">color</td>
+      <td class="col-type">string</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">Brush color hex (create).</td>
+    </tr><tr>
+      <td class="col-name">blend_mode</td>
+      <td class="col-type">&quot;default&quot; | &quot;set_opacity&quot; | &quot;color&quot; | &quot;behind&quot; | &quot;multiply&quot; | &quot;add&quot; | &quot;screen&quot; | &quot;overlay&quot; | &quot;difference&quot;</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">Blend mode (create).</td>
+    </tr><tr>
+      <td class="col-name">pixel_perfect</td>
+      <td class="col-type">boolean</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">Pixel perfect drawing (create).</td>
+    </tr></tbody>
+    </table>
+      </div>
+    </div>
         </section>
 <section id="cat-project" class="category-section">
           <h3 class="category-title">Project</h3>
@@ -5407,7 +5476,7 @@
       </section>
 
       <footer class="page-footer">
-        Generated 2026-05-31T22:56:35.404Z from Zod schemas
+        Generated 2026-05-31T22:57:55.227Z from Zod schemas
       </footer>
     </main>
   </div>

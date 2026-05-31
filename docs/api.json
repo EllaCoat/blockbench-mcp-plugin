@@ -1,6 +1,6 @@
 {
   "version": "1.6.0",
-  "generatedAt": "2026-05-31T22:56:35.404Z",
+  "generatedAt": "2026-05-31T22:57:55.227Z",
   "tools": [
     {
       "name": "inspect",
@@ -6331,6 +6331,101 @@
                 "type": "number",
                 "description": "Target position for moving layers.",
                 "markdownDescription": "Target position for moving layers."
+              }
+            },
+            "required": [
+              "action"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    },
+    {
+      "name": "brush_preset_op",
+      "title": "Brush Preset Op",
+      "description": "Brush preset operations (create/load) collapsed into a single tool. Presets are persisted via StateMemory.brush_presets. Returns { ok, data, error?, meta? }. Replaces legacy create_brush_preset / load_brush_preset.",
+      "status": "experimental",
+      "category": "Paint Tools",
+      "annotations": {
+        "destructiveHint": true
+      },
+      "parameters": {
+        "$ref": "#/definitions/brush_preset_op",
+        "definitions": {
+          "brush_preset_op": {
+            "type": "object",
+            "properties": {
+              "action": {
+                "type": "string",
+                "enum": [
+                  "create",
+                  "load"
+                ],
+                "description": "Operation. create: save a new brush preset with the given settings. load: activate an existing preset by name.",
+                "markdownDescription": "Operation. create: save a new brush preset with the given settings. load: activate an existing preset by name."
+              },
+              "name": {
+                "type": "string",
+                "description": "Preset name. Required for action='create' (saved as the preset's id) and action='load' (look up by this name).",
+                "markdownDescription": "Preset name. Required for action='create' (saved as the preset's id) and action='load' (look up by this name)."
+              },
+              "size": {
+                "type": "number",
+                "minimum": 1,
+                "maximum": 100,
+                "description": "Brush size (create).",
+                "markdownDescription": "Brush size (create)."
+              },
+              "opacity": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 255,
+                "description": "Brush opacity (create).",
+                "markdownDescription": "Brush opacity (create)."
+              },
+              "softness": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 100,
+                "description": "Brush softness (create).",
+                "markdownDescription": "Brush softness (create)."
+              },
+              "shape": {
+                "type": "string",
+                "enum": [
+                  "square",
+                  "circle"
+                ],
+                "description": "Brush shape (create).",
+                "markdownDescription": "Brush shape (create)."
+              },
+              "color": {
+                "type": "string",
+                "description": "Brush color hex (create).",
+                "markdownDescription": "Brush color hex (create)."
+              },
+              "blend_mode": {
+                "type": "string",
+                "enum": [
+                  "default",
+                  "set_opacity",
+                  "color",
+                  "behind",
+                  "multiply",
+                  "add",
+                  "screen",
+                  "overlay",
+                  "difference"
+                ],
+                "description": "Blend mode (create).",
+                "markdownDescription": "Blend mode (create)."
+              },
+              "pixel_perfect": {
+                "type": "boolean",
+                "description": "Pixel perfect drawing (create).",
+                "markdownDescription": "Pixel perfect drawing (create)."
               }
             },
             "required": [
