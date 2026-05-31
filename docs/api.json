@@ -1,6 +1,6 @@
 {
   "version": "1.6.0",
-  "generatedAt": "2026-05-31T22:48:35.073Z",
+  "generatedAt": "2026-05-31T22:50:00.538Z",
   "tools": [
     {
       "name": "inspect",
@@ -2666,6 +2666,138 @@
                 "type": "boolean",
                 "description": "Whether to export this armature (update only).",
                 "markdownDescription": "Whether to export this armature (update only)."
+              }
+            },
+            "required": [
+              "action"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    },
+    {
+      "name": "armature_bone_op",
+      "title": "Armature Bone Op",
+      "description": "Armature bone operations (create/update/update_batch/remove) collapsed into a single tool. Bones are children of an Armature or another bone. Returns { ok, data, error?, meta? }. Replaces legacy add_armature_bone / update_armature_bone / update_armature_bones_batch / remove_armature_bone. Use inspect(target='bones') to list.",
+      "status": "experimental",
+      "category": "Armature",
+      "annotations": {
+        "destructiveHint": true
+      },
+      "parameters": {
+        "$ref": "#/definitions/armature_bone_op",
+        "definitions": {
+          "armature_bone_op": {
+            "type": "object",
+            "properties": {
+              "action": {
+                "type": "string",
+                "enum": [
+                  "create",
+                  "update",
+                  "update_batch",
+                  "remove"
+                ],
+                "description": "Operation. create: new bone under parent (armature or bone). update: mutate one bone by id. update_batch: apply visibility/locked/color to many bones at once. remove: delete bone.",
+                "markdownDescription": "Operation. create: new bone under parent (armature or bone). update: mutate one bone by id. update_batch: apply visibility/locked/color to many bones at once. remove: delete bone."
+              },
+              "id": {
+                "type": "string",
+                "description": "Target bone UUID or name. Required for update/remove.",
+                "markdownDescription": "Target bone UUID or name. Required for update/remove."
+              },
+              "ids": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "Array of bone UUIDs or names. Required for update_batch.",
+                "markdownDescription": "Array of bone UUIDs or names. Required for update_batch."
+              },
+              "parent_id": {
+                "type": "string",
+                "description": "Parent armature or bone (name/UUID). Required for create.",
+                "markdownDescription": "Parent armature or bone (name/UUID). Required for create."
+              },
+              "name": {
+                "type": "string",
+                "description": "Name (create) or new name (update).",
+                "markdownDescription": "Name (create) or new name (update)."
+              },
+              "origin": {
+                "type": "array",
+                "minItems": 3,
+                "maxItems": 3,
+                "items": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "number"
+                  }
+                ],
+                "description": "Position [x, y, z]. Defaults to [0, parent.length, 0] for child bones on create.",
+                "markdownDescription": "Position [x, y, z]. Defaults to [0, parent.length, 0] for child bones on create."
+              },
+              "rotation": {
+                "type": "array",
+                "minItems": 3,
+                "maxItems": 3,
+                "items": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "number"
+                  }
+                ],
+                "description": "Rotation [x, y, z] in degrees.",
+                "markdownDescription": "Rotation [x, y, z] in degrees."
+              },
+              "length": {
+                "type": "number",
+                "description": "Bone length.",
+                "markdownDescription": "Bone length."
+              },
+              "width": {
+                "type": "number",
+                "description": "Bone width.",
+                "markdownDescription": "Bone width."
+              },
+              "connected": {
+                "type": "boolean",
+                "description": "Whether bone is connected to parent.",
+                "markdownDescription": "Whether bone is connected to parent."
+              },
+              "color": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 7,
+                "description": "Marker color index (0-7).",
+                "markdownDescription": "Marker color index (0-7)."
+              },
+              "visibility": {
+                "type": "boolean",
+                "description": "Visibility (update/update_batch).",
+                "markdownDescription": "Visibility (update/update_batch)."
+              },
+              "locked": {
+                "type": "boolean",
+                "description": "Lock flag (update/update_batch).",
+                "markdownDescription": "Lock flag (update/update_batch)."
+              },
+              "remove_children": {
+                "type": "boolean",
+                "description": "When action=remove, whether to also remove child bones. Default true.",
+                "markdownDescription": "When action=remove, whether to also remove child bones. Default true."
               }
             },
             "required": [

@@ -29,6 +29,7 @@ import { registerAJVariantOpTool } from "./tools/_redesign/aj_variant_op";
 import { registerNullObjectOpTool } from "./tools/_redesign/null_object_op";
 import { registerHistoryOpTool } from "./tools/_redesign/history_op";
 import { registerArmatureOpTool } from "./tools/_redesign/armature_op";
+import { registerArmatureBoneOpTool } from "./tools/_redesign/armature_bone_op";
 
 // Core resource registrations
 import { registerValidatorResources } from "./resources/validator";
@@ -59,6 +60,7 @@ const registrationFunctions = [
   registerNullObjectOpTool,
   registerHistoryOpTool,
   registerArmatureOpTool,
+  registerArmatureBoneOpTool,
   registerValidatorResources,
 ];
 

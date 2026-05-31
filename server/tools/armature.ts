@@ -527,6 +527,147 @@ export function armatureRemove(id: string) {
   return { message: `Removed armature "${name}"`, removed: { name } };
 }
 
+export function armatureBoneAdd(params: {
+  parent_id: string;
+  name?: string;
+  origin?: [number, number, number];
+  rotation?: [number, number, number];
+  length?: number;
+  width?: number;
+  connected?: boolean;
+  color?: number;
+}) {
+  let parent: Armature | ArmatureBone | undefined = findArmature(params.parent_id);
+  if (!parent) {
+    parent = findArmatureBone(params.parent_id);
+  }
+  if (!parent) {
+    throw new Error(
+      `Parent not found: ${params.parent_id}. Must be an armature or bone.`
+    );
+  }
+
+  const defaultOrigin: [number, number, number] =
+    parent instanceof ArmatureBone ? [0, parent.length ?? 8, 0] : [0, 0, 0];
+
+  Undo.initEdit({ outliner: true, elements: [] });
+
+  const bone = new ArmatureBone({
+    name: params.name,
+    origin: (params.origin ?? defaultOrigin) as [number, number, number],
+    rotation: (params.rotation ?? [0, 0, 0]) as [number, number, number],
+    length: params.length,
+    width: params.width,
+    connected: params.connected,
+    color: params.color,
+  });
+  bone.addTo(parent);
+  bone.isOpen = true;
+
+  if (Format.bone_rig) {
+    bone.createUniqueName();
+  }
+
+  bone.init();
+
+  Undo.finishEdit("Agent added armature bone", {
+    outliner: true,
+    elements: [bone],
+  });
+  Canvas.updateAll();
+
+  return {
+    message: `Created bone "${bone.name}"`,
+    bone: serializeArmatureBone(bone),
+  };
+}
+
+export function armatureBoneUpdate(params: {
+  id: string;
+  name?: string;
+  origin?: [number, number, number];
+  rotation?: [number, number, number];
+  length?: number;
+  width?: number;
+  connected?: boolean;
+  color?: number;
+  visibility?: boolean;
+  locked?: boolean;
+}) {
+  const bone = findArmatureBoneOrThrow(params.id);
+
+  Undo.initEdit({ outliner: true, elements: [bone] });
+
+  if (params.name !== undefined) bone.name = params.name;
+  if (params.origin !== undefined) bone.origin.V3_set(params.origin);
+  if (params.rotation !== undefined) bone.rotation.V3_set(params.rotation);
+  if (params.length !== undefined) bone.length = params.length;
+  if (params.width !== undefined) bone.width = params.width;
+  if (params.connected !== undefined) bone.connected = params.connected;
+  if (params.color !== undefined) bone.setColor(params.color);
+  if (params.visibility !== undefined) bone.visibility = params.visibility;
+  if (params.locked !== undefined) bone.locked = params.locked;
+
+  bone.preview_controller.updateTransform(bone);
+  bone.updateElement();
+  Undo.finishEdit("Agent updated armature bone");
+  Canvas.updateAll();
+
+  return {
+    message: `Updated bone "${bone.name}"`,
+    bone: serializeArmatureBone(bone),
+  };
+}
+
+export function armatureBoneUpdateBatch(params: {
+  ids: string[];
+  visibility?: boolean;
+  locked?: boolean;
+  color?: number;
+}) {
+  const bones = params.ids.map(findArmatureBoneOrThrow);
+
+  Undo.initEdit({ outliner: true, elements: bones });
+
+  for (const bone of bones) {
+    if (params.visibility !== undefined) bone.visibility = params.visibility;
+    if (params.locked !== undefined) bone.locked = params.locked;
+    if (params.color !== undefined) bone.setColor(params.color);
+    bone.updateElement();
+  }
+
+  Undo.finishEdit("Agent updated armature bones (batch)");
+  Canvas.updateAll();
+
+  return {
+    message: `Updated ${bones.length} bones`,
+    bones: bones.map(serializeArmatureBone),
+  };
+}
+
+export function armatureBoneRemove(params: {
+  id: string;
+  remove_children?: boolean;
+}) {
+  const bone = findArmatureBoneOrThrow(params.id);
+  const name = bone.name;
+
+  Undo.initEdit({ outliner: true, elements: [] });
+
+  if (params.remove_children === false && bone.children.length > 0) {
+    const parent = bone.parent;
+    for (const child of [...bone.children]) {
+      child.addTo(parent);
+    }
+  }
+
+  bone.remove();
+  Undo.finishEdit("Agent removed armature bone");
+  Canvas.updateAll();
+
+  return { message: `Removed bone "${name}"`, removed: { name } };
+}
+
 // ============================================================================
 // Armature Tools
 // ============================================================================

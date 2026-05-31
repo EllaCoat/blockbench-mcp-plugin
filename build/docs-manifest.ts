@@ -27,6 +27,7 @@ import { ajVariantOpToolDocs } from "../server/tools/_redesign/aj_variant_op";
 import { nullObjectOpToolDocs } from "../server/tools/_redesign/null_object_op";
 import { historyOpToolDocs } from "../server/tools/_redesign/history_op";
 import { armatureOpToolDocs } from "../server/tools/_redesign/armature_op";
+import { armatureBoneOpToolDocs } from "../server/tools/_redesign/armature_bone_op";
 
 export interface CategoryGroup {
   category: string;
@@ -39,7 +40,7 @@ export const toolManifest: CategoryGroup[] = [
   { category: "Cubes", tools: cubeToolDocs },
   { category: "Camera & Screenshots", tools: cameraToolDocs },
   { category: "Animation", tools: animationToolDocs },
-  { category: "Armature", tools: [...armatureToolDocs, ...armatureOpToolDocs] },
+  { category: "Armature", tools: [...armatureToolDocs, ...armatureOpToolDocs, ...armatureBoneOpToolDocs] },
   { category: "Elements", tools: elementToolDocs },
   { category: "Export", tools: exportToolDocs },
   { category: "History", tools: [...historyToolDocs, ...historyOpToolDocs] },

@@ -18,7 +18,7 @@
 
       <div class="nav-group">
         <p class="nav-heading">Overview</p>
-        <a href="#tools" class="nav-link">Tools <span class="count">(115)</span></a>
+        <a href="#tools" class="nav-link">Tools <span class="count">(116)</span></a>
         <a href="#prompts" class="nav-link">Prompts <span class="count">(3)</span></a>
         <a href="#resources" class="nav-link">Resources <span class="count">(8)</span></a>
       </div>
@@ -30,7 +30,7 @@
         <a href="#cat-cubes" class="nav-link">Cubes <span class="count">(2)</span></a>
         <a href="#cat-camera-screenshots" class="nav-link">Camera &amp; Screenshots <span class="count">(3)</span></a>
         <a href="#cat-animation" class="nav-link">Animation <span class="count">(7)</span></a>
-        <a href="#cat-armature" class="nav-link">Armature <span class="count">(17)</span></a>
+        <a href="#cat-armature" class="nav-link">Armature <span class="count">(18)</span></a>
         <a href="#cat-elements" class="nav-link">Elements <span class="count">(9)</span></a>
         <a href="#cat-export" class="nav-link">Export <span class="count">(2)</span></a>
         <a href="#cat-history" class="nav-link">History <span class="count">(5)</span></a>
@@ -51,7 +51,7 @@
         <h1>Blockbench MCP Plugin</h1>
         <p class="subtitle">API Reference — v1.6.0</p>
         <nav class="stats">
-          <a href="#tools"><strong>115</strong> tools (40 stable, 75 experimental)</a>
+          <a href="#tools"><strong>116</strong> tools (40 stable, 76 experimental)</a>
           <a href="#prompts"><strong>3</strong> prompts</a>
           <a href="#resources"><strong>8</strong> resources</a>
         </nav>
@@ -1848,6 +1848,100 @@
       <td class="col-type">boolean</td>
       <td><span class="param-optional">optional</span></td>
       <td class="col-desc">Whether to export this armature (update only).</td>
+    </tr></tbody>
+    </table>
+      </div>
+    </div>
+<div id="tool-armature_bone_op" class="card tool-card">
+      <div class="card-header">
+        <h3 class="card-name">armature_bone_op</h3>
+        <div class="card-badges">
+          <span class="badge badge-experimental">experimental</span>
+          <span class="badge badge-destructive">destructive</span>
+        </div>
+      </div>
+      <p class="card-title">Armature Bone Op</p>
+      <p class="card-desc">Armature bone operations (create/update/update_batch/remove) collapsed into a single tool. Bones are children of an Armature or another bone. Returns { ok, data, error?, meta? }. Replaces legacy add_armature_bone / update_armature_bone / update_armature_bones_batch / remove_armature_bone. Use inspect(target='bones') to list.</p>
+      <div class="overflow-x">
+        <table class="param-table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Required</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody><tr>
+      <td class="col-name">action</td>
+      <td class="col-type">&quot;create&quot; | &quot;update&quot; | &quot;update_batch&quot; | &quot;remove&quot;</td>
+      <td><span class="param-required">required</span></td>
+      <td class="col-desc">Operation. create: new bone under parent (armature or bone). update: mutate one bone by id. update_batch: apply visibility/locked/color to many bones at once. remove: delete bone.</td>
+    </tr><tr>
+      <td class="col-name">id</td>
+      <td class="col-type">string</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">Target bone UUID or name. Required for update/remove.</td>
+    </tr><tr>
+      <td class="col-name">ids</td>
+      <td class="col-type">string[]</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">Array of bone UUIDs or names. Required for update_batch.</td>
+    </tr><tr>
+      <td class="col-name">parent_id</td>
+      <td class="col-type">string</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">Parent armature or bone (name/UUID). Required for create.</td>
+    </tr><tr>
+      <td class="col-name">name</td>
+      <td class="col-type">string</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">Name (create) or new name (update).</td>
+    </tr><tr>
+      <td class="col-name">origin</td>
+      <td class="col-type">unknown[]</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">Position [x, y, z]. Defaults to [0, parent.length, 0] for child bones on create. <span class="param-meta">[minItems: 3, maxItems: 3]</span></td>
+    </tr><tr>
+      <td class="col-name">rotation</td>
+      <td class="col-type">unknown[]</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">Rotation [x, y, z] in degrees. <span class="param-meta">[minItems: 3, maxItems: 3]</span></td>
+    </tr><tr>
+      <td class="col-name">length</td>
+      <td class="col-type">number</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">Bone length.</td>
+    </tr><tr>
+      <td class="col-name">width</td>
+      <td class="col-type">number</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">Bone width.</td>
+    </tr><tr>
+      <td class="col-name">connected</td>
+      <td class="col-type">boolean</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">Whether bone is connected to parent.</td>
+    </tr><tr>
+      <td class="col-name">color</td>
+      <td class="col-type">integer</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">Marker color index (0-7). <span class="param-meta">[min: 0, max: 7]</span></td>
+    </tr><tr>
+      <td class="col-name">visibility</td>
+      <td class="col-type">boolean</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">Visibility (update/update_batch).</td>
+    </tr><tr>
+      <td class="col-name">locked</td>
+      <td class="col-type">boolean</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">Lock flag (update/update_batch).</td>
+    </tr><tr>
+      <td class="col-name">remove_children</td>
+      <td class="col-type">boolean</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">When action=remove, whether to also remove child bones. Default true.</td>
     </tr></tbody>
     </table>
       </div>
@@ -4904,7 +4998,7 @@
       </section>
 
       <footer class="page-footer">
-        Generated 2026-05-31T22:48:35.073Z from Zod schemas
+        Generated 2026-05-31T22:50:00.538Z from Zod schemas
       </footer>
     </main>
   </div>
