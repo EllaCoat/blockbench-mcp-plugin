@@ -18,7 +18,7 @@
 
       <div class="nav-group">
         <p class="nav-heading">Overview</p>
-        <a href="#tools" class="nav-link">Tools <span class="count">(123)</span></a>
+        <a href="#tools" class="nav-link">Tools <span class="count">(124)</span></a>
         <a href="#prompts" class="nav-link">Prompts <span class="count">(3)</span></a>
         <a href="#resources" class="nav-link">Resources <span class="count">(8)</span></a>
       </div>
@@ -31,7 +31,7 @@
         <a href="#cat-camera-screenshots" class="nav-link">Camera &amp; Screenshots <span class="count">(3)</span></a>
         <a href="#cat-animation" class="nav-link">Animation <span class="count">(7)</span></a>
         <a href="#cat-armature" class="nav-link">Armature <span class="count">(19)</span></a>
-        <a href="#cat-elements" class="nav-link">Elements <span class="count">(9)</span></a>
+        <a href="#cat-elements" class="nav-link">Elements <span class="count">(10)</span></a>
         <a href="#cat-export" class="nav-link">Export <span class="count">(2)</span></a>
         <a href="#cat-history" class="nav-link">History <span class="count">(5)</span></a>
         <a href="#cat-import-export" class="nav-link">Import/Export <span class="count">(1)</span></a>
@@ -51,7 +51,7 @@
         <h1>Blockbench MCP Plugin</h1>
         <p class="subtitle">API Reference — v1.6.0</p>
         <nav class="stats">
-          <a href="#tools"><strong>123</strong> tools (40 stable, 83 experimental)</a>
+          <a href="#tools"><strong>124</strong> tools (41 stable, 83 experimental)</a>
           <a href="#prompts"><strong>3</strong> prompts</a>
           <a href="#resources"><strong>8</strong> resources</a>
         </nav>
@@ -2471,6 +2471,70 @@
       <p class="card-desc">Returns the current selection state: selected cube/mesh/group UUIDs and names, plus the active texture. Use this to verify what `apply_texture` or a paint tool with `fill_mode=&quot;selected_elements&quot;` will target.</p>
       <div class="overflow-x">
         <p class="empty-params">No parameters</p>
+      </div>
+    </div>
+<div id="tool-selection_op" class="card tool-card">
+      <div class="card-header">
+        <h3 class="card-name">selection_op</h3>
+        <div class="card-badges">
+          <span class="badge badge-stable">stable</span>
+          
+        </div>
+      </div>
+      <p class="card-title">Selection Op</p>
+      <p class="card-desc">Selection operations (all_of_type/armature_bones) collapsed into a single tool. all_of_type selects every cube/mesh/group of a given type (optionally scoped to a parent group); armature_bones selects bones by id list or whole armature. Returns { ok, data, error?, meta? }. Replaces legacy select_all_of_type / select_armature_bones. Use inspect(target='selection') to read the current selection.</p>
+      <div class="overflow-x">
+        <table class="param-table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Required</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody><tr>
+      <td class="col-name">action</td>
+      <td class="col-type">&quot;all_of_type&quot; | &quot;armature_bones&quot;</td>
+      <td><span class="param-required">required</span></td>
+      <td class="col-desc">Selection scope. all_of_type: select every cube/mesh/group of a given type. armature_bones: select bones by id or whole armature.</td>
+    </tr><tr>
+      <td class="col-name">type</td>
+      <td class="col-type">&quot;cube&quot; | &quot;mesh&quot; | &quot;group&quot;</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">Element type. Required for action='all_of_type'.</td>
+    </tr><tr>
+      <td class="col-name">parent_group</td>
+      <td class="col-type">string</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">Parent group (UUID or name) to scope the selection. For action='all_of_type'.</td>
+    </tr><tr>
+      <td class="col-name">add_to_selection</td>
+      <td class="col-type">boolean</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">If true, add to current selection instead of replacing. For action='all_of_type'.</td>
+    </tr><tr>
+      <td class="col-name">ids</td>
+      <td class="col-type">string[]</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">Bone UUIDs or names to select. For action='armature_bones'.</td>
+    </tr><tr>
+      <td class="col-name">armature_id</td>
+      <td class="col-type">string</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">Select all bones in this armature. For action='armature_bones'.</td>
+    </tr><tr>
+      <td class="col-name">include_descendants</td>
+      <td class="col-type">boolean</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">Include descendant bones in selection. For action='armature_bones'.</td>
+    </tr><tr>
+      <td class="col-name">clear_selection</td>
+      <td class="col-type">boolean</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">Clear existing selection before selecting (default true). For action='armature_bones'.</td>
+    </tr></tbody>
+    </table>
       </div>
     </div>
         </section>
@@ -5476,7 +5540,7 @@
       </section>
 
       <footer class="page-footer">
-        Generated 2026-05-31T22:57:55.227Z from Zod schemas
+        Generated 2026-05-31T22:59:01.734Z from Zod schemas
       </footer>
     </main>
   </div>

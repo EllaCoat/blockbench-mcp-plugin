@@ -37,6 +37,7 @@ import { registerMeshPrimitiveOpTool } from "./tools/_redesign/mesh_primitive_op
 import { registerMeshUvOpTool } from "./tools/_redesign/mesh_uv_op";
 import { registerMaterialOpTool } from "./tools/_redesign/material_op";
 import { registerBrushPresetOpTool } from "./tools/_redesign/brush_preset_op";
+import { registerSelectionOpTool } from "./tools/_redesign/selection_op";
 
 // Core resource registrations
 import { registerValidatorResources } from "./resources/validator";
@@ -75,6 +76,7 @@ const registrationFunctions = [
   registerMeshUvOpTool,
   registerMaterialOpTool,
   registerBrushPresetOpTool,
+  registerSelectionOpTool,
   registerValidatorResources,
 ];
 

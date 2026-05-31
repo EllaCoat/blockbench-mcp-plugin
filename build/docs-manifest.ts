@@ -35,6 +35,7 @@ import { meshPrimitiveOpToolDocs } from "../server/tools/_redesign/mesh_primitiv
 import { meshUvOpToolDocs } from "../server/tools/_redesign/mesh_uv_op";
 import { materialOpToolDocs } from "../server/tools/_redesign/material_op";
 import { brushPresetOpToolDocs } from "../server/tools/_redesign/brush_preset_op";
+import { selectionOpToolDocs } from "../server/tools/_redesign/selection_op";
 
 export interface CategoryGroup {
   category: string;
@@ -48,7 +49,7 @@ export const toolManifest: CategoryGroup[] = [
   { category: "Camera & Screenshots", tools: cameraToolDocs },
   { category: "Animation", tools: animationToolDocs },
   { category: "Armature", tools: [...armatureToolDocs, ...armatureOpToolDocs, ...armatureBoneOpToolDocs, ...vertexWeightOpToolDocs] },
-  { category: "Elements", tools: elementToolDocs },
+  { category: "Elements", tools: [...elementToolDocs, ...selectionOpToolDocs] },
   { category: "Export", tools: exportToolDocs },
   { category: "History", tools: [...historyToolDocs, ...historyOpToolDocs] },
   { category: "Import/Export", tools: importToolDocs },

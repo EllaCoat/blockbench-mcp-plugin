@@ -316,6 +316,68 @@ function safeCompileRegex(pattern: string | undefined): RegExp | null {
   }
 }
 
+// ============================================================================
+// Stage-II op implementations (named exports for _redesign/selection_op.ts)
+// ============================================================================
+
+export function selectAllOfType(params: {
+  type: "cube" | "mesh" | "group";
+  add_to_selection?: boolean;
+  parent_group?: string;
+}) {
+  const parentScope = params.parent_group
+    ? Group.all.find(
+        (g: Group) =>
+          g.uuid === params.parent_group || g.name === params.parent_group
+      ) ?? null
+    : null;
+
+  if (params.parent_group && !parentScope) {
+    throw new Error(
+      `Parent group "${params.parent_group}" not found. Use inspect(target='outline') to see available groups.`
+    );
+  }
+
+  const pool: Array<Cube | Mesh | Group> = (() => {
+    if (params.type === "cube") return [...Cube.all];
+    if (params.type === "mesh") return [...Mesh.all];
+    return [...Group.all];
+  })();
+
+  const targets = parentScope
+    ? pool.filter((el) => isDescendantOf(el, parentScope))
+    : pool;
+
+  if (!params.add_to_selection) {
+    // @ts-ignore - selected method available on element classes
+    Cube.all.forEach((c: Cube) => c.selected && c.unselect?.());
+    // @ts-ignore - selected method available on element classes
+    Mesh.all.forEach((m: Mesh) => m.selected && m.unselect?.());
+    Group.all.forEach((g: Group) => {
+      if (g.selected) g.selected = false;
+    });
+  }
+
+  for (const el of targets) {
+    if (el instanceof Group) {
+      el.selected = true;
+      continue;
+    }
+    // @ts-ignore - select method available on outliner elements
+    el.select?.({ shiftKey: true });
+  }
+
+  updateSelection();
+  Canvas.updateAll();
+
+  return {
+    message: `Selected ${targets.length} ${params.type}(s).`,
+    type: params.type,
+    selected: targets.length,
+    parent_group: parentScope?.name ?? null,
+  };
+}
+
 export function registerElementTools() {
   createTool(elementToolDocs[0].name, {
     ...elementToolDocs[0],

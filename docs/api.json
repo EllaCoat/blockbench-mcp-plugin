@@ -1,6 +1,6 @@
 {
   "version": "1.6.0",
-  "generatedAt": "2026-05-31T22:57:55.227Z",
+  "generatedAt": "2026-05-31T22:59:01.734Z",
   "tools": [
     {
       "name": "inspect",
@@ -3598,6 +3598,85 @@
           "get_selection": {
             "type": "object",
             "properties": {},
+            "additionalProperties": false
+          }
+        },
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    },
+    {
+      "name": "selection_op",
+      "title": "Selection Op",
+      "description": "Selection operations (all_of_type/armature_bones) collapsed into a single tool. all_of_type selects every cube/mesh/group of a given type (optionally scoped to a parent group); armature_bones selects bones by id list or whole armature. Returns { ok, data, error?, meta? }. Replaces legacy select_all_of_type / select_armature_bones. Use inspect(target='selection') to read the current selection.",
+      "status": "stable",
+      "category": "Elements",
+      "annotations": {
+        "destructiveHint": false
+      },
+      "parameters": {
+        "$ref": "#/definitions/selection_op",
+        "definitions": {
+          "selection_op": {
+            "type": "object",
+            "properties": {
+              "action": {
+                "type": "string",
+                "enum": [
+                  "all_of_type",
+                  "armature_bones"
+                ],
+                "description": "Selection scope. all_of_type: select every cube/mesh/group of a given type. armature_bones: select bones by id or whole armature.",
+                "markdownDescription": "Selection scope. all_of_type: select every cube/mesh/group of a given type. armature_bones: select bones by id or whole armature."
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "cube",
+                  "mesh",
+                  "group"
+                ],
+                "description": "Element type. Required for action='all_of_type'.",
+                "markdownDescription": "Element type. Required for action='all_of_type'."
+              },
+              "parent_group": {
+                "type": "string",
+                "description": "Parent group (UUID or name) to scope the selection. For action='all_of_type'.",
+                "markdownDescription": "Parent group (UUID or name) to scope the selection. For action='all_of_type'."
+              },
+              "add_to_selection": {
+                "type": "boolean",
+                "description": "If true, add to current selection instead of replacing. For action='all_of_type'.",
+                "markdownDescription": "If true, add to current selection instead of replacing. For action='all_of_type'."
+              },
+              "ids": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "description": "ID or name of the element.",
+                  "markdownDescription": "ID or name of the element."
+                },
+                "description": "Bone UUIDs or names to select. For action='armature_bones'.",
+                "markdownDescription": "Bone UUIDs or names to select. For action='armature_bones'."
+              },
+              "armature_id": {
+                "type": "string",
+                "description": "Select all bones in this armature. For action='armature_bones'.",
+                "markdownDescription": "Select all bones in this armature. For action='armature_bones'."
+              },
+              "include_descendants": {
+                "type": "boolean",
+                "description": "Include descendant bones in selection. For action='armature_bones'.",
+                "markdownDescription": "Include descendant bones in selection. For action='armature_bones'."
+              },
+              "clear_selection": {
+                "type": "boolean",
+                "description": "Clear existing selection before selecting (default true). For action='armature_bones'.",
+                "markdownDescription": "Clear existing selection before selecting (default true). For action='armature_bones'."
+              }
+            },
+            "required": [
+              "action"
+            ],
             "additionalProperties": false
           }
         },

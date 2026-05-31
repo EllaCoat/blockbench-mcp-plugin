@@ -747,6 +747,48 @@ export function vertexWeightSetBatch(params: {
   };
 }
 
+export function selectArmatureBones(params: {
+  ids?: string[];
+  armature_id?: string;
+  include_descendants?: boolean;
+  clear_selection?: boolean;
+}) {
+  if (params.clear_selection !== false) {
+    unselectAllElements();
+  }
+
+  let selectedBones: ArmatureBone[] = [];
+
+  if (params.armature_id) {
+    const armature = findArmatureOrThrow(params.armature_id);
+    selectedBones = armature.getAllBones();
+  } else if (params.ids && params.ids.length > 0) {
+    for (const id of params.ids) {
+      const bone = findArmatureBoneOrThrow(id);
+      selectedBones.push(bone);
+
+      if (params.include_descendants) {
+        bone.forEachChild((child) => {
+          if (child instanceof ArmatureBone) {
+            selectedBones.push(child);
+          }
+        });
+      }
+    }
+  }
+
+  for (const bone of selectedBones) {
+    bone.select();
+  }
+
+  updateSelection();
+
+  return {
+    message: `Selected ${selectedBones.length} bone(s).`,
+    bones: selectedBones.map((b) => ({ uuid: b.uuid, name: b.name })),
+  };
+}
+
 export function vertexWeightClear(params: {
   bone_id: string;
   mesh_id?: string;
