@@ -18,7 +18,7 @@
 
       <div class="nav-group">
         <p class="nav-heading">Overview</p>
-        <a href="#tools" class="nav-link">Tools <span class="count">(120)</span></a>
+        <a href="#tools" class="nav-link">Tools <span class="count">(121)</span></a>
         <a href="#prompts" class="nav-link">Prompts <span class="count">(3)</span></a>
         <a href="#resources" class="nav-link">Resources <span class="count">(8)</span></a>
       </div>
@@ -42,7 +42,7 @@
         <a href="#cat-project" class="nav-link">Project <span class="count">(2)</span></a>
         <a href="#cat-textures" class="nav-link">Textures <span class="count">(13)</span></a>
         <a href="#cat-ui-interaction" class="nav-link">UI Interaction <span class="count">(4)</span></a>
-        <a href="#cat-uv-mapping" class="nav-link">UV Mapping <span class="count">(3)</span></a>
+        <a href="#cat-uv-mapping" class="nav-link">UV Mapping <span class="count">(4)</span></a>
       </div>
     </nav>
 
@@ -51,7 +51,7 @@
         <h1>Blockbench MCP Plugin</h1>
         <p class="subtitle">API Reference — v1.6.0</p>
         <nav class="stats">
-          <a href="#tools"><strong>120</strong> tools (40 stable, 80 experimental)</a>
+          <a href="#tools"><strong>121</strong> tools (40 stable, 81 experimental)</a>
           <a href="#prompts"><strong>3</strong> prompts</a>
           <a href="#resources"><strong>8</strong> resources</a>
         </nav>
@@ -5141,6 +5141,65 @@
     </table>
       </div>
     </div>
+<div id="tool-mesh_uv_op" class="card tool-card">
+      <div class="card-header">
+        <h3 class="card-name">mesh_uv_op</h3>
+        <div class="card-badges">
+          <span class="badge badge-experimental">experimental</span>
+          <span class="badge badge-destructive">destructive</span>
+        </div>
+      </div>
+      <p class="card-title">Mesh UV Op</p>
+      <p class="card-desc">Mesh UV operations (set/auto/rotate) collapsed into a single tool. set writes explicit UV for one face; auto applies project/unwrap/cylinder/sphere mapping; rotate rotates UV by 90/180/270 degrees. Returns { ok, data, error?, meta? }. Replaces legacy set_mesh_uv / auto_uv_mesh / rotate_mesh_uv.</p>
+      <div class="overflow-x">
+        <table class="param-table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Required</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody><tr>
+      <td class="col-name">action</td>
+      <td class="col-type">&quot;set&quot; | &quot;auto&quot; | &quot;rotate&quot;</td>
+      <td><span class="param-required">required</span></td>
+      <td class="col-desc">Operation. set: explicit per-vertex UV for one face. auto: project/unwrap/cylinder/sphere mapping. rotate: 90/180/270 degree rotation.</td>
+    </tr><tr>
+      <td class="col-name">mesh_id</td>
+      <td class="col-type">string</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">Mesh UUID or name. Required for action='set'. For auto/rotate, defaults to first selected mesh.</td>
+    </tr><tr>
+      <td class="col-name">face_key</td>
+      <td class="col-type">string</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">Face key. Required for action='set'.</td>
+    </tr><tr>
+      <td class="col-name">uv_mapping</td>
+      <td class="col-type">Record&lt;string, number[]&gt;</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">Map of vertex_key -&gt; [u, v]. Required for action='set'.</td>
+    </tr><tr>
+      <td class="col-name">mode</td>
+      <td class="col-type">&quot;project&quot; | &quot;unwrap&quot; | &quot;cylinder&quot; | &quot;sphere&quot;</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">UV mapping mode. Required for action='auto'.</td>
+    </tr><tr>
+      <td class="col-name">angle</td>
+      <td class="col-type">&quot;-90&quot; | &quot;90&quot; | &quot;180&quot;</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">Rotation angle. Required for action='rotate'.</td>
+    </tr><tr>
+      <td class="col-name">faces</td>
+      <td class="col-type">string[]</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">Specific face keys for auto/rotate. Defaults to currently selected faces.</td>
+    </tr></tbody>
+    </table>
+      </div>
+    </div>
         </section>
       </section>
 
@@ -5264,7 +5323,7 @@
       </section>
 
       <footer class="page-footer">
-        Generated 2026-05-31T22:54:27.372Z from Zod schemas
+        Generated 2026-05-31T22:55:25.152Z from Zod schemas
       </footer>
     </main>
   </div>

@@ -88,6 +88,142 @@ export const uvToolDocs: ToolSpec[] = [
   },
 ];
 
+// ============================================================================
+// Stage-II op implementations (named exports for _redesign/mesh_uv_op.ts)
+// ============================================================================
+
+export function meshUvSet(params: {
+  mesh_id: string;
+  face_key: string;
+  uv_mapping: Record<string, [number, number]>;
+}) {
+  const mesh = findMeshOrThrow(params.mesh_id);
+
+  Undo.initEdit({
+    elements: [mesh],
+    // @ts-expect-error - uv_only is a valid Blockbench API property
+    uv_only: true,
+  });
+
+  const face = mesh.faces[params.face_key];
+  if (!face) {
+    throw new Error(`Face with key "${params.face_key}" not found in mesh.`);
+  }
+
+  Object.entries(params.uv_mapping).forEach(([vkey, uv]) => {
+    if (face.vertices.includes(vkey)) {
+      face.uv[vkey] = uv;
+    }
+  });
+
+  mesh.preview_controller.updateUV(mesh);
+  UVEditor.loadData();
+
+  Undo.finishEdit("Set mesh UV");
+
+  return {
+    message: `Set UV mapping for face "${params.face_key}" of mesh "${mesh.name}"`,
+    mesh: { uuid: mesh.uuid, name: mesh.name },
+    face: params.face_key,
+  };
+}
+
+export function meshUvAuto(params: {
+  mesh_id?: string;
+  mode: "project" | "unwrap" | "cylinder" | "sphere";
+  faces?: string[];
+}) {
+  const mesh = getMeshOrSelected(params.mesh_id);
+
+  Undo.initEdit({
+    elements: [mesh],
+    // @ts-expect-error - uv_only is a valid Blockbench API property
+    uv_only: true,
+  });
+
+  const selectedFaces = params.faces ?? UVEditor.getSelectedFaces(mesh);
+
+  if (params.mode === "project") {
+    BarItems.uv_project_from_view.click();
+  } else {
+    selectedFaces.forEach((fkey) => {
+      const face = mesh.faces[fkey];
+      if (!face) return;
+
+      if (params.mode === "unwrap") {
+        UVEditor.setAutoSize(null, true, [fkey]);
+      } else if (params.mode === "cylinder") {
+        const vertices = face.getSortedVertices();
+        vertices.forEach((vkey) => {
+          const vertex = mesh.vertices[vkey];
+          const angle = Math.atan2(vertex[0], vertex[2]);
+          const u = ((angle + Math.PI) / (2 * Math.PI)) * Project.texture_width;
+          const v = ((vertex[1] + 8) / 16) * Project.texture_height;
+          face.uv[vkey] = [u, v];
+        });
+      } else if (params.mode === "sphere") {
+        const vertices = face.getSortedVertices();
+        vertices.forEach((vkey) => {
+          const vertex = mesh.vertices[vkey];
+          const length = Math.sqrt(
+            vertex[0] ** 2 + vertex[1] ** 2 + vertex[2] ** 2
+          );
+          const theta = Math.acos(vertex[1] / length);
+          const phi = Math.atan2(vertex[0], vertex[2]);
+          const u = ((phi + Math.PI) / (2 * Math.PI)) * Project.texture_width;
+          const v = (theta / Math.PI) * Project.texture_height;
+          face.uv[vkey] = [u, v];
+        });
+      }
+    });
+  }
+
+  mesh.preview_controller.updateUV(mesh);
+  UVEditor.loadData();
+
+  Undo.finishEdit("Auto UV mesh");
+
+  return {
+    message: `Applied ${params.mode} UV mapping to ${selectedFaces.length} faces of mesh "${mesh.name}"`,
+    mesh: { uuid: mesh.uuid, name: mesh.name },
+    mode: params.mode,
+    faces: selectedFaces.length,
+  };
+}
+
+export function meshUvRotate(params: {
+  mesh_id?: string;
+  angle: "90" | "180" | "270";
+  faces?: string[];
+}) {
+  const mesh = getMeshOrSelected(params.mesh_id);
+
+  Undo.initEdit({
+    elements: [mesh],
+    // @ts-expect-error - uv_only is a valid Blockbench API property
+    uv_only: true,
+  });
+
+  if (params.faces && params.faces.length > 0) {
+    const sel = mesh.getSelectedFaces(true);
+    sel.length = 0;
+    sel.push(...params.faces);
+  }
+
+  const rotation = parseInt(params.angle);
+  UVEditor.rotate(rotation);
+
+  Undo.finishEdit("Rotate mesh UV");
+
+  const affected = params.faces ?? mesh.getSelectedFaces();
+  return {
+    message: `Rotated UV by ${params.angle} degrees for ${affected.length} faces of mesh "${mesh.name}"`,
+    mesh: { uuid: mesh.uuid, name: mesh.name },
+    angle: params.angle,
+    faces: affected.length,
+  };
+}
+
 export function registerUVTools() {
   createTool(
     uvToolDocs[0].name,

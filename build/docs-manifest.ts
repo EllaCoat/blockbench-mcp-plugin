@@ -32,6 +32,7 @@ import { vertexWeightOpToolDocs } from "../server/tools/_redesign/vertex_weight_
 import { materialInstanceOpToolDocs } from "../server/tools/_redesign/material_instance_op";
 import { cubeOpToolDocs } from "../server/tools/_redesign/cube_op";
 import { meshPrimitiveOpToolDocs } from "../server/tools/_redesign/mesh_primitive_op";
+import { meshUvOpToolDocs } from "../server/tools/_redesign/mesh_uv_op";
 
 export interface CategoryGroup {
   category: string;
@@ -56,7 +57,7 @@ export const toolManifest: CategoryGroup[] = [
   { category: "Project", tools: projectToolDocs },
   { category: "Textures", tools: textureToolDocs },
   { category: "UI Interaction", tools: [...uiToolDocs, ...riskyEvalToolDocs] },
-  { category: "UV Mapping", tools: uvToolDocs },
+  { category: "UV Mapping", tools: [...uvToolDocs, ...meshUvOpToolDocs] },
 ];
 
 // Prompt specs defined inline — server/prompts.ts uses macros that complicate direct import

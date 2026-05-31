@@ -34,6 +34,7 @@ import { registerVertexWeightOpTool } from "./tools/_redesign/vertex_weight_op";
 import { registerMaterialInstanceOpTool } from "./tools/_redesign/material_instance_op";
 import { registerCubeOpTool } from "./tools/_redesign/cube_op";
 import { registerMeshPrimitiveOpTool } from "./tools/_redesign/mesh_primitive_op";
+import { registerMeshUvOpTool } from "./tools/_redesign/mesh_uv_op";
 
 // Core resource registrations
 import { registerValidatorResources } from "./resources/validator";
@@ -69,6 +70,7 @@ const registrationFunctions = [
   registerMaterialInstanceOpTool,
   registerCubeOpTool,
   registerMeshPrimitiveOpTool,
+  registerMeshUvOpTool,
   registerValidatorResources,
 ];
 

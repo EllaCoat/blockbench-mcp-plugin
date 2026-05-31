@@ -1,6 +1,6 @@
 {
   "version": "1.6.0",
-  "generatedAt": "2026-05-31T22:54:27.372Z",
+  "generatedAt": "2026-05-31T22:55:25.152Z",
   "tools": [
     {
       "name": "inspect",
@@ -7358,6 +7358,95 @@
                 "markdownDescription": "Specific face keys to rotate UV for. If not provided, rotates all selected faces."
               }
             },
+            "additionalProperties": false
+          }
+        },
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    },
+    {
+      "name": "mesh_uv_op",
+      "title": "Mesh UV Op",
+      "description": "Mesh UV operations (set/auto/rotate) collapsed into a single tool. set writes explicit UV for one face; auto applies project/unwrap/cylinder/sphere mapping; rotate rotates UV by 90/180/270 degrees. Returns { ok, data, error?, meta? }. Replaces legacy set_mesh_uv / auto_uv_mesh / rotate_mesh_uv.",
+      "status": "experimental",
+      "category": "UV Mapping",
+      "annotations": {
+        "destructiveHint": true
+      },
+      "parameters": {
+        "$ref": "#/definitions/mesh_uv_op",
+        "definitions": {
+          "mesh_uv_op": {
+            "type": "object",
+            "properties": {
+              "action": {
+                "type": "string",
+                "enum": [
+                  "set",
+                  "auto",
+                  "rotate"
+                ],
+                "description": "Operation. set: explicit per-vertex UV for one face. auto: project/unwrap/cylinder/sphere mapping. rotate: 90/180/270 degree rotation.",
+                "markdownDescription": "Operation. set: explicit per-vertex UV for one face. auto: project/unwrap/cylinder/sphere mapping. rotate: 90/180/270 degree rotation."
+              },
+              "mesh_id": {
+                "type": "string",
+                "description": "Mesh UUID or name. Required for action='set'. For auto/rotate, defaults to first selected mesh.",
+                "markdownDescription": "Mesh UUID or name. Required for action='set'. For auto/rotate, defaults to first selected mesh."
+              },
+              "face_key": {
+                "type": "string",
+                "description": "Face key. Required for action='set'.",
+                "markdownDescription": "Face key. Required for action='set'."
+              },
+              "uv_mapping": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "array",
+                  "items": {
+                    "type": "number"
+                  },
+                  "minItems": 2,
+                  "maxItems": 2,
+                  "description": "2D vector [x, y].",
+                  "markdownDescription": "2D vector [x, y]."
+                },
+                "description": "Map of vertex_key -> [u, v]. Required for action='set'.",
+                "markdownDescription": "Map of vertex_key -> [u, v]. Required for action='set'."
+              },
+              "mode": {
+                "type": "string",
+                "enum": [
+                  "project",
+                  "unwrap",
+                  "cylinder",
+                  "sphere"
+                ],
+                "description": "UV mapping mode. Required for action='auto'.",
+                "markdownDescription": "UV mapping mode. Required for action='auto'."
+              },
+              "angle": {
+                "type": "string",
+                "enum": [
+                  "-90",
+                  "90",
+                  "180"
+                ],
+                "description": "Rotation angle. Required for action='rotate'.",
+                "markdownDescription": "Rotation angle. Required for action='rotate'."
+              },
+              "faces": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "Specific face keys for auto/rotate. Defaults to currently selected faces.",
+                "markdownDescription": "Specific face keys for auto/rotate. Defaults to currently selected faces."
+              }
+            },
+            "required": [
+              "action"
+            ],
             "additionalProperties": false
           }
         },
