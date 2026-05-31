@@ -122,6 +122,170 @@ export const cubeToolDocs: ToolSpec[] = [
   },
 ];
 
+// ============================================================================
+// Stage-II op implementations (named exports for _redesign/cube_op.ts)
+// ============================================================================
+
+type FaceDir = "north" | "south" | "east" | "west" | "up" | "down";
+type FacesArg =
+  | boolean
+  | FaceDir[]
+  | Array<{ face: FaceDir; uv: number[] }>
+  | undefined;
+
+export function cubePlace(params: {
+  elements: Cube[];
+  texture?: string;
+  group?: string;
+  faces?: FacesArg;
+}) {
+  Undo.initEdit({
+    elements: [],
+    outliner: true,
+    collections: [],
+  });
+
+  const projectTexture = params.texture
+    ? getProjectTexture(params.texture)
+    : Texture.getDefault();
+
+  if (!projectTexture) {
+    throw new Error(`No texture found for "${params.texture}".`);
+  }
+
+  // @ts-expect-error Blockbench global utility available at runtime
+  const groups = getAllGroups();
+  const outlinerGroup =
+    params.group === "root"
+      ? "root"
+      : groups.find(
+          (g: any) => g.name === params.group || g.uuid === params.group
+        ) ?? "root";
+
+  const facesArg = params.faces ?? true;
+  const autouv =
+    facesArg === true ||
+    (Array.isArray(facesArg) &&
+      facesArg.every((face: any) => typeof face === "string"));
+
+  const cubes = params.elements.map((element: Cube) => {
+    const cube = new Cube({
+      autouv: autouv ? 1 : 0,
+      name: element.name,
+      from: element.from as [number, number, number],
+      to: element.to as [number, number, number],
+      origin: element.origin as [number, number, number],
+      rotation: element.rotation as [number, number, number],
+    }).init();
+
+    cube.addTo(outlinerGroup);
+
+    if (!autouv && Array.isArray(facesArg)) {
+      (facesArg as Array<{ face: FaceDir; uv: number[] }>).forEach(
+        ({ face, uv }) => {
+          cube.faces[face].extend({
+            uv: uv as [number, number, number, number],
+          });
+        }
+      );
+    } else {
+      cube.applyTexture(
+        projectTexture,
+        facesArg !== false ? (facesArg as any) : undefined
+      );
+      cube.mapAutoUV();
+    }
+
+    return cube;
+  });
+
+  Undo.finishEdit("Agent placed cubes");
+  Canvas.updateAll();
+
+  return {
+    message: `Placed ${cubes.length} cube(s).`,
+    cubes: cubes.map((c) => ({ uuid: c.uuid, name: c.name })),
+  };
+}
+
+export function cubeModify(params: {
+  id?: string;
+  name?: string;
+  origin?: [number, number, number];
+  from?: [number, number, number];
+  to?: [number, number, number];
+  rotation?: [number, number, number];
+  autouv?: "0" | "1" | "2";
+  uv_offset?: [number, number];
+  mirror_uv?: boolean;
+  shade?: boolean;
+  inflate?: number;
+  color?: number;
+  visibility?: boolean;
+}) {
+  let cubes: Cube[];
+  if (params.id) {
+    cubes = (Cube.all ?? []).filter(
+      (el: Cube) => el.uuid === params.id || el.name === params.id
+    );
+    if (!cubes.length) {
+      throw new Error(
+        `Cube with ID "${params.id}" not found. Use inspect(target='outline') to see available cubes.`
+      );
+    }
+  } else {
+    cubes = Cube.selected;
+    if (!cubes.length) {
+      throw new Error(
+        "No cube selected and no id provided. Select a cube or provide an id."
+      );
+    }
+  }
+
+  Undo.initEdit({
+    elements: cubes,
+    outliner: true,
+    collections: [],
+  });
+
+  cubes.forEach((cube) => {
+    const cubeOrigin = (params.origin ?? cube.origin) as [number, number, number];
+    const cubeFrom = (params.from ?? cube.from) as [number, number, number];
+    const cubeTo = (params.to ?? cube.to) as [number, number, number];
+    const cubeRotation = (params.rotation ?? cube.rotation) as [
+      number,
+      number,
+      number
+    ];
+    const cubeUVOffset = (params.uv_offset ?? cube.uv_offset) as [number, number];
+
+    cube.extend({
+      name: params.name ?? cube.name,
+      origin: cubeOrigin,
+      from: cubeFrom,
+      to: cubeTo,
+      rotation: cubeRotation,
+      uv_offset: cubeUVOffset,
+      autouv: params.autouv
+        ? (Number(params.autouv) as 0 | 1 | 2)
+        : cube.autouv,
+      mirror_uv: Boolean(params.mirror_uv ?? cube.mirror_uv),
+      inflate: params.inflate ?? cube.inflate,
+      color: params.color ?? cube.color,
+      visibility: params.visibility ?? cube.visibility,
+      shade: params.shade ?? cube.shade,
+    });
+  });
+
+  Undo.finishEdit("Agent modified cubes");
+  Canvas.updateAll();
+
+  return {
+    message: `Modified ${cubes.length} cube(s).`,
+    cubes: cubes.map((c) => ({ uuid: c.uuid, name: c.name })),
+  };
+}
+
 export function registerCubesTools() {
 createTool(cubeToolDocs[0].name, {
   ...cubeToolDocs[0],

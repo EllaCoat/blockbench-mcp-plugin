@@ -1,6 +1,6 @@
 {
   "version": "1.6.0",
-  "generatedAt": "2026-05-31T22:51:52.703Z",
+  "generatedAt": "2026-05-31T22:53:06.094Z",
   "tools": [
     {
       "name": "inspect",
@@ -932,6 +932,314 @@
                 "markdownDescription": "Whether the cube is visible or not."
               }
             },
+            "additionalProperties": false
+          }
+        },
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    },
+    {
+      "name": "cube_op",
+      "title": "Cube Op",
+      "description": "Cube operations (create/update) collapsed into a single tool. create places one or more new cubes with optional texture+UV; update mutates an existing cube (or all selected cubes when id is omitted). Returns { ok, data, error?, meta? }. Replaces legacy place_cube / modify_cube.",
+      "status": "experimental",
+      "category": "Cubes",
+      "annotations": {
+        "destructiveHint": true
+      },
+      "parameters": {
+        "$ref": "#/definitions/cube_op",
+        "definitions": {
+          "cube_op": {
+            "type": "object",
+            "properties": {
+              "action": {
+                "type": "string",
+                "enum": [
+                  "create",
+                  "update"
+                ],
+                "description": "Operation. create: place one or more cubes (legacy place_cube). update: modify an existing cube (legacy modify_cube).",
+                "markdownDescription": "Operation. create: place one or more cubes (legacy place_cube). update: modify an existing cube (legacy modify_cube)."
+              },
+              "elements": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string"
+                    },
+                    "origin": {
+                      "type": "array",
+                      "items": {
+                        "type": "number"
+                      },
+                      "minItems": 3,
+                      "maxItems": 3,
+                      "description": "Pivot point of the cube.",
+                      "markdownDescription": "Pivot point of the cube.",
+                      "default": [
+                        0,
+                        0,
+                        0
+                      ]
+                    },
+                    "from": {
+                      "type": "array",
+                      "items": {
+                        "type": "number"
+                      },
+                      "minItems": 3,
+                      "maxItems": 3,
+                      "description": "Starting point of the cube.",
+                      "markdownDescription": "Starting point of the cube.",
+                      "default": [
+                        0,
+                        0,
+                        0
+                      ]
+                    },
+                    "to": {
+                      "type": "array",
+                      "items": {
+                        "type": "number"
+                      },
+                      "minItems": 3,
+                      "maxItems": 3,
+                      "description": "Ending point of the cube.",
+                      "markdownDescription": "Ending point of the cube.",
+                      "default": [
+                        1,
+                        1,
+                        1
+                      ]
+                    },
+                    "rotation": {
+                      "type": "array",
+                      "items": {
+                        "type": "number"
+                      },
+                      "minItems": 3,
+                      "maxItems": 3,
+                      "description": "Rotation of the cube.",
+                      "markdownDescription": "Rotation of the cube.",
+                      "default": [
+                        0,
+                        0,
+                        0
+                      ]
+                    }
+                  },
+                  "required": [
+                    "name"
+                  ],
+                  "additionalProperties": false
+                },
+                "description": "Array of cubes to place. Required for action='create'.",
+                "markdownDescription": "Array of cubes to place. Required for action='create'."
+              },
+              "texture": {
+                "type": "string",
+                "description": "Texture ID or name to apply (action='create'). Defaults to project default.",
+                "markdownDescription": "Texture ID or name to apply (action='create'). Defaults to project default."
+              },
+              "group": {
+                "type": "string",
+                "description": "Group/bone for new cubes (action='create').",
+                "markdownDescription": "Group/bone for new cubes (action='create')."
+              },
+              "faces": {
+                "anyOf": [
+                  {
+                    "type": "boolean"
+                  },
+                  {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "enum": [
+                        "north",
+                        "south",
+                        "east",
+                        "west",
+                        "up",
+                        "down"
+                      ]
+                    }
+                  },
+                  {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "face": {
+                          "type": "string",
+                          "enum": [
+                            "north",
+                            "south",
+                            "east",
+                            "west",
+                            "up",
+                            "down"
+                          ]
+                        },
+                        "uv": {
+                          "type": "array",
+                          "items": {
+                            "type": "number"
+                          },
+                          "minItems": 4,
+                          "maxItems": 4
+                        }
+                      },
+                      "required": [
+                        "face",
+                        "uv"
+                      ],
+                      "additionalProperties": false
+                    }
+                  }
+                ],
+                "description": "Face selection for create. true = auto UV, string[] = specific faces, object[] = per-face UV override.",
+                "markdownDescription": "Face selection for create. true = auto UV, string[] = specific faces, object[] = per-face UV override."
+              },
+              "id": {
+                "type": "string",
+                "description": "Cube UUID or name to modify. For action='update'; defaults to selected cubes when omitted.",
+                "markdownDescription": "Cube UUID or name to modify. For action='update'; defaults to selected cubes when omitted."
+              },
+              "name": {
+                "type": "string",
+                "description": "New name (update).",
+                "markdownDescription": "New name (update)."
+              },
+              "origin": {
+                "type": "array",
+                "minItems": 3,
+                "maxItems": 3,
+                "items": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "number"
+                  }
+                ],
+                "description": "Pivot point (update).",
+                "markdownDescription": "Pivot point (update)."
+              },
+              "from": {
+                "type": "array",
+                "minItems": 3,
+                "maxItems": 3,
+                "items": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "number"
+                  }
+                ],
+                "description": "Starting corner (update).",
+                "markdownDescription": "Starting corner (update)."
+              },
+              "to": {
+                "type": "array",
+                "minItems": 3,
+                "maxItems": 3,
+                "items": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "number"
+                  }
+                ],
+                "description": "Ending corner (update).",
+                "markdownDescription": "Ending corner (update)."
+              },
+              "rotation": {
+                "type": "array",
+                "minItems": 3,
+                "maxItems": 3,
+                "items": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "number"
+                  }
+                ],
+                "description": "Rotation (update).",
+                "markdownDescription": "Rotation (update)."
+              },
+              "autouv": {
+                "type": "string",
+                "enum": [
+                  "0",
+                  "1",
+                  "2"
+                ],
+                "description": "Auto UV setting (update). 0=off, 1=on, 2=relative.",
+                "markdownDescription": "Auto UV setting (update). 0=off, 1=on, 2=relative."
+              },
+              "uv_offset": {
+                "type": "array",
+                "minItems": 2,
+                "maxItems": 2,
+                "items": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "number"
+                  }
+                ],
+                "description": "UV offset (update).",
+                "markdownDescription": "UV offset (update)."
+              },
+              "mirror_uv": {
+                "type": "boolean",
+                "description": "Mirror UVs (update).",
+                "markdownDescription": "Mirror UVs (update)."
+              },
+              "shade": {
+                "type": "boolean",
+                "description": "Apply shading (update).",
+                "markdownDescription": "Apply shading (update)."
+              },
+              "inflate": {
+                "type": "number",
+                "description": "Inflation amount (update).",
+                "markdownDescription": "Inflation amount (update)."
+              },
+              "color": {
+                "type": "number",
+                "description": "Palette color index (update).",
+                "markdownDescription": "Palette color index (update)."
+              },
+              "visibility": {
+                "type": "boolean",
+                "description": "Visibility (update).",
+                "markdownDescription": "Visibility (update)."
+              }
+            },
+            "required": [
+              "action"
+            ],
             "additionalProperties": false
           }
         },

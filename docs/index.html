@@ -18,7 +18,7 @@
 
       <div class="nav-group">
         <p class="nav-heading">Overview</p>
-        <a href="#tools" class="nav-link">Tools <span class="count">(118)</span></a>
+        <a href="#tools" class="nav-link">Tools <span class="count">(119)</span></a>
         <a href="#prompts" class="nav-link">Prompts <span class="count">(3)</span></a>
         <a href="#resources" class="nav-link">Resources <span class="count">(8)</span></a>
       </div>
@@ -27,7 +27,7 @@
         <p class="nav-heading">Categories</p>
         <a href="#cat-inspect-stage-ii" class="nav-link">Inspect (Stage II) <span class="count">(1)</span></a>
         <a href="#cat-animated-java" class="nav-link">Animated Java <span class="count">(13)</span></a>
-        <a href="#cat-cubes" class="nav-link">Cubes <span class="count">(2)</span></a>
+        <a href="#cat-cubes" class="nav-link">Cubes <span class="count">(3)</span></a>
         <a href="#cat-camera-screenshots" class="nav-link">Camera &amp; Screenshots <span class="count">(3)</span></a>
         <a href="#cat-animation" class="nav-link">Animation <span class="count">(7)</span></a>
         <a href="#cat-armature" class="nav-link">Armature <span class="count">(19)</span></a>
@@ -51,7 +51,7 @@
         <h1>Blockbench MCP Plugin</h1>
         <p class="subtitle">API Reference — v1.6.0</p>
         <nav class="stats">
-          <a href="#tools"><strong>118</strong> tools (40 stable, 78 experimental)</a>
+          <a href="#tools"><strong>119</strong> tools (40 stable, 79 experimental)</a>
           <a href="#prompts"><strong>3</strong> prompts</a>
           <a href="#resources"><strong>8</strong> resources</a>
         </nav>
@@ -716,6 +716,120 @@
       <td class="col-type">boolean</td>
       <td><span class="param-optional">optional</span></td>
       <td class="col-desc">Whether the cube is visible or not.</td>
+    </tr></tbody>
+    </table>
+      </div>
+    </div>
+<div id="tool-cube_op" class="card tool-card">
+      <div class="card-header">
+        <h3 class="card-name">cube_op</h3>
+        <div class="card-badges">
+          <span class="badge badge-experimental">experimental</span>
+          <span class="badge badge-destructive">destructive</span>
+        </div>
+      </div>
+      <p class="card-title">Cube Op</p>
+      <p class="card-desc">Cube operations (create/update) collapsed into a single tool. create places one or more new cubes with optional texture+UV; update mutates an existing cube (or all selected cubes when id is omitted). Returns { ok, data, error?, meta? }. Replaces legacy place_cube / modify_cube.</p>
+      <div class="overflow-x">
+        <table class="param-table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Required</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody><tr>
+      <td class="col-name">action</td>
+      <td class="col-type">&quot;create&quot; | &quot;update&quot;</td>
+      <td><span class="param-required">required</span></td>
+      <td class="col-desc">Operation. create: place one or more cubes (legacy place_cube). update: modify an existing cube (legacy modify_cube).</td>
+    </tr><tr>
+      <td class="col-name">elements</td>
+      <td class="col-type">object[]</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">Array of cubes to place. Required for action='create'.</td>
+    </tr><tr>
+      <td class="col-name">texture</td>
+      <td class="col-type">string</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">Texture ID or name to apply (action='create'). Defaults to project default.</td>
+    </tr><tr>
+      <td class="col-name">group</td>
+      <td class="col-type">string</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">Group/bone for new cubes (action='create').</td>
+    </tr><tr>
+      <td class="col-name">faces</td>
+      <td class="col-type">boolean | &quot;north&quot; | &quot;south&quot; | &quot;east&quot; | &quot;west&quot; | &quot;up&quot; | &quot;down&quot;[] | object[]</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">Face selection for create. true = auto UV, string[] = specific faces, object[] = per-face UV override.</td>
+    </tr><tr>
+      <td class="col-name">id</td>
+      <td class="col-type">string</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">Cube UUID or name to modify. For action='update'; defaults to selected cubes when omitted.</td>
+    </tr><tr>
+      <td class="col-name">name</td>
+      <td class="col-type">string</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">New name (update).</td>
+    </tr><tr>
+      <td class="col-name">origin</td>
+      <td class="col-type">unknown[]</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">Pivot point (update). <span class="param-meta">[minItems: 3, maxItems: 3]</span></td>
+    </tr><tr>
+      <td class="col-name">from</td>
+      <td class="col-type">unknown[]</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">Starting corner (update). <span class="param-meta">[minItems: 3, maxItems: 3]</span></td>
+    </tr><tr>
+      <td class="col-name">to</td>
+      <td class="col-type">unknown[]</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">Ending corner (update). <span class="param-meta">[minItems: 3, maxItems: 3]</span></td>
+    </tr><tr>
+      <td class="col-name">rotation</td>
+      <td class="col-type">unknown[]</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">Rotation (update). <span class="param-meta">[minItems: 3, maxItems: 3]</span></td>
+    </tr><tr>
+      <td class="col-name">autouv</td>
+      <td class="col-type">&quot;0&quot; | &quot;1&quot; | &quot;2&quot;</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">Auto UV setting (update). 0=off, 1=on, 2=relative.</td>
+    </tr><tr>
+      <td class="col-name">uv_offset</td>
+      <td class="col-type">unknown[]</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">UV offset (update). <span class="param-meta">[minItems: 2, maxItems: 2]</span></td>
+    </tr><tr>
+      <td class="col-name">mirror_uv</td>
+      <td class="col-type">boolean</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">Mirror UVs (update).</td>
+    </tr><tr>
+      <td class="col-name">shade</td>
+      <td class="col-type">boolean</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">Apply shading (update).</td>
+    </tr><tr>
+      <td class="col-name">inflate</td>
+      <td class="col-type">number</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">Inflation amount (update).</td>
+    </tr><tr>
+      <td class="col-name">color</td>
+      <td class="col-type">number</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">Palette color index (update).</td>
+    </tr><tr>
+      <td class="col-name">visibility</td>
+      <td class="col-type">boolean</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">Visibility (update).</td>
     </tr></tbody>
     </table>
       </div>
@@ -5106,7 +5220,7 @@
       </section>
 
       <footer class="page-footer">
-        Generated 2026-05-31T22:51:52.703Z from Zod schemas
+        Generated 2026-05-31T22:53:06.094Z from Zod schemas
       </footer>
     </main>
   </div>

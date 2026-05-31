@@ -30,6 +30,7 @@ import { armatureOpToolDocs } from "../server/tools/_redesign/armature_op";
 import { armatureBoneOpToolDocs } from "../server/tools/_redesign/armature_bone_op";
 import { vertexWeightOpToolDocs } from "../server/tools/_redesign/vertex_weight_op";
 import { materialInstanceOpToolDocs } from "../server/tools/_redesign/material_instance_op";
+import { cubeOpToolDocs } from "../server/tools/_redesign/cube_op";
 
 export interface CategoryGroup {
   category: string;
@@ -39,7 +40,7 @@ export interface CategoryGroup {
 export const toolManifest: CategoryGroup[] = [
   { category: "Inspect (Stage II)", tools: inspectToolDocs },
   { category: "Animated Java", tools: [...ajToolDocs, ...ajVariantOpToolDocs] },
-  { category: "Cubes", tools: cubeToolDocs },
+  { category: "Cubes", tools: [...cubeToolDocs, ...cubeOpToolDocs] },
   { category: "Camera & Screenshots", tools: cameraToolDocs },
   { category: "Animation", tools: animationToolDocs },
   { category: "Armature", tools: [...armatureToolDocs, ...armatureOpToolDocs, ...armatureBoneOpToolDocs, ...vertexWeightOpToolDocs] },
