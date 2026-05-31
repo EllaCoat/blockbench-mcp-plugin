@@ -1,24 +1,23 @@
 import { z } from "zod";
 import type { ToolSpec, PromptSpec, ResourceSpec } from "../lib/factories";
 
-// Tool docs imports — each file exports schemas at module level with zero Blockbench deps
+// Tool docs imports — each file exports schemas at module level with zero Blockbench deps.
+// Files whose registrations are fully replaced by Stage-II _redesign/ tools are NOT imported
+// here (the .ts files stay in repo as inventory but their toolDocs aren't manifested).
+// Currently dropped: armature / null-object / history / cubes / uv / material-instances.
+// Partial-OFF files (element / mesh / texture / paint) still import their toolDocs whole
+// pending docs split — see 14-mcp-tool-redesign-stage2.md § 3.4.
 import { cameraToolDocs } from "../server/tools/camera";
-import { cubeToolDocs } from "../server/tools/cubes";
 import { elementToolDocs } from "../server/tools/element";
 import { importToolDocs } from "../server/tools/import";
 import { meshToolDocs } from "../server/tools/mesh";
 import { paintToolDocs } from "../server/tools/paint";
 import { projectToolDocs } from "../server/tools/project";
 import { textureToolDocs } from "../server/tools/texture";
-import { armatureToolDocs } from "../server/tools/armature";
 import { animationToolDocs } from "../server/tools/animation";
 import { uiToolDocs } from "../server/tools/ui";
-import { materialInstanceToolDocs } from "../server/tools/material-instances";
-import { uvToolDocs } from "../server/tools/uv";
-import { historyToolDocs } from "../server/tools/history";
 import { exportToolDocs } from "../server/tools/export";
 import { ajToolDocs } from "../server/tools/aj";
-import { nullObjectToolDocs } from "../server/tools/null-object";
 
 // Stage-II redesigned tools
 import { riskyEvalToolDocs } from "../server/tools/_redesign/risky_eval";
@@ -45,22 +44,22 @@ export interface CategoryGroup {
 export const toolManifest: CategoryGroup[] = [
   { category: "Inspect (Stage II)", tools: inspectToolDocs },
   { category: "Animated Java", tools: [...ajToolDocs, ...ajVariantOpToolDocs] },
-  { category: "Cubes", tools: [...cubeToolDocs, ...cubeOpToolDocs] },
+  { category: "Cubes", tools: [...cubeOpToolDocs] },
   { category: "Camera & Screenshots", tools: cameraToolDocs },
   { category: "Animation", tools: animationToolDocs },
-  { category: "Armature", tools: [...armatureToolDocs, ...armatureOpToolDocs, ...armatureBoneOpToolDocs, ...vertexWeightOpToolDocs] },
+  { category: "Armature", tools: [...armatureOpToolDocs, ...armatureBoneOpToolDocs, ...vertexWeightOpToolDocs] },
   { category: "Elements", tools: [...elementToolDocs, ...selectionOpToolDocs] },
   { category: "Export", tools: exportToolDocs },
-  { category: "History", tools: [...historyToolDocs, ...historyOpToolDocs] },
+  { category: "History", tools: [...historyOpToolDocs] },
   { category: "Import/Export", tools: importToolDocs },
-  { category: "Material Instances", tools: [...materialInstanceToolDocs, ...materialInstanceOpToolDocs] },
+  { category: "Material Instances", tools: [...materialInstanceOpToolDocs] },
   { category: "Mesh Editing", tools: [...meshToolDocs, ...meshPrimitiveOpToolDocs] },
-  { category: "Null Objects / IK", tools: [...nullObjectToolDocs, ...nullObjectOpToolDocs] },
+  { category: "Null Objects / IK", tools: [...nullObjectOpToolDocs] },
   { category: "Paint Tools", tools: [...paintToolDocs, ...brushPresetOpToolDocs] },
   { category: "Project", tools: projectToolDocs },
   { category: "Textures", tools: [...textureToolDocs, ...materialOpToolDocs] },
   { category: "UI Interaction", tools: [...uiToolDocs, ...riskyEvalToolDocs] },
-  { category: "UV Mapping", tools: [...uvToolDocs, ...meshUvOpToolDocs] },
+  { category: "UV Mapping", tools: [...meshUvOpToolDocs] },
 ];
 
 // Prompt specs defined inline — server/prompts.ts uses macros that complicate direct import

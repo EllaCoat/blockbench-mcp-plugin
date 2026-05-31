@@ -4,9 +4,13 @@
 import { tools, prompts } from "@/lib/factories";
 
 // Import tool registration functions
+// Legacy registrations fully replaced by Stage-II _redesign/ tools are NOT imported
+// here (the source files stay in repo as inventory but are no longer registered).
+// Currently dropped: armature / null-object / history / cubes / uv / material-instances.
+// Partial-OFF files (element / mesh / texture / paint) still register the whole file
+// pending register-function split — see 14-mcp-tool-redesign-stage2.md § 3.4.
 import { registerCameraTools } from "./tools/camera";
 import { registerAnimationTools } from "./tools/animation";
-import { registerCubesTools } from "./tools/cubes";
 import { registerElementTools } from "./tools/element";
 import { registerImportTools } from "./tools/import";
 import { registerMeshTools } from "./tools/mesh";
@@ -14,13 +18,8 @@ import { registerPaintTools } from "./tools/paint";
 import { registerProjectTools } from "./tools/project";
 import { registerTextureTools } from "./tools/texture";
 import { registerUITools } from "./tools/ui";
-import { registerUVTools } from "./tools/uv";
-import { registerMaterialInstanceTools } from "./tools/material-instances";
-import { registerArmatureTools } from "./tools/armature";
-import { registerHistoryTools } from "./tools/history";
 import { registerExportTools } from "./tools/export";
 import { registerAJTools } from "./tools/aj";
-import { registerNullObjectTools } from "./tools/null-object";
 
 // Stage-II redesigned tools (server/tools/_redesign/)
 import { registerRiskyEvalTool } from "./tools/_redesign/risky_eval";
@@ -46,21 +45,15 @@ import { registerValidatorResources } from "./resources/validator";
 const registrationFunctions = [
   registerAJTools,
   registerAnimationTools,
-  registerArmatureTools,
   registerCameraTools,
-  registerCubesTools,
   registerElementTools,
   registerExportTools,
-  registerHistoryTools,
   registerImportTools,
-  registerMaterialInstanceTools,
   registerMeshTools,
-  registerNullObjectTools,
   registerPaintTools,
   registerProjectTools,
   registerTextureTools,
   registerUITools,
-  registerUVTools,
   // Stage-II redesigned tools
   registerRiskyEvalTool,
   registerInspectTool,
