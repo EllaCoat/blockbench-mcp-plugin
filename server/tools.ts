@@ -31,6 +31,7 @@ import { registerHistoryOpTool } from "./tools/_redesign/history_op";
 import { registerArmatureOpTool } from "./tools/_redesign/armature_op";
 import { registerArmatureBoneOpTool } from "./tools/_redesign/armature_bone_op";
 import { registerVertexWeightOpTool } from "./tools/_redesign/vertex_weight_op";
+import { registerMaterialInstanceOpTool } from "./tools/_redesign/material_instance_op";
 
 // Core resource registrations
 import { registerValidatorResources } from "./resources/validator";
@@ -63,6 +64,7 @@ const registrationFunctions = [
   registerArmatureOpTool,
   registerArmatureBoneOpTool,
   registerVertexWeightOpTool,
+  registerMaterialInstanceOpTool,
   registerValidatorResources,
 ];
 

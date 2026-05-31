@@ -18,7 +18,7 @@
 
       <div class="nav-group">
         <p class="nav-heading">Overview</p>
-        <a href="#tools" class="nav-link">Tools <span class="count">(117)</span></a>
+        <a href="#tools" class="nav-link">Tools <span class="count">(118)</span></a>
         <a href="#prompts" class="nav-link">Prompts <span class="count">(3)</span></a>
         <a href="#resources" class="nav-link">Resources <span class="count">(8)</span></a>
       </div>
@@ -35,7 +35,7 @@
         <a href="#cat-export" class="nav-link">Export <span class="count">(2)</span></a>
         <a href="#cat-history" class="nav-link">History <span class="count">(5)</span></a>
         <a href="#cat-import-export" class="nav-link">Import/Export <span class="count">(1)</span></a>
-        <a href="#cat-material-instances" class="nav-link">Material Instances <span class="count">(5)</span></a>
+        <a href="#cat-material-instances" class="nav-link">Material Instances <span class="count">(6)</span></a>
         <a href="#cat-mesh-editing" class="nav-link">Mesh Editing <span class="count">(11)</span></a>
         <a href="#cat-null-objects-ik" class="nav-link">Null Objects / IK <span class="count">(5)</span></a>
         <a href="#cat-paint-tools" class="nav-link">Paint Tools <span class="count">(12)</span></a>
@@ -51,7 +51,7 @@
         <h1>Blockbench MCP Plugin</h1>
         <p class="subtitle">API Reference — v1.6.0</p>
         <nav class="stats">
-          <a href="#tools"><strong>117</strong> tools (40 stable, 77 experimental)</a>
+          <a href="#tools"><strong>118</strong> tools (40 stable, 78 experimental)</a>
           <a href="#prompts"><strong>3</strong> prompts</a>
           <a href="#resources"><strong>8</strong> resources</a>
         </nav>
@@ -2783,6 +2783,60 @@
     </table>
       </div>
     </div>
+<div id="tool-material_instance_op" class="card tool-card">
+      <div class="card-header">
+        <h3 class="card-name">material_instance_op</h3>
+        <div class="card-badges">
+          <span class="badge badge-experimental">experimental</span>
+          <span class="badge badge-destructive">destructive</span>
+        </div>
+      </div>
+      <p class="card-title">Material Instance Op</p>
+      <p class="card-desc">Material instance operations (set/bulk_set/clear) collapsed into a single tool. Material instances map cube faces to materials defined in the minecraft:material_instances component (Bedrock Block format). Returns { ok, data, error?, meta? }. Replaces legacy set_face_material_instance / bulk_set_material_instances / clear_material_instances. Use inspect(target='material_instances') to list current assignments.</p>
+      <div class="overflow-x">
+        <table class="param-table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Required</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody><tr>
+      <td class="col-name">action</td>
+      <td class="col-type">&quot;set&quot; | &quot;bulk_set&quot; | &quot;clear&quot;</td>
+      <td><span class="param-required">required</span></td>
+      <td class="col-desc">Operation. set: assign one material instance to faces of one or more cubes. bulk_set: apply many assignments at once. clear: remove material instance names.</td>
+    </tr><tr>
+      <td class="col-name">cube_id</td>
+      <td class="col-type">string</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">Cube UUID or name. For set/clear; defaults to all selected cubes when omitted.</td>
+    </tr><tr>
+      <td class="col-name">material_name</td>
+      <td class="col-type">string</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">Material instance name. Required for action='set'. Empty string clears.</td>
+    </tr><tr>
+      <td class="col-name">faces</td>
+      <td class="col-type">&quot;north&quot; | &quot;south&quot; | &quot;east&quot; | &quot;west&quot; | &quot;up&quot; | &quot;down&quot;[]</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">Faces to set/clear. Defaults to all faces.</td>
+    </tr><tr>
+      <td class="col-name">assignments</td>
+      <td class="col-type">object[]</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">Bulk assignments. Required for action='bulk_set'.</td>
+    </tr><tr>
+      <td class="col-name">all_cubes</td>
+      <td class="col-type">boolean</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">When action='clear', clear from every cube in the project.</td>
+    </tr></tbody>
+    </table>
+      </div>
+    </div>
         </section>
 <section id="cat-mesh-editing" class="category-section">
           <h3 class="category-title">Mesh Editing</h3>
@@ -5052,7 +5106,7 @@
       </section>
 
       <footer class="page-footer">
-        Generated 2026-05-31T22:50:56.553Z from Zod schemas
+        Generated 2026-05-31T22:51:52.703Z from Zod schemas
       </footer>
     </main>
   </div>

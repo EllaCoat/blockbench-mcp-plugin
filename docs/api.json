@@ -1,6 +1,6 @@
 {
   "version": "1.6.0",
-  "generatedAt": "2026-05-31T22:50:56.553Z",
+  "generatedAt": "2026-05-31T22:51:52.703Z",
   "tools": [
     {
       "name": "inspect",
@@ -3807,6 +3807,108 @@
                 "markdownDescription": "If true, clears material instances from all cubes in the project."
               }
             },
+            "additionalProperties": false
+          }
+        },
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    },
+    {
+      "name": "material_instance_op",
+      "title": "Material Instance Op",
+      "description": "Material instance operations (set/bulk_set/clear) collapsed into a single tool. Material instances map cube faces to materials defined in the minecraft:material_instances component (Bedrock Block format). Returns { ok, data, error?, meta? }. Replaces legacy set_face_material_instance / bulk_set_material_instances / clear_material_instances. Use inspect(target='material_instances') to list current assignments.",
+      "status": "experimental",
+      "category": "Material Instances",
+      "annotations": {
+        "destructiveHint": true
+      },
+      "parameters": {
+        "$ref": "#/definitions/material_instance_op",
+        "definitions": {
+          "material_instance_op": {
+            "type": "object",
+            "properties": {
+              "action": {
+                "type": "string",
+                "enum": [
+                  "set",
+                  "bulk_set",
+                  "clear"
+                ],
+                "description": "Operation. set: assign one material instance to faces of one or more cubes. bulk_set: apply many assignments at once. clear: remove material instance names.",
+                "markdownDescription": "Operation. set: assign one material instance to faces of one or more cubes. bulk_set: apply many assignments at once. clear: remove material instance names."
+              },
+              "cube_id": {
+                "type": "string",
+                "description": "Cube UUID or name. For set/clear; defaults to all selected cubes when omitted.",
+                "markdownDescription": "Cube UUID or name. For set/clear; defaults to all selected cubes when omitted."
+              },
+              "material_name": {
+                "type": "string",
+                "description": "Material instance name. Required for action='set'. Empty string clears.",
+                "markdownDescription": "Material instance name. Required for action='set'. Empty string clears."
+              },
+              "faces": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "north",
+                    "south",
+                    "east",
+                    "west",
+                    "up",
+                    "down"
+                  ]
+                },
+                "description": "Faces to set/clear. Defaults to all faces.",
+                "markdownDescription": "Faces to set/clear. Defaults to all faces."
+              },
+              "assignments": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "cube_id": {
+                      "type": "string"
+                    },
+                    "faces": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "enum": [
+                          "north",
+                          "south",
+                          "east",
+                          "west",
+                          "up",
+                          "down"
+                        ]
+                      }
+                    },
+                    "material_name": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "cube_id",
+                    "faces",
+                    "material_name"
+                  ],
+                  "additionalProperties": false
+                },
+                "description": "Bulk assignments. Required for action='bulk_set'.",
+                "markdownDescription": "Bulk assignments. Required for action='bulk_set'."
+              },
+              "all_cubes": {
+                "type": "boolean",
+                "description": "When action='clear', clear from every cube in the project.",
+                "markdownDescription": "When action='clear', clear from every cube in the project."
+              }
+            },
+            "required": [
+              "action"
+            ],
             "additionalProperties": false
           }
         },

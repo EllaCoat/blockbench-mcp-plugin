@@ -152,6 +152,159 @@ export const materialInstanceToolDocs: ToolSpec[] = [
   },
 ];
 
+// ============================================================================
+// Stage-II op implementations (named exports for _redesign/material_instance_op.ts)
+// ============================================================================
+
+export function materialInstanceSet(params: {
+  cube_id?: string;
+  material_name: string;
+  faces?: string[];
+}) {
+  let cubes: Cube[];
+
+  if (params.cube_id) {
+    cubes = [findCubeOrThrow(params.cube_id)];
+  } else {
+    if (!Cube.selected.length) {
+      throw new Error(
+        "No cube specified and no cubes selected. Provide a cube_id or select cubes."
+      );
+    }
+    cubes = Cube.selected;
+  }
+
+  const facesToSet = params.faces ?? faceEnum.options;
+
+  Undo.initEdit({
+    elements: cubes,
+    // @ts-expect-error - uv_only is a valid Blockbench API property
+    uv_only: true,
+  });
+
+  let modifiedCount = 0;
+
+  for (const cube of cubes) {
+    for (const faceDir of facesToSet) {
+      const face = cube.faces[faceDir];
+      if (face) {
+        face.extend({ material_name: params.material_name });
+        modifiedCount++;
+      }
+    }
+  }
+
+  Undo.finishEdit("Set material instances");
+  Canvas.updateAll();
+
+  return {
+    message: `Set material instance "${params.material_name}" on ${modifiedCount} face(s) across ${cubes.length} cube(s).`,
+    cubes: cubes.length,
+    faces: modifiedCount,
+  };
+}
+
+export function materialInstanceBulkSet(params: {
+  assignments: Array<{
+    cube_id: string;
+    faces: string[];
+    material_name: string;
+  }>;
+}) {
+  const cubeCache: Record<string, Cube> = {};
+  const cubesToEdit: Cube[] = [];
+
+  for (const assignment of params.assignments) {
+    if (!cubeCache[assignment.cube_id]) {
+      const cube = findCubeOrThrow(assignment.cube_id);
+      cubeCache[assignment.cube_id] = cube;
+      cubesToEdit.push(cube);
+    }
+  }
+
+  Undo.initEdit({
+    elements: cubesToEdit,
+    // @ts-expect-error - uv_only is a valid Blockbench API property
+    uv_only: true,
+  });
+
+  let totalModified = 0;
+
+  for (const assignment of params.assignments) {
+    const cube = cubeCache[assignment.cube_id];
+    for (const faceDir of assignment.faces) {
+      const face = cube.faces[faceDir];
+      if (face) {
+        face.extend({ material_name: assignment.material_name });
+        totalModified++;
+      }
+    }
+  }
+
+  Undo.finishEdit("Bulk set material instances");
+  Canvas.updateAll();
+
+  return {
+    message: `Applied ${params.assignments.length} material instance assignment(s) affecting ${totalModified} face(s) on ${cubesToEdit.length} cube(s).`,
+    assignments: params.assignments.length,
+    cubes: cubesToEdit.length,
+    faces: totalModified,
+  };
+}
+
+export function materialInstanceClear(params: {
+  cube_id?: string;
+  faces?: string[];
+  all_cubes?: boolean;
+}) {
+  let cubes: Cube[];
+
+  if (params.all_cubes) {
+    cubes = Cube.all;
+  } else if (params.cube_id) {
+    cubes = [findCubeOrThrow(params.cube_id)];
+  } else {
+    if (!Cube.selected.length) {
+      throw new Error(
+        "No cube specified and no cubes selected. Provide a cube_id, select cubes, or set all_cubes=true."
+      );
+    }
+    cubes = Cube.selected;
+  }
+
+  if (cubes.length === 0) {
+    return { message: "No cubes to process.", cubes: 0, faces: 0 };
+  }
+
+  Undo.initEdit({
+    elements: cubes,
+    // @ts-expect-error - uv_only is a valid Blockbench API property
+    uv_only: true,
+  });
+
+  const facesToClear = params.faces ?? faceEnum.options;
+  let clearedCount = 0;
+
+  for (const cube of cubes) {
+    for (const faceDir of facesToClear) {
+      const face = cube.faces[faceDir];
+      if (face && face.material_name) {
+        face.extend({ material_name: "" });
+        clearedCount++;
+      }
+    }
+  }
+
+  Undo.finishEdit("Clear material instances");
+  Canvas.updateAll();
+
+  return {
+    message: `Cleared material instances from ${clearedCount} face(s) across ${cubes.length} cube(s).`,
+    cubes: cubes.length,
+    faces: clearedCount,
+  };
+}
+
 export function registerMaterialInstanceTools() {
   createTool(
     materialInstanceToolDocs[0].name,
