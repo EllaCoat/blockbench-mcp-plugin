@@ -18,7 +18,7 @@
 
       <div class="nav-group">
         <p class="nav-heading">Overview</p>
-        <a href="#tools" class="nav-link">Tools <span class="count">(116)</span></a>
+        <a href="#tools" class="nav-link">Tools <span class="count">(117)</span></a>
         <a href="#prompts" class="nav-link">Prompts <span class="count">(3)</span></a>
         <a href="#resources" class="nav-link">Resources <span class="count">(8)</span></a>
       </div>
@@ -30,7 +30,7 @@
         <a href="#cat-cubes" class="nav-link">Cubes <span class="count">(2)</span></a>
         <a href="#cat-camera-screenshots" class="nav-link">Camera &amp; Screenshots <span class="count">(3)</span></a>
         <a href="#cat-animation" class="nav-link">Animation <span class="count">(7)</span></a>
-        <a href="#cat-armature" class="nav-link">Armature <span class="count">(18)</span></a>
+        <a href="#cat-armature" class="nav-link">Armature <span class="count">(19)</span></a>
         <a href="#cat-elements" class="nav-link">Elements <span class="count">(9)</span></a>
         <a href="#cat-export" class="nav-link">Export <span class="count">(2)</span></a>
         <a href="#cat-history" class="nav-link">History <span class="count">(5)</span></a>
@@ -51,7 +51,7 @@
         <h1>Blockbench MCP Plugin</h1>
         <p class="subtitle">API Reference — v1.6.0</p>
         <nav class="stats">
-          <a href="#tools"><strong>116</strong> tools (40 stable, 76 experimental)</a>
+          <a href="#tools"><strong>117</strong> tools (40 stable, 77 experimental)</a>
           <a href="#prompts"><strong>3</strong> prompts</a>
           <a href="#resources"><strong>8</strong> resources</a>
         </nav>
@@ -1942,6 +1942,60 @@
       <td class="col-type">boolean</td>
       <td><span class="param-optional">optional</span></td>
       <td class="col-desc">When action=remove, whether to also remove child bones. Default true.</td>
+    </tr></tbody>
+    </table>
+      </div>
+    </div>
+<div id="tool-vertex_weight_op" class="card tool-card">
+      <div class="card-header">
+        <h3 class="card-name">vertex_weight_op</h3>
+        <div class="card-badges">
+          <span class="badge badge-experimental">experimental</span>
+          <span class="badge badge-destructive">destructive</span>
+        </div>
+      </div>
+      <p class="card-title">Vertex Weight Op</p>
+      <p class="card-desc">Vertex weight operations (set/set_batch/clear) collapsed into a single tool. Mesh defaults to the first selected mesh when mesh_id is omitted. Returns { ok, data, error?, meta? }. Replaces legacy set_vertex_weight / set_vertex_weights_batch / clear_vertex_weights. Use inspect(target='vertex_weights') to read current weights.</p>
+      <div class="overflow-x">
+        <table class="param-table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Required</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody><tr>
+      <td class="col-name">action</td>
+      <td class="col-type">&quot;set&quot; | &quot;set_batch&quot; | &quot;clear&quot;</td>
+      <td><span class="param-required">required</span></td>
+      <td class="col-desc">Operation. set: write one vertex weight. set_batch: write many weights at once. clear: remove all weights of this bone for this mesh.</td>
+    </tr><tr>
+      <td class="col-name">bone_id</td>
+      <td class="col-type">string</td>
+      <td><span class="param-required">required</span></td>
+      <td class="col-desc">Target bone UUID or name.</td>
+    </tr><tr>
+      <td class="col-name">mesh_id</td>
+      <td class="col-type">string</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">Target mesh UUID or name. Defaults to the first selected mesh.</td>
+    </tr><tr>
+      <td class="col-name">vertex_key</td>
+      <td class="col-type">string</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">Vertex key in the mesh. Required for action='set'.</td>
+    </tr><tr>
+      <td class="col-name">weight</td>
+      <td class="col-type">number</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">Weight value (0-1, set to 0 to remove). Required for action='set'. <span class="param-meta">[min: 0, max: 1]</span></td>
+    </tr><tr>
+      <td class="col-name">weights</td>
+      <td class="col-type">Record&lt;string, number&gt;</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">Map of vertex_key -&gt; weight value. Required for action='set_batch'.</td>
     </tr></tbody>
     </table>
       </div>
@@ -4998,7 +5052,7 @@
       </section>
 
       <footer class="page-footer">
-        Generated 2026-05-31T22:50:00.538Z from Zod schemas
+        Generated 2026-05-31T22:50:56.553Z from Zod schemas
       </footer>
     </main>
   </div>

@@ -668,6 +668,119 @@ export function armatureBoneRemove(params: {
   return { message: `Removed bone "${name}"`, removed: { name } };
 }
 
+function resolveMeshOrThrow(mesh_id: string | undefined): Mesh {
+  let mesh: Mesh | undefined;
+  if (mesh_id) {
+    mesh = findMesh(mesh_id);
+  } else {
+    mesh = Mesh.selected[0];
+  }
+  if (!mesh) {
+    throw new Error("No mesh found. Provide mesh_id or select a mesh.");
+  }
+  return mesh;
+}
+
+export function vertexWeightSet(params: {
+  bone_id: string;
+  mesh_id?: string;
+  vertex_key: string;
+  weight: number;
+}) {
+  const bone = findArmatureBoneOrThrow(params.bone_id);
+  const mesh = resolveMeshOrThrow(params.mesh_id);
+
+  if (!(params.vertex_key in mesh.vertices)) {
+    throw new Error(
+      `Vertex "${params.vertex_key}" not found in mesh "${mesh.name}".`
+    );
+  }
+
+  Undo.initEdit({ elements: [bone] });
+  bone.setVertexWeight(mesh, params.vertex_key, params.weight);
+  Undo.finishEdit("Agent set vertex weight");
+
+  Canvas.updateView({
+    elements: [mesh],
+    element_aspects: { geometry: true },
+  });
+
+  return {
+    message: `Set weight ${params.weight} for vertex "${params.vertex_key}" on bone "${bone.name}"`,
+    bone: { uuid: bone.uuid, name: bone.name },
+    mesh: { uuid: mesh.uuid, name: mesh.name },
+    vertex: params.vertex_key,
+    weight: params.weight,
+  };
+}
+
+export function vertexWeightSetBatch(params: {
+  bone_id: string;
+  mesh_id?: string;
+  weights: Record<string, number>;
+}) {
+  const bone = findArmatureBoneOrThrow(params.bone_id);
+  const mesh = resolveMeshOrThrow(params.mesh_id);
+
+  Undo.initEdit({ elements: [bone] });
+
+  let count = 0;
+  for (const [vertex_key, weight] of Object.entries(params.weights)) {
+    if (vertex_key in mesh.vertices) {
+      bone.setVertexWeight(mesh, vertex_key, weight);
+      count++;
+    }
+  }
+
+  Undo.finishEdit("Agent set vertex weights (batch)");
+
+  Canvas.updateView({
+    elements: [mesh],
+    element_aspects: { geometry: true },
+  });
+
+  return {
+    message: `Set ${count} vertex weights on bone "${bone.name}"`,
+    bone: { uuid: bone.uuid, name: bone.name },
+    mesh: { uuid: mesh.uuid, name: mesh.name },
+    weightsSet: count,
+  };
+}
+
+export function vertexWeightClear(params: {
+  bone_id: string;
+  mesh_id?: string;
+}) {
+  const bone = findArmatureBoneOrThrow(params.bone_id);
+  const mesh = resolveMeshOrThrow(params.mesh_id);
+
+  Undo.initEdit({ elements: [bone] });
+
+  let count = 0;
+  const meshPrefix = mesh.uuid.substring(0, 6) + ":";
+
+  for (const key in bone.vertex_weights) {
+    if (key.startsWith(meshPrefix)) {
+      delete bone.vertex_weights[key];
+      count++;
+    }
+  }
+
+  Undo.finishEdit("Agent cleared vertex weights");
+
+  Canvas.updateView({
+    elements: [mesh],
+    element_aspects: { geometry: true },
+  });
+
+  return {
+    message: `Cleared ${count} vertex weights from bone "${bone.name}" for mesh "${mesh.name}"`,
+    bone: { uuid: bone.uuid, name: bone.name },
+    mesh: { uuid: mesh.uuid, name: mesh.name },
+    weightsCleared: count,
+  };
+}
+
 // ============================================================================
 // Armature Tools
 // ============================================================================

@@ -28,6 +28,7 @@ import { nullObjectOpToolDocs } from "../server/tools/_redesign/null_object_op";
 import { historyOpToolDocs } from "../server/tools/_redesign/history_op";
 import { armatureOpToolDocs } from "../server/tools/_redesign/armature_op";
 import { armatureBoneOpToolDocs } from "../server/tools/_redesign/armature_bone_op";
+import { vertexWeightOpToolDocs } from "../server/tools/_redesign/vertex_weight_op";
 
 export interface CategoryGroup {
   category: string;
@@ -40,7 +41,7 @@ export const toolManifest: CategoryGroup[] = [
   { category: "Cubes", tools: cubeToolDocs },
   { category: "Camera & Screenshots", tools: cameraToolDocs },
   { category: "Animation", tools: animationToolDocs },
-  { category: "Armature", tools: [...armatureToolDocs, ...armatureOpToolDocs, ...armatureBoneOpToolDocs] },
+  { category: "Armature", tools: [...armatureToolDocs, ...armatureOpToolDocs, ...armatureBoneOpToolDocs, ...vertexWeightOpToolDocs] },
   { category: "Elements", tools: elementToolDocs },
   { category: "Export", tools: exportToolDocs },
   { category: "History", tools: [...historyToolDocs, ...historyOpToolDocs] },
