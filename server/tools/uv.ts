@@ -134,6 +134,22 @@ export function meshUvAuto(params: {
   faces?: string[];
 }) {
   const mesh = getMeshOrSelected(params.mesh_id);
+  const selectedFaces = params.faces ?? UVEditor.getSelectedFaces(mesh);
+
+  if (params.mode === "project") {
+    // BarItems.uv_project_from_view is a Blockbench Action that pushes its own Undo entry.
+    // Wrapping it in our own Undo.initEdit/finishEdit would create a nested empty outer
+    // scope and split Ctrl+Z into two steps. Defer entirely to the Action's Undo.
+    BarItems.uv_project_from_view.click();
+    mesh.preview_controller.updateUV(mesh);
+    UVEditor.loadData();
+    return {
+      message: `Applied project UV mapping to ${selectedFaces.length} faces of mesh "${mesh.name}"`,
+      mesh: { uuid: mesh.uuid, name: mesh.name },
+      mode: params.mode,
+      faces: selectedFaces.length,
+    };
+  }
 
   Undo.initEdit({
     elements: [mesh],
@@ -141,42 +157,36 @@ export function meshUvAuto(params: {
     uv_only: true,
   });
 
-  const selectedFaces = params.faces ?? UVEditor.getSelectedFaces(mesh);
+  selectedFaces.forEach((fkey) => {
+    const face = mesh.faces[fkey];
+    if (!face) return;
 
-  if (params.mode === "project") {
-    BarItems.uv_project_from_view.click();
-  } else {
-    selectedFaces.forEach((fkey) => {
-      const face = mesh.faces[fkey];
-      if (!face) return;
-
-      if (params.mode === "unwrap") {
-        UVEditor.setAutoSize(null, true, [fkey]);
-      } else if (params.mode === "cylinder") {
-        const vertices = face.getSortedVertices();
-        vertices.forEach((vkey) => {
-          const vertex = mesh.vertices[vkey];
-          const angle = Math.atan2(vertex[0], vertex[2]);
-          const u = ((angle + Math.PI) / (2 * Math.PI)) * Project.texture_width;
-          const v = ((vertex[1] + 8) / 16) * Project.texture_height;
-          face.uv[vkey] = [u, v];
-        });
-      } else if (params.mode === "sphere") {
-        const vertices = face.getSortedVertices();
-        vertices.forEach((vkey) => {
-          const vertex = mesh.vertices[vkey];
-          const length = Math.sqrt(
-            vertex[0] ** 2 + vertex[1] ** 2 + vertex[2] ** 2
-          );
-          const theta = Math.acos(vertex[1] / length);
-          const phi = Math.atan2(vertex[0], vertex[2]);
-          const u = ((phi + Math.PI) / (2 * Math.PI)) * Project.texture_width;
-          const v = (theta / Math.PI) * Project.texture_height;
-          face.uv[vkey] = [u, v];
-        });
-      }
-    });
-  }
+    if (params.mode === "unwrap") {
+      UVEditor.setAutoSize(null, true, [fkey]);
+    } else if (params.mode === "cylinder") {
+      const vertices = face.getSortedVertices();
+      vertices.forEach((vkey) => {
+        const vertex = mesh.vertices[vkey];
+        const angle = Math.atan2(vertex[0], vertex[2]);
+        const u = ((angle + Math.PI) / (2 * Math.PI)) * Project.texture_width;
+        const v = ((vertex[1] + 8) / 16) * Project.texture_height;
+        face.uv[vkey] = [u, v];
+      });
+    } else if (params.mode === "sphere") {
+      const vertices = face.getSortedVertices();
+      vertices.forEach((vkey) => {
+        const vertex = mesh.vertices[vkey];
+        const length = Math.sqrt(
+          vertex[0] ** 2 + vertex[1] ** 2 + vertex[2] ** 2
+        );
+        const theta = Math.acos(vertex[1] / length);
+        const phi = Math.atan2(vertex[0], vertex[2]);
+        const u = ((phi + Math.PI) / (2 * Math.PI)) * Project.texture_width;
+        const v = (theta / Math.PI) * Project.texture_height;
+        face.uv[vkey] = [u, v];
+      });
+    }
+  });
 
   mesh.preview_controller.updateUV(mesh);
   UVEditor.loadData();
