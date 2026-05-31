@@ -1,6 +1,6 @@
 {
   "version": "1.6.0",
-  "generatedAt": "2026-05-30T14:09:41.650Z",
+  "generatedAt": "2026-05-31T22:48:35.073Z",
   "tools": [
     {
       "name": "inspect",
@@ -2609,6 +2609,67 @@
             },
             "required": [
               "bone_id"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    },
+    {
+      "name": "armature_op",
+      "title": "Armature Op",
+      "description": "Armature operations (create/update/remove) collapsed into a single tool. Armatures are skeletal rigs used for mesh deformation; requires a format with armature_rig support. Returns { ok, data, error?, meta? }. Replaces legacy add_armature / update_armature / remove_armature. Use inspect(target='armatures') to list.",
+      "status": "experimental",
+      "category": "Armature",
+      "annotations": {
+        "destructiveHint": true
+      },
+      "parameters": {
+        "$ref": "#/definitions/armature_op",
+        "definitions": {
+          "armature_op": {
+            "type": "object",
+            "properties": {
+              "action": {
+                "type": "string",
+                "enum": [
+                  "create",
+                  "update",
+                  "remove"
+                ],
+                "description": "Operation. create: new armature (skeletal rig). update: mutate fields by id. remove: delete armature and its bones.",
+                "markdownDescription": "Operation. create: new armature (skeletal rig). update: mutate fields by id. remove: delete armature and its bones."
+              },
+              "id": {
+                "type": "string",
+                "description": "Target armature UUID or name. Required for update/remove.",
+                "markdownDescription": "Target armature UUID or name. Required for update/remove."
+              },
+              "name": {
+                "type": "string",
+                "description": "Name (create) or new name (update).",
+                "markdownDescription": "Name (create) or new name (update)."
+              },
+              "visibility": {
+                "type": "boolean"
+              },
+              "locked": {
+                "type": "boolean"
+              },
+              "add_initial_bone": {
+                "type": "boolean",
+                "description": "Whether to add an initial bone on create. Defaults to true.",
+                "markdownDescription": "Whether to add an initial bone on create. Defaults to true."
+              },
+              "export": {
+                "type": "boolean",
+                "description": "Whether to export this armature (update only).",
+                "markdownDescription": "Whether to export this armature (update only)."
+              }
+            },
+            "required": [
+              "action"
             ],
             "additionalProperties": false
           }

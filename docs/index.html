@@ -18,7 +18,7 @@
 
       <div class="nav-group">
         <p class="nav-heading">Overview</p>
-        <a href="#tools" class="nav-link">Tools <span class="count">(114)</span></a>
+        <a href="#tools" class="nav-link">Tools <span class="count">(115)</span></a>
         <a href="#prompts" class="nav-link">Prompts <span class="count">(3)</span></a>
         <a href="#resources" class="nav-link">Resources <span class="count">(8)</span></a>
       </div>
@@ -30,7 +30,7 @@
         <a href="#cat-cubes" class="nav-link">Cubes <span class="count">(2)</span></a>
         <a href="#cat-camera-screenshots" class="nav-link">Camera &amp; Screenshots <span class="count">(3)</span></a>
         <a href="#cat-animation" class="nav-link">Animation <span class="count">(7)</span></a>
-        <a href="#cat-armature" class="nav-link">Armature <span class="count">(16)</span></a>
+        <a href="#cat-armature" class="nav-link">Armature <span class="count">(17)</span></a>
         <a href="#cat-elements" class="nav-link">Elements <span class="count">(9)</span></a>
         <a href="#cat-export" class="nav-link">Export <span class="count">(2)</span></a>
         <a href="#cat-history" class="nav-link">History <span class="count">(5)</span></a>
@@ -51,7 +51,7 @@
         <h1>Blockbench MCP Plugin</h1>
         <p class="subtitle">API Reference — v1.6.0</p>
         <nav class="stats">
-          <a href="#tools"><strong>114</strong> tools (40 stable, 74 experimental)</a>
+          <a href="#tools"><strong>115</strong> tools (40 stable, 75 experimental)</a>
           <a href="#prompts"><strong>3</strong> prompts</a>
           <a href="#resources"><strong>8</strong> resources</a>
         </nav>
@@ -1789,6 +1789,65 @@
       <td class="col-type">string</td>
       <td><span class="param-optional">optional</span></td>
       <td class="col-desc">ID or name of the mesh. If not provided, uses selected mesh.</td>
+    </tr></tbody>
+    </table>
+      </div>
+    </div>
+<div id="tool-armature_op" class="card tool-card">
+      <div class="card-header">
+        <h3 class="card-name">armature_op</h3>
+        <div class="card-badges">
+          <span class="badge badge-experimental">experimental</span>
+          <span class="badge badge-destructive">destructive</span>
+        </div>
+      </div>
+      <p class="card-title">Armature Op</p>
+      <p class="card-desc">Armature operations (create/update/remove) collapsed into a single tool. Armatures are skeletal rigs used for mesh deformation; requires a format with armature_rig support. Returns { ok, data, error?, meta? }. Replaces legacy add_armature / update_armature / remove_armature. Use inspect(target='armatures') to list.</p>
+      <div class="overflow-x">
+        <table class="param-table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Required</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody><tr>
+      <td class="col-name">action</td>
+      <td class="col-type">&quot;create&quot; | &quot;update&quot; | &quot;remove&quot;</td>
+      <td><span class="param-required">required</span></td>
+      <td class="col-desc">Operation. create: new armature (skeletal rig). update: mutate fields by id. remove: delete armature and its bones.</td>
+    </tr><tr>
+      <td class="col-name">id</td>
+      <td class="col-type">string</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">Target armature UUID or name. Required for update/remove.</td>
+    </tr><tr>
+      <td class="col-name">name</td>
+      <td class="col-type">string</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">Name (create) or new name (update).</td>
+    </tr><tr>
+      <td class="col-name">visibility</td>
+      <td class="col-type">boolean</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc"></td>
+    </tr><tr>
+      <td class="col-name">locked</td>
+      <td class="col-type">boolean</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc"></td>
+    </tr><tr>
+      <td class="col-name">add_initial_bone</td>
+      <td class="col-type">boolean</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">Whether to add an initial bone on create. Defaults to true.</td>
+    </tr><tr>
+      <td class="col-name">export</td>
+      <td class="col-type">boolean</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">Whether to export this armature (update only).</td>
     </tr></tbody>
     </table>
       </div>
@@ -4845,7 +4904,7 @@
       </section>
 
       <footer class="page-footer">
-        Generated 2026-05-30T14:09:41.650Z from Zod schemas
+        Generated 2026-05-31T22:48:35.073Z from Zod schemas
       </footer>
     </main>
   </div>

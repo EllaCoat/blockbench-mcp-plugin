@@ -443,6 +443,91 @@ export const armatureToolDocs: ToolSpec[] = [
 ];
 
 // ============================================================================
+// Stage-II op implementations (named exports for _redesign/armature_op.ts)
+// ============================================================================
+
+export function armatureAdd(params: {
+  name?: string;
+  visibility?: boolean;
+  locked?: boolean;
+  add_initial_bone?: boolean;
+}) {
+  if (!Format.armature_rig) {
+    throw new Error(
+      "Current format does not support armatures. Switch to a format that supports armature rigs."
+    );
+  }
+
+  Undo.initEdit({ outliner: true, elements: [] });
+
+  const armature = new Armature({
+    name: params.name,
+    visibility: params.visibility,
+    locked: params.locked,
+  });
+  // @ts-ignore — addTo accepts Outliner.root.
+  armature.addTo(Outliner.root);
+  armature.isOpen = true;
+  armature.createUniqueName();
+  armature.init();
+
+  const elements: OutlinerElement[] = [armature];
+
+  if (params.add_initial_bone !== false) {
+    const bone = new ArmatureBone({ name: "bone" });
+    bone.addTo(armature);
+    bone.init();
+    elements.push(bone);
+  }
+
+  Undo.finishEdit("Agent added armature", { outliner: true, elements });
+  Canvas.updateAll();
+
+  return {
+    message: `Created armature "${armature.name}"`,
+    armature: serializeArmature(armature),
+  };
+}
+
+export function armatureUpdate(params: {
+  id: string;
+  name?: string;
+  visibility?: boolean;
+  locked?: boolean;
+  export?: boolean;
+}) {
+  const armature = findArmatureOrThrow(params.id);
+
+  Undo.initEdit({ outliner: true, elements: [armature] });
+
+  if (params.name !== undefined) armature.name = params.name;
+  if (params.visibility !== undefined) armature.visibility = params.visibility;
+  if (params.locked !== undefined) armature.locked = params.locked;
+  if (params.export !== undefined) armature.export = params.export;
+
+  armature.updateElement();
+  Undo.finishEdit("Agent updated armature");
+  Canvas.updateAll();
+
+  return {
+    message: `Updated armature "${armature.name}"`,
+    armature: serializeArmature(armature),
+  };
+}
+
+export function armatureRemove(id: string) {
+  const armature = findArmatureOrThrow(id);
+  const name = armature.name;
+
+  Undo.initEdit({ outliner: true, elements: [] });
+  armature.remove();
+  Undo.finishEdit("Agent removed armature");
+  Canvas.updateAll();
+
+  return { message: `Removed armature "${name}"`, removed: { name } };
+}
+
+// ============================================================================
 // Armature Tools
 // ============================================================================
 
