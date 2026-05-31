@@ -31,6 +31,7 @@ import { armatureBoneOpToolDocs } from "../server/tools/_redesign/armature_bone_
 import { vertexWeightOpToolDocs } from "../server/tools/_redesign/vertex_weight_op";
 import { materialInstanceOpToolDocs } from "../server/tools/_redesign/material_instance_op";
 import { cubeOpToolDocs } from "../server/tools/_redesign/cube_op";
+import { meshPrimitiveOpToolDocs } from "../server/tools/_redesign/mesh_primitive_op";
 
 export interface CategoryGroup {
   category: string;
@@ -49,7 +50,7 @@ export const toolManifest: CategoryGroup[] = [
   { category: "History", tools: [...historyToolDocs, ...historyOpToolDocs] },
   { category: "Import/Export", tools: importToolDocs },
   { category: "Material Instances", tools: [...materialInstanceToolDocs, ...materialInstanceOpToolDocs] },
-  { category: "Mesh Editing", tools: meshToolDocs },
+  { category: "Mesh Editing", tools: [...meshToolDocs, ...meshPrimitiveOpToolDocs] },
   { category: "Null Objects / IK", tools: [...nullObjectToolDocs, ...nullObjectOpToolDocs] },
   { category: "Paint Tools", tools: paintToolDocs },
   { category: "Project", tools: projectToolDocs },

@@ -305,6 +305,229 @@ export const meshToolDocs: ToolSpec[] = [
 ];
 
 // ============================================================================
+// Stage-II op implementations (named exports for _redesign/mesh_primitive_op.ts)
+// ============================================================================
+
+function resolveOutlinerGroup(group: string | undefined): Group | "root" {
+  if (group === undefined || group === "root") return "root";
+  // @ts-expect-error getAllGroups is a Blockbench runtime utility.
+  const groups = getAllGroups();
+  return (
+    groups.find((g: Group) => g.name === group || g.uuid === group) ?? "root"
+  );
+}
+
+function resolveTextureOrThrow(texture: string | undefined): Texture {
+  const t = texture ? getProjectTexture(texture) : Texture.getDefault();
+  if (!t) {
+    throw new Error(`No texture found for "${texture}".`);
+  }
+  return t;
+}
+
+export function meshPlace(params: {
+  elements: Array<{ name: string; vertices: ArrayVector3[] }>;
+  texture?: string;
+  group?: string;
+}) {
+  Undo.initEdit({ elements: [], outliner: true, collections: [] });
+  const projectTexture = resolveTextureOrThrow(params.texture);
+  const outlinerGroup = resolveOutlinerGroup(params.group);
+
+  const meshes = params.elements.map((element) => {
+    const mesh = new Mesh({ name: element.name, vertices: {} }).init();
+    element.vertices.forEach((vertex) => {
+      mesh.addVertices(vertex);
+    });
+    mesh.addTo(outlinerGroup);
+    mesh.applyTexture(projectTexture);
+    return mesh;
+  });
+
+  Undo.finishEdit("Agent placed meshes");
+  Canvas.updateAll();
+
+  return {
+    message: `Placed ${meshes.length} mesh(es).`,
+    meshes: meshes.map((m) => ({ uuid: m.uuid, name: m.name })),
+  };
+}
+
+export function meshCreateSphere(params: {
+  elements: Array<{
+    name: string;
+    position: [number, number, number];
+    diameter: number;
+    sides: number;
+    rotation?: [number, number, number];
+    align_edges?: boolean;
+  }>;
+  texture?: string;
+  group?: string;
+}) {
+  Undo.initEdit({ elements: [], outliner: true, collections: [] });
+  const projectTexture = resolveTextureOrThrow(params.texture);
+  const outlinerGroup = resolveOutlinerGroup(params.group);
+
+  const spheres = params.elements.map((element) => {
+    const mesh = new Mesh({
+      name: element.name,
+      vertices: {},
+      origin: element.position,
+      rotation: (element.rotation ?? [0, 0, 0]) as [number, number, number],
+    }).init();
+
+    const radius = element.diameter / 2;
+    const sides = Math.round(element.sides / 2) * 2;
+    const [bottom] = mesh.addVertices([0, -radius, 0]);
+    const [top] = mesh.addVertices([0, radius, 0]);
+
+    const rings: string[][] = [];
+    const off_ang = element.align_edges === false ? 0 : 0.5;
+
+    for (let i = 0; i < element.sides; i++) {
+      const circle_x = Math.sin(((i + off_ang) / element.sides) * Math.PI * 2);
+      const circle_z = Math.cos(((i + off_ang) / element.sides) * Math.PI * 2);
+
+      const vertices: string[] = [];
+      for (let j = 1; j < sides / 2; j++) {
+        const slice_x = Math.sin((j / sides) * Math.PI * 2) * radius;
+        const x = circle_x * slice_x;
+        const y = Math.cos((j / sides) * Math.PI * 2) * radius;
+        const z = circle_z * slice_x;
+        vertices.push(...mesh.addVertices([x, y, z]));
+      }
+      rings.push(vertices);
+    }
+
+    for (let i = 0; i < element.sides; i++) {
+      const this_ring = rings[i];
+      const next_ring = rings[i + 1] || rings[0];
+
+      for (let j = 0; j < sides / 2; j++) {
+        if (j === 0) {
+          mesh.addFaces(
+            new MeshFace(mesh, {
+              vertices: [this_ring[j], next_ring[j], top],
+              uv: {},
+            })
+          );
+          continue;
+        }
+        if (!this_ring[j]) {
+          mesh.addFaces(
+            new MeshFace(mesh, {
+              vertices: [next_ring[j - 1], this_ring[j - 1], bottom],
+              uv: {},
+            })
+          );
+          continue;
+        }
+        mesh.addFaces(
+          new MeshFace(mesh, {
+            vertices: [
+              this_ring[j],
+              next_ring[j],
+              this_ring[j - 1],
+              next_ring[j - 1],
+            ],
+            uv: {},
+          })
+        );
+      }
+    }
+
+    mesh.addTo(outlinerGroup);
+    if (projectTexture) mesh.applyTexture(projectTexture);
+    return mesh;
+  });
+
+  Undo.finishEdit("Agent created spheres");
+  Canvas.updateAll();
+
+  return {
+    message: `Created ${spheres.length} sphere(s).`,
+    spheres: spheres.map((m) => ({ uuid: m.uuid, name: m.name })),
+  };
+}
+
+export function meshCreateCylinder(params: {
+  elements: Array<{
+    name: string;
+    position: [number, number, number];
+    height: number;
+    diameter: number;
+    sides: number;
+    rotation?: [number, number, number];
+    capped?: boolean;
+  }>;
+  texture?: string;
+  group?: string;
+}) {
+  Undo.initEdit({ elements: [], outliner: true, collections: [] });
+  const projectTexture = resolveTextureOrThrow(params.texture);
+  const outlinerGroup = resolveOutlinerGroup(params.group);
+
+  const cylinders = params.elements.map((element) => {
+    const mesh = new Mesh({
+      name: element.name,
+      vertices: {},
+      origin: element.position,
+      rotation: (element.rotation ?? [0, 0, 0]) as [number, number, number],
+    }).init();
+
+    const radius = element.diameter / 2;
+    const height = element.height;
+    const sides = Math.round(element.sides);
+    const topCenter = mesh.addVertices([0, height / 2, 0])[0];
+    const bottomCenter = mesh.addVertices([0, -height / 2, 0])[0];
+    const topRing: any[] = [];
+    const bottomRing: any[] = [];
+    for (let i = 0; i < sides; i++) {
+      const ang = (i / sides) * Math.PI * 2;
+      const x = Math.cos(ang) * radius;
+      const z = Math.sin(ang) * radius;
+      topRing.push(mesh.addVertices([x, height / 2, z])[0]);
+      bottomRing.push(mesh.addVertices([x, -height / 2, z])[0]);
+    }
+    for (let i = 0; i < sides; i++) {
+      const next = (i + 1) % sides;
+      mesh.addFaces(
+        new MeshFace(mesh, {
+          vertices: [bottomRing[i], bottomRing[next], topRing[next], topRing[i]],
+          uv: {},
+        })
+      );
+      if (element.capped !== false) {
+        mesh.addFaces(
+          new MeshFace(mesh, {
+            vertices: [topRing[i], topRing[next], topCenter],
+            uv: {},
+          })
+        );
+        mesh.addFaces(
+          new MeshFace(mesh, {
+            vertices: [bottomRing[next], bottomRing[i], bottomCenter],
+            uv: {},
+          })
+        );
+      }
+    }
+    mesh.addTo(outlinerGroup);
+    if (projectTexture) mesh.applyTexture(projectTexture);
+    return mesh;
+  });
+
+  Undo.finishEdit("Agent created cylinders");
+  Canvas.updateAll();
+
+  return {
+    message: `Created ${cylinders.length} cylinder(s).`,
+    cylinders: cylinders.map((m) => ({ uuid: m.uuid, name: m.name })),
+  };
+}
+
+// ============================================================================
 // Registration
 // ============================================================================
 
