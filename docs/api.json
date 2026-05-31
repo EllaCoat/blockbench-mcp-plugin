@@ -1,6 +1,6 @@
 {
   "version": "1.6.0",
-  "generatedAt": "2026-05-31T22:59:01.734Z",
+  "generatedAt": "2026-05-31T23:12:33.669Z",
   "tools": [
     {
       "name": "inspect",
@@ -7709,8 +7709,9 @@
                   "cylinder",
                   "sphere"
                 ],
-                "description": "UV mapping mode. Required for action='auto'.",
-                "markdownDescription": "UV mapping mode. Required for action='auto'."
+                "default": "project",
+                "description": "UV mapping mode for action='auto'. Defaults to 'project' (matches legacy auto_uv_mesh).",
+                "markdownDescription": "UV mapping mode for action='auto'. Defaults to 'project' (matches legacy auto_uv_mesh)."
               },
               "angle": {
                 "type": "string",
@@ -7719,8 +7720,9 @@
                   "90",
                   "180"
                 ],
-                "description": "Rotation angle. Required for action='rotate'.",
-                "markdownDescription": "Rotation angle. Required for action='rotate'."
+                "default": "90",
+                "description": "Rotation angle for action='rotate'. Defaults to '90' (matches legacy rotate_mesh_uv).",
+                "markdownDescription": "Rotation angle for action='rotate'. Defaults to '90' (matches legacy rotate_mesh_uv)."
               },
               "faces": {
                 "type": "array",

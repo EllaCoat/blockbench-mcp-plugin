@@ -99,16 +99,16 @@ export function meshUvSet(params: {
 }) {
   const mesh = findMeshOrThrow(params.mesh_id);
 
+  const face = mesh.faces[params.face_key];
+  if (!face) {
+    throw new Error(`Face with key "${params.face_key}" not found in mesh.`);
+  }
+
   Undo.initEdit({
     elements: [mesh],
     // @ts-expect-error - uv_only is a valid Blockbench API property
     uv_only: true,
   });
-
-  const face = mesh.faces[params.face_key];
-  if (!face) {
-    throw new Error(`Face with key "${params.face_key}" not found in mesh.`);
-  }
 
   Object.entries(params.uv_mapping).forEach(([vkey, uv]) => {
     if (face.vertices.includes(vkey)) {

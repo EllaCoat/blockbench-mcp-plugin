@@ -38,13 +38,15 @@ export const meshUvOpParameters = z.object({
     ),
   mode: uvMappingModeEnum
     .optional()
+    .default("project")
     .describe(
-      "UV mapping mode. Required for action='auto'."
+      "UV mapping mode for action='auto'. Defaults to 'project' (matches legacy auto_uv_mesh)."
     ),
   angle: uvRotationAngleEnum
     .optional()
+    .default("90")
     .describe(
-      "Rotation angle. Required for action='rotate'."
+      "Rotation angle for action='rotate'. Defaults to '90' (matches legacy rotate_mesh_uv)."
     ),
   faces: faceKeysOptionalSchema.describe(
     "Specific face keys for auto/rotate. Defaults to currently selected faces."
@@ -106,11 +108,6 @@ export function registerMeshUvOpTool() {
                 )
               );
             case "auto":
-              if (!args.mode) {
-                return wrap(
-                  err("INVALID_INPUT", "action='auto' requires 'mode'.")
-                );
-              }
               return wrap(
                 ok(
                   meshUvAuto({
@@ -122,11 +119,6 @@ export function registerMeshUvOpTool() {
                 )
               );
             case "rotate":
-              if (!args.angle) {
-                return wrap(
-                  err("INVALID_INPUT", "action='rotate' requires 'angle'.")
-                );
-              }
               return wrap(
                 ok(
                   meshUvRotate({

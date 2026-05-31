@@ -479,27 +479,35 @@ export function materialConfigure(params: {
   const textureGroup = findTextureGroupOrThrow(params.material);
   const textures = textureGroup.getTextures();
 
+  const channelHandlers: Array<
+    ["color" | "normal" | "height" | "mer", string | undefined, Texture | undefined]
+  > = [
+    ["color", params.color_texture, undefined],
+    ["normal", params.normal_texture, undefined],
+    ["height", params.height_texture, undefined],
+    ["mer", params.mer_texture, undefined],
+  ];
+
+  for (const entry of channelHandlers) {
+    const [, value] = entry;
+    if (value && value !== "none") {
+      entry[2] = findTextureOrThrow(value);
+    }
+  }
+
   Undo.initEdit({
     // @ts-ignore - texture_groups is a valid Blockbench Undo property
     texture_groups: [textureGroup],
     textures,
   });
 
-  const channelHandlers: Array<["color" | "normal" | "height" | "mer", string | undefined]> = [
-    ["color", params.color_texture],
-    ["normal", params.normal_texture],
-    ["height", params.height_texture],
-    ["mer", params.mer_texture],
-  ];
-
-  for (const [channel, value] of channelHandlers) {
+  for (const [channel, value, resolved] of channelHandlers) {
     if (value === "none") {
       textures
         .filter((t: Texture) => t.pbr_channel === channel)
         .forEach((t: Texture) => (t.group = ""));
-    } else if (value) {
-      const tex = findTextureOrThrow(value);
-      tex.extend({ group: textureGroup.uuid, pbr_channel: channel });
+    } else if (resolved) {
+      resolved.extend({ group: textureGroup.uuid, pbr_channel: channel });
     }
   }
 

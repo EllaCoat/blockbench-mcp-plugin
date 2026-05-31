@@ -330,9 +330,10 @@ export function meshPlace(params: {
   texture?: string;
   group?: string;
 }) {
-  Undo.initEdit({ elements: [], outliner: true, collections: [] });
   const projectTexture = resolveTextureOrThrow(params.texture);
   const outlinerGroup = resolveOutlinerGroup(params.group);
+
+  Undo.initEdit({ elements: [], outliner: true, collections: [] });
 
   const meshes = params.elements.map((element) => {
     const mesh = new Mesh({ name: element.name, vertices: {} }).init();
@@ -365,9 +366,10 @@ export function meshCreateSphere(params: {
   texture?: string;
   group?: string;
 }) {
-  Undo.initEdit({ elements: [], outliner: true, collections: [] });
   const projectTexture = resolveTextureOrThrow(params.texture);
   const outlinerGroup = resolveOutlinerGroup(params.group);
+
+  Undo.initEdit({ elements: [], outliner: true, collections: [] });
 
   const spheres = params.elements.map((element) => {
     const mesh = new Mesh({
@@ -464,9 +466,10 @@ export function meshCreateCylinder(params: {
   texture?: string;
   group?: string;
 }) {
-  Undo.initEdit({ elements: [], outliner: true, collections: [] });
   const projectTexture = resolveTextureOrThrow(params.texture);
   const outlinerGroup = resolveOutlinerGroup(params.group);
+
+  Undo.initEdit({ elements: [], outliner: true, collections: [] });
 
   const cylinders = params.elements.map((element) => {
     const mesh = new Mesh({
