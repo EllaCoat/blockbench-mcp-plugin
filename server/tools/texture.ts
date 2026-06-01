@@ -595,7 +595,11 @@ export function materialSaveConfig(params: { material: string }) {
 // Tool Registration
 // ============================================================================
 
-export function registerTextureTools() {
+// Stage-II partial OFF (= 14- § 3.4.1, case X): split createTool calls into
+// Keep (0/1/2/3/4/9/12) + Off (5/6/7/8/10/11) so tools.ts and docs-manifest.ts
+// can drop the Off half. The legacy registerTextureTools below stays as an
+// inventory wrapper that calls both — it is no longer registered via tools.ts.
+export function registerTextureKeepTools() {
   createTool(textureToolDocs[0].name, {
     ...textureToolDocs[0],
     async execute({
@@ -857,6 +861,43 @@ export function registerTextureTools() {
     },
   }, textureToolDocs[4].status);
 
+  createTool(textureToolDocs[9].name, {
+    ...textureToolDocs[9],
+    async execute({ path }) {
+      // Validate path ends with texture_set.json
+      if (!path.endsWith(".texture_set.json")) {
+        throw new Error(
+          "Path must end with '.texture_set.json'. Example: 'path/to/mytexture.texture_set.json'"
+        );
+      }
+
+      // @ts-ignore - fs module available via Blockbench
+      const fs = requireNativeModule("fs");
+      if (!fs.existsSync(path)) {
+        throw new Error(`File not found: ${path}`);
+      }
+
+      // Use Blockbench's importTextureSet function
+      // @ts-ignore - importTextureSet is globally available
+      importTextureSet({ path, name: path.split(/[\/\\]/).pop() });
+
+      return `Imported texture set from "${path}". Check the textures panel for the new material.`;
+    },
+  }, textureToolDocs[9].status);
+
+  createTool(textureToolDocs[12].name, {
+    ...textureToolDocs[12],
+    async execute({ texture }) {
+      const target = findTextureOrThrow(texture);
+      if (Texture.selected?.uuid !== target.uuid) {
+        target.select();
+      }
+      return `Activated texture "${target.name}" (uuid: ${target.uuid}). Paint tools will now target it by default.`;
+    },
+  }, textureToolDocs[12].status);
+}
+
+export function registerTextureOffTools() {
   createTool(textureToolDocs[5].name, {
     ...textureToolDocs[5],
     async execute({
@@ -1112,30 +1153,6 @@ export function registerTextureTools() {
     },
   }, textureToolDocs[8].status);
 
-  createTool(textureToolDocs[9].name, {
-    ...textureToolDocs[9],
-    async execute({ path }) {
-      // Validate path ends with texture_set.json
-      if (!path.endsWith(".texture_set.json")) {
-        throw new Error(
-          "Path must end with '.texture_set.json'. Example: 'path/to/mytexture.texture_set.json'"
-        );
-      }
-
-      // @ts-ignore - fs module available via Blockbench
-      const fs = requireNativeModule("fs");
-      if (!fs.existsSync(path)) {
-        throw new Error(`File not found: ${path}`);
-      }
-
-      // Use Blockbench's importTextureSet function
-      // @ts-ignore - importTextureSet is globally available
-      importTextureSet({ path, name: path.split(/[\/\\]/).pop() });
-
-      return `Imported texture set from "${path}". Check the textures panel for the new material.`;
-    },
-  }, textureToolDocs[9].status);
-
   createTool(textureToolDocs[10].name, {
     ...textureToolDocs[10],
     async execute({ material, texture, channel }) {
@@ -1188,15 +1205,30 @@ export function registerTextureTools() {
       return `Saved material config to "${filePath}"`;
     },
   }, textureToolDocs[11].status);
-
-  createTool(textureToolDocs[12].name, {
-    ...textureToolDocs[12],
-    async execute({ texture }) {
-      const target = findTextureOrThrow(texture);
-      if (Texture.selected?.uuid !== target.uuid) {
-        target.select();
-      }
-      return `Activated texture "${target.name}" (uuid: ${target.uuid}). Paint tools will now target it by default.`;
-    },
-  }, textureToolDocs[12].status);
 }
+
+// Legacy wrapper — kept as inventory (not registered via tools.ts).
+export function registerTextureTools() {
+  registerTextureKeepTools();
+  registerTextureOffTools();
+}
+
+// Derived toolDocs for docs-manifest.ts partial OFF.
+export const textureKeepToolDocs: ToolSpec[] = [
+  textureToolDocs[0],
+  textureToolDocs[1],
+  textureToolDocs[2],
+  textureToolDocs[3],
+  textureToolDocs[4],
+  textureToolDocs[9],
+  textureToolDocs[12],
+];
+
+export const textureOffToolDocs: ToolSpec[] = [
+  textureToolDocs[5],
+  textureToolDocs[6],
+  textureToolDocs[7],
+  textureToolDocs[8],
+  textureToolDocs[10],
+  textureToolDocs[11],
+];

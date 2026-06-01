@@ -7,16 +7,16 @@ import { tools, prompts } from "@/lib/factories";
 // Legacy registrations fully replaced by Stage-II _redesign/ tools are NOT imported
 // here (the source files stay in repo as inventory but are no longer registered).
 // Currently dropped: armature / null-object / history / cubes / uv / material-instances.
-// Partial-OFF files (element / mesh / texture / paint) still register the whole file
-// pending register-function split — see 14-mcp-tool-redesign-stage2.md § 3.4.
+// Partial-OFF files (element / mesh / texture / paint) register only the Keep
+// half — the Off half is dead code in the file (= inventory). See 14- § 3.4.1.
 import { registerCameraTools } from "./tools/camera";
 import { registerAnimationTools } from "./tools/animation";
-import { registerElementTools } from "./tools/element";
+import { registerElementKeepTools } from "./tools/element";
 import { registerImportTools } from "./tools/import";
-import { registerMeshTools } from "./tools/mesh";
-import { registerPaintTools } from "./tools/paint";
+import { registerMeshKeepTools } from "./tools/mesh";
+import { registerPaintKeepTools } from "./tools/paint";
 import { registerProjectTools } from "./tools/project";
-import { registerTextureTools } from "./tools/texture";
+import { registerTextureKeepTools } from "./tools/texture";
 import { registerUITools } from "./tools/ui";
 import { registerExportTools } from "./tools/export";
 import { registerAJTools } from "./tools/aj";
@@ -46,13 +46,13 @@ const registrationFunctions = [
   registerAJTools,
   registerAnimationTools,
   registerCameraTools,
-  registerElementTools,
+  registerElementKeepTools,
   registerExportTools,
   registerImportTools,
-  registerMeshTools,
-  registerPaintTools,
+  registerMeshKeepTools,
+  registerPaintKeepTools,
   registerProjectTools,
-  registerTextureTools,
+  registerTextureKeepTools,
   registerUITools,
   // Stage-II redesigned tools
   registerRiskyEvalTool,

@@ -463,7 +463,11 @@ export function brushPresetLoad(params: { preset_name: string }) {
   };
 }
 
-export function registerPaintTools() {
+// Stage-II partial OFF (= 14- § 3.4.1, case X): split createTool calls into
+// Keep (0/1/2/3/4/5/6/7/10/11) + Off (8/9) so tools.ts and docs-manifest.ts
+// can drop the Off half. The legacy registerPaintTools below stays as an
+// inventory wrapper that calls both — it is no longer registered via tools.ts.
+export function registerPaintKeepTools() {
   createTool(
     paintToolDocs[0].name,
     {
@@ -958,67 +962,6 @@ export function registerPaintTools() {
   );
 
   createTool(
-    paintToolDocs[8].name,
-    {
-      ...paintToolDocs[8],
-      async execute({
-        name,
-        size,
-        opacity,
-        softness,
-        shape,
-        color,
-        blend_mode,
-        pixel_perfect,
-      }) {
-        const preset = {
-          name,
-          size: size ?? null,
-          opacity: opacity ?? null,
-          softness: softness ?? null,
-          shape: shape || "square",
-          color: color || null,
-          blend_mode: blend_mode || "default",
-          pixel_perfect: pixel_perfect || false,
-        };
-
-        // @ts-ignore
-        StateMemory.brush_presets.push(preset);
-        // @ts-ignore
-        StateMemory.save("brush_presets");
-
-        return `Created brush preset "${name}" with settings: ${JSON.stringify(
-          preset
-        )}`;
-      },
-    },
-    paintToolDocs[8].status
-  );
-
-  createTool(
-    paintToolDocs[9].name,
-    {
-      ...paintToolDocs[9],
-      async execute({ preset_name }) {
-        // @ts-ignore
-        const preset = StateMemory.brush_presets.find(
-          (p) => p.name === preset_name
-        );
-
-        if (!preset) {
-          throw new Error(`Brush preset "${preset_name}" not found.`);
-        }
-
-        // @ts-ignore
-        Painter.loadBrushPreset(preset);
-
-        return `Loaded brush preset "${preset_name}"`;
-      },
-    },
-    paintToolDocs[9].status
-  );
-
-  createTool(
     paintToolDocs[10].name,
     {
       ...paintToolDocs[10],
@@ -1262,3 +1205,91 @@ export function registerPaintTools() {
     paintToolDocs[11].status
   );
 }
+
+export function registerPaintOffTools() {
+  createTool(
+    paintToolDocs[8].name,
+    {
+      ...paintToolDocs[8],
+      async execute({
+        name,
+        size,
+        opacity,
+        softness,
+        shape,
+        color,
+        blend_mode,
+        pixel_perfect,
+      }) {
+        const preset = {
+          name,
+          size: size ?? null,
+          opacity: opacity ?? null,
+          softness: softness ?? null,
+          shape: shape || "square",
+          color: color || null,
+          blend_mode: blend_mode || "default",
+          pixel_perfect: pixel_perfect || false,
+        };
+
+        // @ts-ignore
+        StateMemory.brush_presets.push(preset);
+        // @ts-ignore
+        StateMemory.save("brush_presets");
+
+        return `Created brush preset "${name}" with settings: ${JSON.stringify(
+          preset
+        )}`;
+      },
+    },
+    paintToolDocs[8].status
+  );
+
+  createTool(
+    paintToolDocs[9].name,
+    {
+      ...paintToolDocs[9],
+      async execute({ preset_name }) {
+        // @ts-ignore
+        const preset = StateMemory.brush_presets.find(
+          (p) => p.name === preset_name
+        );
+
+        if (!preset) {
+          throw new Error(`Brush preset "${preset_name}" not found.`);
+        }
+
+        // @ts-ignore
+        Painter.loadBrushPreset(preset);
+
+        return `Loaded brush preset "${preset_name}"`;
+      },
+    },
+    paintToolDocs[9].status
+  );
+}
+
+// Legacy wrapper — kept as inventory (not registered via tools.ts).
+export function registerPaintTools() {
+  registerPaintKeepTools();
+  registerPaintOffTools();
+}
+
+// Derived toolDocs for docs-manifest.ts partial OFF.
+export const paintKeepToolDocs: ToolSpec[] = [
+  paintToolDocs[0],
+  paintToolDocs[1],
+  paintToolDocs[2],
+  paintToolDocs[3],
+  paintToolDocs[4],
+  paintToolDocs[5],
+  paintToolDocs[6],
+  paintToolDocs[7],
+  paintToolDocs[10],
+  paintToolDocs[11],
+];
+
+export const paintOffToolDocs: ToolSpec[] = [
+  paintToolDocs[8],
+  paintToolDocs[9],
+];

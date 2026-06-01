@@ -18,7 +18,7 @@
 
       <div class="nav-group">
         <p class="nav-heading">Overview</p>
-        <a href="#tools" class="nav-link">Tools <span class="count">(90)</span></a>
+        <a href="#tools" class="nav-link">Tools <span class="count">(74)</span></a>
         <a href="#prompts" class="nav-link">Prompts <span class="count">(3)</span></a>
         <a href="#resources" class="nav-link">Resources <span class="count">(8)</span></a>
       </div>
@@ -31,16 +31,16 @@
         <a href="#cat-camera-screenshots" class="nav-link">Camera &amp; Screenshots <span class="count">(3)</span></a>
         <a href="#cat-animation" class="nav-link">Animation <span class="count">(7)</span></a>
         <a href="#cat-armature" class="nav-link">Armature <span class="count">(3)</span></a>
-        <a href="#cat-elements" class="nav-link">Elements <span class="count">(10)</span></a>
+        <a href="#cat-elements" class="nav-link">Elements <span class="count">(5)</span></a>
         <a href="#cat-export" class="nav-link">Export <span class="count">(2)</span></a>
         <a href="#cat-history" class="nav-link">History <span class="count">(1)</span></a>
         <a href="#cat-import-export" class="nav-link">Import/Export <span class="count">(1)</span></a>
         <a href="#cat-material-instances" class="nav-link">Material Instances <span class="count">(1)</span></a>
-        <a href="#cat-mesh-editing" class="nav-link">Mesh Editing <span class="count">(12)</span></a>
+        <a href="#cat-mesh-editing" class="nav-link">Mesh Editing <span class="count">(9)</span></a>
         <a href="#cat-null-objects-ik" class="nav-link">Null Objects / IK <span class="count">(1)</span></a>
-        <a href="#cat-paint-tools" class="nav-link">Paint Tools <span class="count">(13)</span></a>
+        <a href="#cat-paint-tools" class="nav-link">Paint Tools <span class="count">(11)</span></a>
         <a href="#cat-project" class="nav-link">Project <span class="count">(2)</span></a>
-        <a href="#cat-textures" class="nav-link">Textures <span class="count">(14)</span></a>
+        <a href="#cat-textures" class="nav-link">Textures <span class="count">(8)</span></a>
         <a href="#cat-ui-interaction" class="nav-link">UI Interaction <span class="count">(4)</span></a>
         <a href="#cat-uv-mapping" class="nav-link">UV Mapping <span class="count">(1)</span></a>
       </div>
@@ -51,7 +51,7 @@
         <h1>Blockbench MCP Plugin</h1>
         <p class="subtitle">API Reference — v1.6.0</p>
         <nav class="stats">
-          <a href="#tools"><strong>90</strong> tools (22 stable, 68 experimental)</a>
+          <a href="#tools"><strong>74</strong> tools (14 stable, 60 experimental)</a>
           <a href="#prompts"><strong>3</strong> prompts</a>
           <a href="#resources"><strong>8</strong> resources</a>
         </nav>
@@ -1433,45 +1433,6 @@
     </table>
       </div>
     </div>
-<div id="tool-list_outline" class="card tool-card">
-      <div class="card-header">
-        <h3 class="card-name">list_outline</h3>
-        <div class="card-badges">
-          <span class="badge badge-stable">stable</span>
-          <span class="badge badge-readonly">read-only</span>
-        </div>
-      </div>
-      <p class="card-title">List Outline</p>
-      <p class="card-desc">Returns the project outline as a hierarchical tree. Each node reports { name, uuid, type (cube|mesh|group), children? }. Groups contain child cubes, meshes, and sub-groups. Use `include_cubes=false` to get a group-only skeleton when you just need structure, or `max_depth` to bound very deep trees.</p>
-      <div class="overflow-x">
-        <table class="param-table">
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Type</th>
-          <th>Required</th>
-          <th>Description</th>
-        </tr>
-      </thead>
-      <tbody><tr>
-      <td class="col-name">include_cubes</td>
-      <td class="col-type">boolean</td>
-      <td><span class="param-optional">optional</span></td>
-      <td class="col-desc">If true, include cubes as leaves. If false, return groups only. <span class="param-meta">(default: <code>true</code>)</span></td>
-    </tr><tr>
-      <td class="col-name">include_meshes</td>
-      <td class="col-type">boolean</td>
-      <td><span class="param-optional">optional</span></td>
-      <td class="col-desc">If true, include meshes as leaves. If false, omit meshes. <span class="param-meta">(default: <code>true</code>)</span></td>
-    </tr><tr>
-      <td class="col-name">max_depth</td>
-      <td class="col-type">integer</td>
-      <td><span class="param-optional">optional</span></td>
-      <td class="col-desc">Maximum tree depth to traverse. Use a small value to summarize large projects. <span class="param-meta">(default: <code>32</code>) [min: 1, max: 32]</span></td>
-    </tr></tbody>
-    </table>
-      </div>
-    </div>
 <div id="tool-duplicate_element" class="card tool-card">
       <div class="card-header">
         <h3 class="card-name">duplicate_element</h3>
@@ -1543,157 +1504,6 @@
       <td class="col-desc">New name to assign.</td>
     </tr></tbody>
     </table>
-      </div>
-    </div>
-<div id="tool-find_elements_by_criteria" class="card tool-card">
-      <div class="card-header">
-        <h3 class="card-name">find_elements_by_criteria</h3>
-        <div class="card-badges">
-          <span class="badge badge-stable">stable</span>
-          <span class="badge badge-readonly">read-only</span>
-        </div>
-      </div>
-      <p class="card-title">Find Elements by Criteria</p>
-      <p class="card-desc">Searches the current project for elements matching the given criteria. Supports name pattern matching (regex or substring), type filtering, scoping to a parent group, cube size ranges, and selection scope. Returns element metadata, never modifies state.</p>
-      <div class="overflow-x">
-        <table class="param-table">
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Type</th>
-          <th>Required</th>
-          <th>Description</th>
-        </tr>
-      </thead>
-      <tbody><tr>
-      <td class="col-name">name_pattern</td>
-      <td class="col-type">string</td>
-      <td><span class="param-optional">optional</span></td>
-      <td class="col-desc">Regex pattern to match element names (e.g., '^arm_.*'). Case-sensitive.</td>
-    </tr><tr>
-      <td class="col-name">name_contains</td>
-      <td class="col-type">string</td>
-      <td><span class="param-optional">optional</span></td>
-      <td class="col-desc">Substring to match in element names. Case-insensitive.</td>
-    </tr><tr>
-      <td class="col-name">type</td>
-      <td class="col-type">&quot;cube&quot; | &quot;mesh&quot; | &quot;group&quot; | &quot;any&quot;</td>
-      <td><span class="param-optional">optional</span></td>
-      <td class="col-desc">Restrict to a single element type. <span class="param-meta">(default: <code>&quot;any&quot;</code>)</span></td>
-    </tr><tr>
-      <td class="col-name">parent_group</td>
-      <td class="col-type">string</td>
-      <td><span class="param-optional">optional</span></td>
-      <td class="col-desc">UUID or name of a parent group. Only descendants of this group are returned.</td>
-    </tr><tr>
-      <td class="col-name">min_size</td>
-      <td class="col-type">number[]</td>
-      <td><span class="param-optional">optional</span></td>
-      <td class="col-desc">Minimum [x,y,z] size for cubes. Cubes smaller on any axis are excluded. <span class="param-meta">[minItems: 3, maxItems: 3]</span></td>
-    </tr><tr>
-      <td class="col-name">max_size</td>
-      <td class="col-type">number[]</td>
-      <td><span class="param-optional">optional</span></td>
-      <td class="col-desc">Maximum [x,y,z] size for cubes. Cubes larger on any axis are excluded. <span class="param-meta">[minItems: 3, maxItems: 3]</span></td>
-    </tr><tr>
-      <td class="col-name">selected_only</td>
-      <td class="col-type">boolean</td>
-      <td><span class="param-optional">optional</span></td>
-      <td class="col-desc">Only consider currently selected elements. <span class="param-meta">(default: <code>false</code>)</span></td>
-    </tr><tr>
-      <td class="col-name">limit</td>
-      <td class="col-type">integer</td>
-      <td><span class="param-optional">optional</span></td>
-      <td class="col-desc">Maximum number of results to return. <span class="param-meta">(default: <code>200</code>) [min: 1, max: 1000]</span></td>
-    </tr></tbody>
-    </table>
-      </div>
-    </div>
-<div id="tool-select_all_of_type" class="card tool-card">
-      <div class="card-header">
-        <h3 class="card-name">select_all_of_type</h3>
-        <div class="card-badges">
-          <span class="badge badge-stable">stable</span>
-          <span class="badge badge-destructive">destructive</span>
-        </div>
-      </div>
-      <p class="card-title">Select All of Type</p>
-      <p class="card-desc">Selects all elements of the given type (cube, mesh, or group) in the current project. Optionally restrict to descendants of a parent group, or add to (rather than replace) the current selection.</p>
-      <div class="overflow-x">
-        <table class="param-table">
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Type</th>
-          <th>Required</th>
-          <th>Description</th>
-        </tr>
-      </thead>
-      <tbody><tr>
-      <td class="col-name">type</td>
-      <td class="col-type">&quot;cube&quot; | &quot;mesh&quot; | &quot;group&quot;</td>
-      <td><span class="param-required">required</span></td>
-      <td class="col-desc">Element type to select.</td>
-    </tr><tr>
-      <td class="col-name">add_to_selection</td>
-      <td class="col-type">boolean</td>
-      <td><span class="param-optional">optional</span></td>
-      <td class="col-desc">If true, add to current selection. If false, replace selection. <span class="param-meta">(default: <code>false</code>)</span></td>
-    </tr><tr>
-      <td class="col-name">parent_group</td>
-      <td class="col-type">string</td>
-      <td><span class="param-optional">optional</span></td>
-      <td class="col-desc">UUID or name of a parent group. If provided, only descendants of this group are selected.</td>
-    </tr></tbody>
-    </table>
-      </div>
-    </div>
-<div id="tool-filter_by_material" class="card tool-card">
-      <div class="card-header">
-        <h3 class="card-name">filter_by_material</h3>
-        <div class="card-badges">
-          <span class="badge badge-stable">stable</span>
-          <span class="badge badge-readonly">read-only</span>
-        </div>
-      </div>
-      <p class="card-title">Filter Elements by Material</p>
-      <p class="card-desc">Returns all elements that reference the given texture. For cubes, includes the list of face keys (e.g., 'north', 'up') that use the texture. For meshes, returns the mesh if any face uses the texture.</p>
-      <div class="overflow-x">
-        <table class="param-table">
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Type</th>
-          <th>Required</th>
-          <th>Description</th>
-        </tr>
-      </thead>
-      <tbody><tr>
-      <td class="col-name">texture</td>
-      <td class="col-type">string</td>
-      <td><span class="param-required">required</span></td>
-      <td class="col-desc">Texture ID, UUID or name to search for.</td>
-    </tr><tr>
-      <td class="col-name">include_face_keys</td>
-      <td class="col-type">boolean</td>
-      <td><span class="param-optional">optional</span></td>
-      <td class="col-desc">Include the list of cube face keys (e.g., 'north') that reference the texture. <span class="param-meta">(default: <code>true</code>)</span></td>
-    </tr></tbody>
-    </table>
-      </div>
-    </div>
-<div id="tool-get_selection" class="card tool-card">
-      <div class="card-header">
-        <h3 class="card-name">get_selection</h3>
-        <div class="card-badges">
-          <span class="badge badge-stable">stable</span>
-          <span class="badge badge-readonly">read-only</span>
-        </div>
-      </div>
-      <p class="card-title">Get Selection</p>
-      <p class="card-desc">Returns the current selection state: selected cube/mesh/group UUIDs and names, plus the active texture. Use this to verify what `apply_texture` or a paint tool with `fill_mode=&quot;selected_elements&quot;` will target.</p>
-      <div class="overflow-x">
-        <p class="empty-params">No parameters</p>
       </div>
     </div>
 <div id="tool-selection_op" class="card tool-card">
@@ -1970,46 +1780,7 @@
         </section>
 <section id="cat-mesh-editing" class="category-section">
           <h3 class="category-title">Mesh Editing</h3>
-          <div id="tool-place_mesh" class="card tool-card">
-      <div class="card-header">
-        <h3 class="card-name">place_mesh</h3>
-        <div class="card-badges">
-          <span class="badge badge-experimental">experimental</span>
-          <span class="badge badge-destructive">destructive</span>
-        </div>
-      </div>
-      <p class="card-title">Place Mesh</p>
-      <p class="card-desc">Places a mesh at the specified position. Texture and group are optional.</p>
-      <div class="overflow-x">
-        <table class="param-table">
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Type</th>
-          <th>Required</th>
-          <th>Description</th>
-        </tr>
-      </thead>
-      <tbody><tr>
-      <td class="col-name">elements</td>
-      <td class="col-type">object[]</td>
-      <td><span class="param-required">required</span></td>
-      <td class="col-desc">Array of meshes to place. <span class="param-meta">[minItems: 1]</span></td>
-    </tr><tr>
-      <td class="col-name">texture</td>
-      <td class="col-type">string</td>
-      <td><span class="param-optional">optional</span></td>
-      <td class="col-desc">Texture ID or name to apply to the mesh.</td>
-    </tr><tr>
-      <td class="col-name">group</td>
-      <td class="col-type">string</td>
-      <td><span class="param-optional">optional</span></td>
-      <td class="col-desc">Group/bone to which the mesh belongs.</td>
-    </tr></tbody>
-    </table>
-      </div>
-    </div>
-<div id="tool-extrude_mesh" class="card tool-card">
+          <div id="tool-extrude_mesh" class="card tool-card">
       <div class="card-header">
         <h3 class="card-name">extrude_mesh</h3>
         <div class="card-badges">
@@ -2078,45 +1849,6 @@
       <td class="col-type">number</td>
       <td><span class="param-optional">optional</span></td>
       <td class="col-desc">Number of subdivision cuts to make. <span class="param-meta">(default: <code>1</code>) [min: 1, max: 10]</span></td>
-    </tr></tbody>
-    </table>
-      </div>
-    </div>
-<div id="tool-create_sphere" class="card tool-card">
-      <div class="card-header">
-        <h3 class="card-name">create_sphere</h3>
-        <div class="card-badges">
-          <span class="badge badge-stable">stable</span>
-          <span class="badge badge-destructive">destructive</span>
-        </div>
-      </div>
-      <p class="card-title">Create Sphere</p>
-      <p class="card-desc">Creates a sphere mesh at the specified position with the given parameters. The sphere is created as a mesh with vertices and faces using spherical coordinates.</p>
-      <div class="overflow-x">
-        <table class="param-table">
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Type</th>
-          <th>Required</th>
-          <th>Description</th>
-        </tr>
-      </thead>
-      <tbody><tr>
-      <td class="col-name">elements</td>
-      <td class="col-type">object[]</td>
-      <td><span class="param-required">required</span></td>
-      <td class="col-desc">Array of spheres to create. <span class="param-meta">[minItems: 1]</span></td>
-    </tr><tr>
-      <td class="col-name">texture</td>
-      <td class="col-type">string</td>
-      <td><span class="param-optional">optional</span></td>
-      <td class="col-desc">Texture ID or name to apply to the sphere.</td>
-    </tr><tr>
-      <td class="col-name">group</td>
-      <td class="col-type">string</td>
-      <td><span class="param-optional">optional</span></td>
-      <td class="col-desc">Group/bone to which the sphere belongs.</td>
     </tr></tbody>
     </table>
       </div>
@@ -2317,45 +2049,6 @@
       <td class="col-type">string</td>
       <td><span class="param-optional">optional</span></td>
       <td class="col-desc">Texture ID or name to apply to the new face.</td>
-    </tr></tbody>
-    </table>
-      </div>
-    </div>
-<div id="tool-create_cylinder" class="card tool-card">
-      <div class="card-header">
-        <h3 class="card-name">create_cylinder</h3>
-        <div class="card-badges">
-          <span class="badge badge-experimental">experimental</span>
-          <span class="badge badge-destructive">destructive</span>
-        </div>
-      </div>
-      <p class="card-title">Create Cylinder</p>
-      <p class="card-desc">Creates one or more cylinder meshes with optional end caps.</p>
-      <div class="overflow-x">
-        <table class="param-table">
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Type</th>
-          <th>Required</th>
-          <th>Description</th>
-        </tr>
-      </thead>
-      <tbody><tr>
-      <td class="col-name">elements</td>
-      <td class="col-type">object[]</td>
-      <td><span class="param-required">required</span></td>
-      <td class="col-desc"> <span class="param-meta">[minItems: 1]</span></td>
-    </tr><tr>
-      <td class="col-name">texture</td>
-      <td class="col-type">string</td>
-      <td><span class="param-optional">optional</span></td>
-      <td class="col-desc">Texture ID or name. If not provided, uses selected texture.</td>
-    </tr><tr>
-      <td class="col-name">group</td>
-      <td class="col-type">string</td>
-      <td><span class="param-optional">optional</span></td>
-      <td class="col-desc">Group/bone ID or name.</td>
     </tr></tbody>
     </table>
       </div>
@@ -2985,99 +2678,6 @@
     </table>
       </div>
     </div>
-<div id="tool-create_brush_preset" class="card tool-card">
-      <div class="card-header">
-        <h3 class="card-name">create_brush_preset</h3>
-        <div class="card-badges">
-          <span class="badge badge-experimental">experimental</span>
-          <span class="badge badge-destructive">destructive</span>
-        </div>
-      </div>
-      <p class="card-title">Create Brush Preset</p>
-      <p class="card-desc">Creates a custom brush preset with specified settings.</p>
-      <div class="overflow-x">
-        <table class="param-table">
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Type</th>
-          <th>Required</th>
-          <th>Description</th>
-        </tr>
-      </thead>
-      <tbody><tr>
-      <td class="col-name">name</td>
-      <td class="col-type">string</td>
-      <td><span class="param-required">required</span></td>
-      <td class="col-desc">Name of the brush preset.</td>
-    </tr><tr>
-      <td class="col-name">size</td>
-      <td class="col-type">number</td>
-      <td><span class="param-optional">optional</span></td>
-      <td class="col-desc">Brush size. <span class="param-meta">[min: 1, max: 100]</span></td>
-    </tr><tr>
-      <td class="col-name">opacity</td>
-      <td class="col-type">number</td>
-      <td><span class="param-optional">optional</span></td>
-      <td class="col-desc">Opacity (0-255). <span class="param-meta">[min: 0, max: 255]</span></td>
-    </tr><tr>
-      <td class="col-name">softness</td>
-      <td class="col-type">number</td>
-      <td><span class="param-optional">optional</span></td>
-      <td class="col-desc">Brush softness percentage. <span class="param-meta">[min: 0, max: 100]</span></td>
-    </tr><tr>
-      <td class="col-name">shape</td>
-      <td class="col-type">&quot;square&quot; | &quot;circle&quot;</td>
-      <td><span class="param-optional">optional</span></td>
-      <td class="col-desc">Brush shape.</td>
-    </tr><tr>
-      <td class="col-name">color</td>
-      <td class="col-type">string</td>
-      <td><span class="param-optional">optional</span></td>
-      <td class="col-desc">Brush color as hex string.</td>
-    </tr><tr>
-      <td class="col-name">blend_mode</td>
-      <td class="col-type">&quot;default&quot; | &quot;set_opacity&quot; | &quot;color&quot; | &quot;behind&quot; | &quot;multiply&quot; | &quot;add&quot; | &quot;screen&quot; | &quot;overlay&quot; | &quot;difference&quot;</td>
-      <td><span class="param-optional">optional</span></td>
-      <td class="col-desc">Brush blend mode.</td>
-    </tr><tr>
-      <td class="col-name">pixel_perfect</td>
-      <td class="col-type">boolean</td>
-      <td><span class="param-optional">optional</span></td>
-      <td class="col-desc">Enable pixel perfect drawing.</td>
-    </tr></tbody>
-    </table>
-      </div>
-    </div>
-<div id="tool-load_brush_preset" class="card tool-card">
-      <div class="card-header">
-        <h3 class="card-name">load_brush_preset</h3>
-        <div class="card-badges">
-          <span class="badge badge-experimental">experimental</span>
-          <span class="badge badge-destructive">destructive</span>
-        </div>
-      </div>
-      <p class="card-title">Load Brush Preset</p>
-      <p class="card-desc">Loads and applies a brush preset by name.</p>
-      <div class="overflow-x">
-        <table class="param-table">
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Type</th>
-          <th>Required</th>
-          <th>Description</th>
-        </tr>
-      </thead>
-      <tbody><tr>
-      <td class="col-name">preset_name</td>
-      <td class="col-type">string</td>
-      <td><span class="param-required">required</span></td>
-      <td class="col-desc">Name of the brush preset to load.</td>
-    </tr></tbody>
-    </table>
-      </div>
-    </div>
 <div id="tool-texture_selection" class="card tool-card">
       <div class="card-header">
         <h3 class="card-name">texture_selection</h3>
@@ -3499,177 +3099,6 @@
     </table>
       </div>
     </div>
-<div id="tool-create_pbr_material" class="card tool-card">
-      <div class="card-header">
-        <h3 class="card-name">create_pbr_material</h3>
-        <div class="card-badges">
-          <span class="badge badge-experimental">experimental</span>
-          <span class="badge badge-destructive">destructive</span>
-        </div>
-      </div>
-      <p class="card-title">Create PBR Material</p>
-      <p class="card-desc">Creates a new PBR material (texture group with is_material=true) and optionally assigns textures to PBR channels. Use this for Minecraft Bedrock resource packs or any format supporting PBR.</p>
-      <div class="overflow-x">
-        <table class="param-table">
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Type</th>
-          <th>Required</th>
-          <th>Description</th>
-        </tr>
-      </thead>
-      <tbody><tr>
-      <td class="col-name">name</td>
-      <td class="col-type">string</td>
-      <td><span class="param-required">required</span></td>
-      <td class="col-desc">Name of the material.</td>
-    </tr><tr>
-      <td class="col-name">color_texture</td>
-      <td class="col-type">string</td>
-      <td><span class="param-optional">optional</span></td>
-      <td class="col-desc">Texture ID/name for the color (albedo) channel.</td>
-    </tr><tr>
-      <td class="col-name">normal_texture</td>
-      <td class="col-type">string</td>
-      <td><span class="param-optional">optional</span></td>
-      <td class="col-desc">Texture ID/name for the normal map channel.</td>
-    </tr><tr>
-      <td class="col-name">height_texture</td>
-      <td class="col-type">string</td>
-      <td><span class="param-optional">optional</span></td>
-      <td class="col-desc">Texture ID/name for the height/displacement map channel.</td>
-    </tr><tr>
-      <td class="col-name">mer_texture</td>
-      <td class="col-type">string</td>
-      <td><span class="param-optional">optional</span></td>
-      <td class="col-desc">Texture ID/name for the MER (Metalness/Emissive/Roughness) channel.</td>
-    </tr><tr>
-      <td class="col-name">color_value</td>
-      <td class="col-type">number[]</td>
-      <td><span class="param-optional">optional</span></td>
-      <td class="col-desc">Uniform RGBA color [R,G,B,A] when no color texture is provided. <span class="param-meta">[minItems: 4, maxItems: 4]</span></td>
-    </tr><tr>
-      <td class="col-name">mer_value</td>
-      <td class="col-type">number[]</td>
-      <td><span class="param-optional">optional</span></td>
-      <td class="col-desc">Uniform MER values [Metalness, Emissive, Roughness] (0-255) when no MER texture is provided. <span class="param-meta">[minItems: 3, maxItems: 3]</span></td>
-    </tr><tr>
-      <td class="col-name">subsurface_value</td>
-      <td class="col-type">number</td>
-      <td><span class="param-optional">optional</span></td>
-      <td class="col-desc">Subsurface scattering value (0-255) for Bedrock 1.21.30+ materials. <span class="param-meta">[min: 0, max: 255]</span></td>
-    </tr></tbody>
-    </table>
-      </div>
-    </div>
-<div id="tool-configure_material" class="card tool-card">
-      <div class="card-header">
-        <h3 class="card-name">configure_material</h3>
-        <div class="card-badges">
-          <span class="badge badge-experimental">experimental</span>
-          <span class="badge badge-destructive">destructive</span>
-        </div>
-      </div>
-      <p class="card-title">Configure Material</p>
-      <p class="card-desc">Configures an existing PBR material's properties including channel assignments, uniform values, and subsurface scattering.</p>
-      <div class="overflow-x">
-        <table class="param-table">
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Type</th>
-          <th>Required</th>
-          <th>Description</th>
-        </tr>
-      </thead>
-      <tbody><tr>
-      <td class="col-name">material</td>
-      <td class="col-type">string</td>
-      <td><span class="param-required">required</span></td>
-      <td class="col-desc">Material name or UUID to configure.</td>
-    </tr><tr>
-      <td class="col-name">color_texture</td>
-      <td class="col-type">string</td>
-      <td><span class="param-optional">optional</span></td>
-      <td class="col-desc">Texture ID/name for the color channel, or 'none' to use uniform color.</td>
-    </tr><tr>
-      <td class="col-name">normal_texture</td>
-      <td class="col-type">string</td>
-      <td><span class="param-optional">optional</span></td>
-      <td class="col-desc">Texture ID/name for the normal map, or 'none' to remove.</td>
-    </tr><tr>
-      <td class="col-name">height_texture</td>
-      <td class="col-type">string</td>
-      <td><span class="param-optional">optional</span></td>
-      <td class="col-desc">Texture ID/name for the height map, or 'none' to remove.</td>
-    </tr><tr>
-      <td class="col-name">mer_texture</td>
-      <td class="col-type">string</td>
-      <td><span class="param-optional">optional</span></td>
-      <td class="col-desc">Texture ID/name for MER channel, or 'none' to use uniform values.</td>
-    </tr><tr>
-      <td class="col-name">color_value</td>
-      <td class="col-type">number[]</td>
-      <td><span class="param-optional">optional</span></td>
-      <td class="col-desc">Uniform RGBA color [R,G,B,A] when no color texture. <span class="param-meta">[minItems: 4, maxItems: 4]</span></td>
-    </tr><tr>
-      <td class="col-name">mer_value</td>
-      <td class="col-type">number[]</td>
-      <td><span class="param-optional">optional</span></td>
-      <td class="col-desc">Uniform MER values [Metalness, Emissive, Roughness] (0-255). <span class="param-meta">[minItems: 3, maxItems: 3]</span></td>
-    </tr><tr>
-      <td class="col-name">subsurface_value</td>
-      <td class="col-type">number</td>
-      <td><span class="param-optional">optional</span></td>
-      <td class="col-desc">Subsurface scattering value (0-255). <span class="param-meta">[min: 0, max: 255]</span></td>
-    </tr></tbody>
-    </table>
-      </div>
-    </div>
-<div id="tool-list_materials" class="card tool-card">
-      <div class="card-header">
-        <h3 class="card-name">list_materials</h3>
-        <div class="card-badges">
-          <span class="badge badge-stable">stable</span>
-          <span class="badge badge-readonly">read-only</span>
-        </div>
-      </div>
-      <p class="card-title">List Materials</p>
-      <p class="card-desc">Lists all PBR materials (texture groups with is_material=true) and their assigned textures per channel.</p>
-      <div class="overflow-x">
-        <p class="empty-params">No parameters</p>
-      </div>
-    </div>
-<div id="tool-get_material_info" class="card tool-card">
-      <div class="card-header">
-        <h3 class="card-name">get_material_info</h3>
-        <div class="card-badges">
-          <span class="badge badge-stable">stable</span>
-          <span class="badge badge-readonly">read-only</span>
-        </div>
-      </div>
-      <p class="card-title">Get Material Info</p>
-      <p class="card-desc">Gets detailed information about a PBR material including the compiled texture_set.json preview for Bedrock export.</p>
-      <div class="overflow-x">
-        <table class="param-table">
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Type</th>
-          <th>Required</th>
-          <th>Description</th>
-        </tr>
-      </thead>
-      <tbody><tr>
-      <td class="col-name">material</td>
-      <td class="col-type">string</td>
-      <td><span class="param-required">required</span></td>
-      <td class="col-desc">Material name or UUID.</td>
-    </tr></tbody>
-    </table>
-      </div>
-    </div>
 <div id="tool-import_texture_set" class="card tool-card">
       <div class="card-header">
         <h3 class="card-name">import_texture_set</h3>
@@ -3695,74 +3124,6 @@
       <td class="col-type">string</td>
       <td><span class="param-required">required</span></td>
       <td class="col-desc">Path to the .texture_set.json file to import.</td>
-    </tr></tbody>
-    </table>
-      </div>
-    </div>
-<div id="tool-assign_texture_channel" class="card tool-card">
-      <div class="card-header">
-        <h3 class="card-name">assign_texture_channel</h3>
-        <div class="card-badges">
-          <span class="badge badge-experimental">experimental</span>
-          <span class="badge badge-destructive">destructive</span>
-        </div>
-      </div>
-      <p class="card-title">Assign Texture Channel</p>
-      <p class="card-desc">Assigns a texture to a specific PBR channel within a material.</p>
-      <div class="overflow-x">
-        <table class="param-table">
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Type</th>
-          <th>Required</th>
-          <th>Description</th>
-        </tr>
-      </thead>
-      <tbody><tr>
-      <td class="col-name">material</td>
-      <td class="col-type">string</td>
-      <td><span class="param-required">required</span></td>
-      <td class="col-desc">Material name or UUID.</td>
-    </tr><tr>
-      <td class="col-name">texture</td>
-      <td class="col-type">string</td>
-      <td><span class="param-required">required</span></td>
-      <td class="col-desc">Texture name or UUID to assign.</td>
-    </tr><tr>
-      <td class="col-name">channel</td>
-      <td class="col-type">&quot;color&quot; | &quot;normal&quot; | &quot;height&quot; | &quot;mer&quot;</td>
-      <td><span class="param-required">required</span></td>
-      <td class="col-desc">PBR channel to assign the texture to.</td>
-    </tr></tbody>
-    </table>
-      </div>
-    </div>
-<div id="tool-save_material_config" class="card tool-card">
-      <div class="card-header">
-        <h3 class="card-name">save_material_config</h3>
-        <div class="card-badges">
-          <span class="badge badge-experimental">experimental</span>
-          <span class="badge badge-destructive">destructive</span><span class="badge badge-openworld">open-world</span>
-        </div>
-      </div>
-      <p class="card-title">Save Material Config</p>
-      <p class="card-desc">Saves the material's texture_set.json file to disk (Bedrock format). Requires the color texture to have a valid file path.</p>
-      <div class="overflow-x">
-        <table class="param-table">
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Type</th>
-          <th>Required</th>
-          <th>Description</th>
-        </tr>
-      </thead>
-      <tbody><tr>
-      <td class="col-name">material</td>
-      <td class="col-type">string</td>
-      <td><span class="param-required">required</span></td>
-      <td class="col-desc">Material name or UUID to save.</td>
     </tr></tbody>
     </table>
       </div>
@@ -4214,7 +3575,7 @@
       </section>
 
       <footer class="page-footer">
-        Generated 2026-05-31T23:21:09.502Z from Zod schemas
+        Generated 2026-06-01T03:57:30.031Z from Zod schemas
       </footer>
     </main>
   </div>

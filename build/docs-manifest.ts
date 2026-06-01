@@ -5,15 +5,15 @@ import type { ToolSpec, PromptSpec, ResourceSpec } from "../lib/factories";
 // Files whose registrations are fully replaced by Stage-II _redesign/ tools are NOT imported
 // here (the .ts files stay in repo as inventory but their toolDocs aren't manifested).
 // Currently dropped: armature / null-object / history / cubes / uv / material-instances.
-// Partial-OFF files (element / mesh / texture / paint) still import their toolDocs whole
-// pending docs split — see 14-mcp-tool-redesign-stage2.md § 3.4.
+// Partial-OFF files (element / mesh / texture / paint) expose Keep / Off derived
+// toolDocs arrays — only the Keep arrays are manifested. See 14- § 3.4.1.
 import { cameraToolDocs } from "../server/tools/camera";
-import { elementToolDocs } from "../server/tools/element";
+import { elementKeepToolDocs } from "../server/tools/element";
 import { importToolDocs } from "../server/tools/import";
-import { meshToolDocs } from "../server/tools/mesh";
-import { paintToolDocs } from "../server/tools/paint";
+import { meshKeepToolDocs } from "../server/tools/mesh";
+import { paintKeepToolDocs } from "../server/tools/paint";
 import { projectToolDocs } from "../server/tools/project";
-import { textureToolDocs } from "../server/tools/texture";
+import { textureKeepToolDocs } from "../server/tools/texture";
 import { animationToolDocs } from "../server/tools/animation";
 import { uiToolDocs } from "../server/tools/ui";
 import { exportToolDocs } from "../server/tools/export";
@@ -48,16 +48,16 @@ export const toolManifest: CategoryGroup[] = [
   { category: "Camera & Screenshots", tools: cameraToolDocs },
   { category: "Animation", tools: animationToolDocs },
   { category: "Armature", tools: [...armatureOpToolDocs, ...armatureBoneOpToolDocs, ...vertexWeightOpToolDocs] },
-  { category: "Elements", tools: [...elementToolDocs, ...selectionOpToolDocs] },
+  { category: "Elements", tools: [...elementKeepToolDocs, ...selectionOpToolDocs] },
   { category: "Export", tools: exportToolDocs },
   { category: "History", tools: [...historyOpToolDocs] },
   { category: "Import/Export", tools: importToolDocs },
   { category: "Material Instances", tools: [...materialInstanceOpToolDocs] },
-  { category: "Mesh Editing", tools: [...meshToolDocs, ...meshPrimitiveOpToolDocs] },
+  { category: "Mesh Editing", tools: [...meshKeepToolDocs, ...meshPrimitiveOpToolDocs] },
   { category: "Null Objects / IK", tools: [...nullObjectOpToolDocs] },
-  { category: "Paint Tools", tools: [...paintToolDocs, ...brushPresetOpToolDocs] },
+  { category: "Paint Tools", tools: [...paintKeepToolDocs, ...brushPresetOpToolDocs] },
   { category: "Project", tools: projectToolDocs },
-  { category: "Textures", tools: [...textureToolDocs, ...materialOpToolDocs] },
+  { category: "Textures", tools: [...textureKeepToolDocs, ...materialOpToolDocs] },
   { category: "UI Interaction", tools: [...uiToolDocs, ...riskyEvalToolDocs] },
   { category: "UV Mapping", tools: [...meshUvOpToolDocs] },
 ];

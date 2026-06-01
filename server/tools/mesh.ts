@@ -534,63 +534,11 @@ export function meshCreateCylinder(params: {
 // Registration
 // ============================================================================
 
-export function registerMeshTools() {
-  createTool(meshToolDocs[0].name, {
-    ...meshToolDocs[0],
-    async execute({ elements, texture, group }, { reportProgress }) {
-      Undo.initEdit({
-        elements: [],
-        outliner: true,
-        collections: [],
-      });
-      const total = elements.length;
-
-      const projectTexture = texture
-        ? getProjectTexture(texture)
-        : Texture.getDefault();
-
-      if (!projectTexture) {
-        throw new Error(`No texture found for "${texture}".`);
-      }
-
-      // @ts-expect-error getAllGroups is a utility function that returns all groups in the project
-      const groups = getAllGroups();
-      const outlinerGroup = group === "root"
-        ? "root"
-        : groups.find((g: Group) => g.name === group || g.uuid === group) ?? "root";
-
-      const meshes = elements.map((element, progress) => {
-        const mesh = new Mesh({
-          name: element.name,
-          vertices: {},
-        }).init();
-
-        element.vertices.forEach((vertex) => {
-          mesh.addVertices(vertex as ArrayVector3);
-        });
-
-        mesh.addTo(outlinerGroup);
-        mesh.applyTexture(projectTexture);
-
-        reportProgress({
-          progress,
-          total,
-        });
-
-        return mesh;
-      });
-
-      Undo.finishEdit("Agent placed meshes");
-      Canvas.updateAll();
-
-      return await Promise.resolve(
-        JSON.stringify(
-          meshes.map((mesh) => `Added mesh ${mesh.name} with ID ${mesh.uuid}`)
-        )
-      );
-    },
-  }, meshToolDocs[0].status);
-
+// Stage-II partial OFF (= 14- § 3.4.1, case X): split createTool calls into
+// Keep (1/2/4/5/6/7/8/10) + Off (0/3/9) so tools.ts and docs-manifest.ts can
+// drop the Off half. The legacy registerMeshTools below stays as an inventory
+// wrapper that calls both — it is no longer registered via tools.ts.
+export function registerMeshKeepTools() {
   createTool(meshToolDocs[1].name, {
     ...meshToolDocs[1],
     async execute({ mesh_id, distance, mode }) {
@@ -627,142 +575,6 @@ export function registerMeshTools() {
       return `Subdivided mesh "${mesh.name}" with ${cuts} cuts`;
     },
   }, meshToolDocs[2].status);
-
-  createTool(meshToolDocs[3].name, {
-    ...meshToolDocs[3],
-    async execute({ elements, texture, group }, { reportProgress }) {
-      Undo.initEdit({
-        elements: [],
-        outliner: true,
-        collections: [],
-      });
-      const total = elements.length;
-
-      const projectTexture = texture
-        ? getProjectTexture(texture)
-        : Texture.getDefault();
-
-      if (!projectTexture) {
-        throw new Error(`No texture found for "${texture}".`);
-      }
-
-      // @ts-expect-error getAllGroups is a utility function that returns all groups in the project
-      const groups = getAllGroups();
-      const outlinerGroup = group === "root"
-        ? "root"
-        : groups.find((g: Group) => g.name === group || g.uuid === group) ?? "root";
-
-      const spheres = elements.map((element, progress) => {
-        const mesh = new Mesh({
-          name: element.name,
-          vertices: {},
-          origin: element.position as [number, number, number],
-          rotation: (element.rotation || [0, 0, 0]) as [
-            number,
-            number,
-            number
-          ],
-        }).init();
-
-        // Create sphere vertices using spherical coordinates
-        const radius = element.diameter / 2;
-        const sides = Math.round(element.sides / 2) * 2; // Ensure even number for symmetry
-
-        // Add top and bottom vertices
-        const [bottom] = mesh.addVertices([0, -radius, 0]);
-        const [top] = mesh.addVertices([0, radius, 0]);
-
-        const rings: string[][] = [];
-        const off_ang = element.align_edges ? 0.5 : 0;
-
-        // Create rings of vertices
-        for (let i = 0; i < element.sides; i++) {
-          const circle_x = Math.sin(
-            ((i + off_ang) / element.sides) * Math.PI * 2
-          );
-          const circle_z = Math.cos(
-            ((i + off_ang) / element.sides) * Math.PI * 2
-          );
-
-          const vertices: string[] = [];
-          for (let j = 1; j < sides / 2; j++) {
-            const slice_x = Math.sin((j / sides) * Math.PI * 2) * radius;
-            const x = circle_x * slice_x;
-            const y = Math.cos((j / sides) * Math.PI * 2) * radius;
-            const z = circle_z * slice_x;
-            vertices.push(...mesh.addVertices([x, y, z]));
-          }
-          rings.push(vertices);
-        }
-
-        // Create faces
-        for (let i = 0; i < element.sides; i++) {
-          const this_ring = rings[i];
-          const next_ring = rings[i + 1] || rings[0];
-
-          for (let j = 0; j < sides / 2; j++) {
-            if (j == 0) {
-              // Connect to top vertex
-              mesh.addFaces(
-                new MeshFace(mesh, {
-                  vertices: [this_ring[j], next_ring[j], top],
-                  uv: {},
-                })
-              );
-              continue;
-            }
-
-            if (!this_ring[j]) {
-              // Connect to bottom vertex
-              mesh.addFaces(
-                new MeshFace(mesh, {
-                  vertices: [next_ring[j - 1], this_ring[j - 1], bottom],
-                  uv: {},
-                })
-              );
-              continue;
-            }
-
-            // Connect ring segments
-            mesh.addFaces(
-              new MeshFace(mesh, {
-                vertices: [
-                  this_ring[j],
-                  next_ring[j],
-                  this_ring[j - 1],
-                  next_ring[j - 1],
-                ],
-                uv: {},
-              })
-            );
-          }
-        }
-
-        mesh.addTo(outlinerGroup);
-        if (projectTexture) {
-          mesh.applyTexture(projectTexture);
-        }
-
-        reportProgress({
-          progress,
-          total,
-        });
-
-        return mesh;
-      });
-
-      Undo.finishEdit("Agent created spheres");
-      Canvas.updateAll();
-
-      return await Promise.resolve(
-        JSON.stringify(
-          spheres.map(
-            (sphere) => `Added sphere ${sphere.name} with ID ${sphere.uuid}`
-          )
-        )
-      );
-    },
-  }, meshToolDocs[3].status);
 
   createTool(meshToolDocs[4].name, {
     ...meshToolDocs[4],
@@ -1088,6 +900,244 @@ export function registerMeshTools() {
     },
   }, meshToolDocs[8].status);
 
+  createTool(meshToolDocs[10].name, {
+    ...meshToolDocs[10],
+    async execute({ mesh_id, points }) {
+      const mesh = findMeshOrThrow(mesh_id);
+
+      Undo.initEdit({
+        elements: [mesh],
+        element_aspects: {
+          geometry: true,
+          uv: true,
+          faces: true,
+        },
+      });
+
+      // Create knife tool context
+      // @ts-ignore
+      const knifeContext = new KnifeToolContext(mesh);
+
+      // Add points to the knife path
+      points.forEach((point) => {
+        knifeContext.points.push({
+          position: new THREE.Vector3(...point.position),
+          fkey: point.face,
+          type: point.face ? "face" : "edge",
+        });
+      });
+
+      // Apply the knife cut
+      knifeContext.apply();
+
+      Undo.finishEdit("Knife cut mesh");
+      Canvas.updateView({
+        elements: [mesh],
+        element_aspects: {
+          geometry: true,
+          uv: true,
+          faces: true,
+        },
+      });
+
+      return `Applied knife cut to mesh "${mesh.name}" with ${points.length} points`;
+    },
+  }, meshToolDocs[10].status);
+}
+
+export function registerMeshOffTools() {
+  createTool(meshToolDocs[0].name, {
+    ...meshToolDocs[0],
+    async execute({ elements, texture, group }, { reportProgress }) {
+      Undo.initEdit({
+        elements: [],
+        outliner: true,
+        collections: [],
+      });
+      const total = elements.length;
+
+      const projectTexture = texture
+        ? getProjectTexture(texture)
+        : Texture.getDefault();
+
+      if (!projectTexture) {
+        throw new Error(`No texture found for "${texture}".`);
+      }
+
+      // @ts-expect-error getAllGroups is a utility function that returns all groups in the project
+      const groups = getAllGroups();
+      const outlinerGroup = group === "root"
+        ? "root"
+        : groups.find((g: Group) => g.name === group || g.uuid === group) ?? "root";
+
+      const meshes = elements.map((element, progress) => {
+        const mesh = new Mesh({
+          name: element.name,
+          vertices: {},
+        }).init();
+
+        element.vertices.forEach((vertex) => {
+          mesh.addVertices(vertex as ArrayVector3);
+        });
+
+        mesh.addTo(outlinerGroup);
+        mesh.applyTexture(projectTexture);
+
+        reportProgress({
+          progress,
+          total,
+        });
+
+        return mesh;
+      });
+
+      Undo.finishEdit("Agent placed meshes");
+      Canvas.updateAll();
+
+      return await Promise.resolve(
+        JSON.stringify(
+          meshes.map((mesh) => `Added mesh ${mesh.name} with ID ${mesh.uuid}`)
+        )
+      );
+    },
+  }, meshToolDocs[0].status);
+
+  createTool(meshToolDocs[3].name, {
+    ...meshToolDocs[3],
+    async execute({ elements, texture, group }, { reportProgress }) {
+      Undo.initEdit({
+        elements: [],
+        outliner: true,
+        collections: [],
+      });
+      const total = elements.length;
+
+      const projectTexture = texture
+        ? getProjectTexture(texture)
+        : Texture.getDefault();
+
+      if (!projectTexture) {
+        throw new Error(`No texture found for "${texture}".`);
+      }
+
+      // @ts-expect-error getAllGroups is a utility function that returns all groups in the project
+      const groups = getAllGroups();
+      const outlinerGroup = group === "root"
+        ? "root"
+        : groups.find((g: Group) => g.name === group || g.uuid === group) ?? "root";
+
+      const spheres = elements.map((element, progress) => {
+        const mesh = new Mesh({
+          name: element.name,
+          vertices: {},
+          origin: element.position as [number, number, number],
+          rotation: (element.rotation || [0, 0, 0]) as [
+            number,
+            number,
+            number
+          ],
+        }).init();
+
+        // Create sphere vertices using spherical coordinates
+        const radius = element.diameter / 2;
+        const sides = Math.round(element.sides / 2) * 2; // Ensure even number for symmetry
+
+        // Add top and bottom vertices
+        const [bottom] = mesh.addVertices([0, -radius, 0]);
+        const [top] = mesh.addVertices([0, radius, 0]);
+
+        const rings: string[][] = [];
+        const off_ang = element.align_edges ? 0.5 : 0;
+
+        // Create rings of vertices
+        for (let i = 0; i < element.sides; i++) {
+          const circle_x = Math.sin(
+            ((i + off_ang) / element.sides) * Math.PI * 2
+          );
+          const circle_z = Math.cos(
+            ((i + off_ang) / element.sides) * Math.PI * 2
+          );
+
+          const vertices: string[] = [];
+          for (let j = 1; j < sides / 2; j++) {
+            const slice_x = Math.sin((j / sides) * Math.PI * 2) * radius;
+            const x = circle_x * slice_x;
+            const y = Math.cos((j / sides) * Math.PI * 2) * radius;
+            const z = circle_z * slice_x;
+            vertices.push(...mesh.addVertices([x, y, z]));
+          }
+          rings.push(vertices);
+        }
+
+        // Create faces
+        for (let i = 0; i < element.sides; i++) {
+          const this_ring = rings[i];
+          const next_ring = rings[i + 1] || rings[0];
+
+          for (let j = 0; j < sides / 2; j++) {
+            if (j == 0) {
+              // Connect to top vertex
+              mesh.addFaces(
+                new MeshFace(mesh, {
+                  vertices: [this_ring[j], next_ring[j], top],
+                  uv: {},
+                })
+              );
+              continue;
+            }
+
+            if (!this_ring[j]) {
+              // Connect to bottom vertex
+              mesh.addFaces(
+                new MeshFace(mesh, {
+                  vertices: [next_ring[j - 1], this_ring[j - 1], bottom],
+                  uv: {},
+                })
+              );
+              continue;
+            }
+
+            // Connect ring segments
+            mesh.addFaces(
+              new MeshFace(mesh, {
+                vertices: [
+                  this_ring[j],
+                  next_ring[j],
+                  this_ring[j - 1],
+                  next_ring[j - 1],
+                ],
+                uv: {},
+              })
+            );
+          }
+        }
+
+        mesh.addTo(outlinerGroup);
+        if (projectTexture) {
+          mesh.applyTexture(projectTexture);
+        }
+
+        reportProgress({
+          progress,
+          total,
+        });
+
+        return mesh;
+      });
+
+      Undo.finishEdit("Agent created spheres");
+      Canvas.updateAll();
+
+      return await Promise.resolve(
+        JSON.stringify(
+          spheres.map(
+            (sphere) => `Added sphere ${sphere.name} with ID ${sphere.uuid}`
+          )
+        )
+      );
+    },
+  }, meshToolDocs[3].status);
+
   createTool(meshToolDocs[9].name, {
     ...meshToolDocs[9],
     async execute({ elements, texture, group }, { reportProgress }) {
@@ -1171,48 +1221,28 @@ export function registerMeshTools() {
       );
     },
   }, meshToolDocs[9].status);
-
-  createTool(meshToolDocs[10].name, {
-    ...meshToolDocs[10],
-    async execute({ mesh_id, points }) {
-      const mesh = findMeshOrThrow(mesh_id);
-
-      Undo.initEdit({
-        elements: [mesh],
-        element_aspects: {
-          geometry: true,
-          uv: true,
-          faces: true,
-        },
-      });
-
-      // Create knife tool context
-      // @ts-ignore
-      const knifeContext = new KnifeToolContext(mesh);
-
-      // Add points to the knife path
-      points.forEach((point) => {
-        knifeContext.points.push({
-          position: new THREE.Vector3(...point.position),
-          fkey: point.face,
-          type: point.face ? "face" : "edge",
-        });
-      });
-
-      // Apply the knife cut
-      knifeContext.apply();
-
-      Undo.finishEdit("Knife cut mesh");
-      Canvas.updateView({
-        elements: [mesh],
-        element_aspects: {
-          geometry: true,
-          uv: true,
-          faces: true,
-        },
-      });
-
-      return `Applied knife cut to mesh "${mesh.name}" with ${points.length} points`;
-    },
-  }, meshToolDocs[10].status);
 }
+
+// Legacy wrapper — kept as inventory (not registered via tools.ts).
+export function registerMeshTools() {
+  registerMeshKeepTools();
+  registerMeshOffTools();
+}
+
+// Derived toolDocs for docs-manifest.ts partial OFF.
+export const meshKeepToolDocs: ToolSpec[] = [
+  meshToolDocs[1],
+  meshToolDocs[2],
+  meshToolDocs[4],
+  meshToolDocs[5],
+  meshToolDocs[6],
+  meshToolDocs[7],
+  meshToolDocs[8],
+  meshToolDocs[10],
+];
+
+export const meshOffToolDocs: ToolSpec[] = [
+  meshToolDocs[0],
+  meshToolDocs[3],
+  meshToolDocs[9],
+];

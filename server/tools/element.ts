@@ -378,7 +378,11 @@ export function selectAllOfType(params: {
   };
 }
 
-export function registerElementTools() {
+// Stage-II partial OFF (= 14- § 3.4.1, case X): split createTool calls into
+// Keep (0/1/3/4) + Off (2/5/6/7/8) so tools.ts and docs-manifest.ts can drop
+// the Off half. The legacy registerElementTools below stays as an inventory
+// wrapper that calls both — it is no longer registered via tools.ts.
+export function registerElementKeepTools() {
   createTool(elementToolDocs[0].name, {
     ...elementToolDocs[0],
     async execute({ id }) {
@@ -439,70 +443,6 @@ export function registerElementTools() {
       return `Added group ${group.name} with ID ${group.uuid}`;
     },
   }, elementToolDocs[1].status);
-
-  createTool(elementToolDocs[2].name, {
-    ...elementToolDocs[2],
-    async execute({ include_cubes, include_meshes, max_depth }) {
-      interface IOutlineNode {
-        name: string;
-        uuid: string;
-        type: "cube" | "mesh" | "group";
-        children?: IOutlineNode[];
-      }
-
-      const truncated: string[] = [];
-
-      const nodeFor = (el: unknown, depth: number): IOutlineNode | null => {
-        if (el instanceof Group) {
-          const node: IOutlineNode = {
-            name: el.name,
-            uuid: el.uuid,
-            type: "group",
-            children: [],
-          };
-          if (depth >= max_depth) {
-            truncated.push(el.name);
-            delete node.children;
-            return node;
-          }
-          for (const child of el.children ?? []) {
-            const childNode = nodeFor(child, depth + 1);
-            if (childNode) node.children!.push(childNode);
-          }
-          return node;
-        }
-        if (el instanceof Cube) {
-          if (!include_cubes) return null;
-          return { name: el.name, uuid: el.uuid, type: "cube" };
-        }
-        if (el instanceof Mesh) {
-          if (!include_meshes) return null;
-          return { name: el.name, uuid: el.uuid, type: "mesh" };
-        }
-        return null;
-      };
-
-      const roots = Outliner.root
-        .map((el) => nodeFor(el, 0))
-        .filter((n): n is IOutlineNode => n !== null);
-
-      const counts = {
-        groups: Group.all.length,
-        cubes: Cube.all.length,
-        meshes: Mesh.all.length,
-      };
-
-      return JSON.stringify(
-        {
-          counts,
-          truncated_at_max_depth: truncated.length ? truncated : undefined,
-          roots,
-        },
-        null,
-        2
-      );
-    },
-  }, elementToolDocs[2].status);
 
   createTool(elementToolDocs[3].name, {
     ...elementToolDocs[3],
@@ -602,6 +542,72 @@ export function registerElementTools() {
       return `Renamed element "${id}" to "${new_name}".`;
     },
   }, elementToolDocs[4].status);
+}
+
+export function registerElementOffTools() {
+  createTool(elementToolDocs[2].name, {
+    ...elementToolDocs[2],
+    async execute({ include_cubes, include_meshes, max_depth }) {
+      interface IOutlineNode {
+        name: string;
+        uuid: string;
+        type: "cube" | "mesh" | "group";
+        children?: IOutlineNode[];
+      }
+
+      const truncated: string[] = [];
+
+      const nodeFor = (el: unknown, depth: number): IOutlineNode | null => {
+        if (el instanceof Group) {
+          const node: IOutlineNode = {
+            name: el.name,
+            uuid: el.uuid,
+            type: "group",
+            children: [],
+          };
+          if (depth >= max_depth) {
+            truncated.push(el.name);
+            delete node.children;
+            return node;
+          }
+          for (const child of el.children ?? []) {
+            const childNode = nodeFor(child, depth + 1);
+            if (childNode) node.children!.push(childNode);
+          }
+          return node;
+        }
+        if (el instanceof Cube) {
+          if (!include_cubes) return null;
+          return { name: el.name, uuid: el.uuid, type: "cube" };
+        }
+        if (el instanceof Mesh) {
+          if (!include_meshes) return null;
+          return { name: el.name, uuid: el.uuid, type: "mesh" };
+        }
+        return null;
+      };
+
+      const roots = Outliner.root
+        .map((el) => nodeFor(el, 0))
+        .filter((n): n is IOutlineNode => n !== null);
+
+      const counts = {
+        groups: Group.all.length,
+        cubes: Cube.all.length,
+        meshes: Mesh.all.length,
+      };
+
+      return JSON.stringify(
+        {
+          counts,
+          truncated_at_max_depth: truncated.length ? truncated : undefined,
+          roots,
+        },
+        null,
+        2
+      );
+    },
+  }, elementToolDocs[2].status);
 
   createTool(elementToolDocs[5].name, {
     ...elementToolDocs[5],
@@ -831,3 +837,25 @@ export function registerElementTools() {
     },
   }, elementToolDocs[8].status);
 }
+
+// Legacy wrapper — kept as inventory (not registered via tools.ts).
+export function registerElementTools() {
+  registerElementKeepTools();
+  registerElementOffTools();
+}
+
+// Derived toolDocs for docs-manifest.ts partial OFF.
+export const elementKeepToolDocs: ToolSpec[] = [
+  elementToolDocs[0],
+  elementToolDocs[1],
+  elementToolDocs[3],
+  elementToolDocs[4],
+];
+
+export const elementOffToolDocs: ToolSpec[] = [
+  elementToolDocs[2],
+  elementToolDocs[5],
+  elementToolDocs[6],
+  elementToolDocs[7],
+  elementToolDocs[8],
+];
