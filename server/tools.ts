@@ -1,7 +1,7 @@
 /// <reference types="three" />
 /// <reference types="blockbench-types" />
 
-import { tools, prompts } from "@/lib/factories";
+import { tools, prompts, setCurrentCategory } from "@/lib/factories";
 
 // Import tool registration functions
 // Legacy registrations fully replaced by Stage-II _redesign/ tools are NOT imported
@@ -42,42 +42,49 @@ import { registerPaintToolOpTool } from "./tools/_redesign/paint_tool_op";
 // Core resource registrations
 import { registerValidatorResources } from "./resources/validator";
 
-// All registration functions - MUST be used to prevent tree-shaking
-const registrationFunctions = [
-  registerAnimationTools,
-  registerCameraTools,
-  registerExportTools,
-  registerImportTools,
-  registerProjectTools,
-  registerUITools,
+// [category, fn] pairs (= 14- § 4.5). setCurrentCategory tags every createTool
+// call with the active category so applyGroups() can flip tools[name].enabled
+// based on the user's group toggles. Category names must match GROUP_CATEGORIES
+// in lib/profiles.ts.
+const registrationFunctions: Array<[string, () => void]> = [
+  ["animation", registerAnimationTools],
+  ["camera", registerCameraTools],
+  ["export", registerExportTools],
+  ["import", registerImportTools],
+  ["project", registerProjectTools],
+  ["ui", registerUITools],
   // Stage-II redesigned tools
-  registerRiskyEvalTool,
-  registerInspectTool,
-  registerAJVariantOpTool,
-  registerNullObjectOpTool,
-  registerHistoryOpTool,
-  registerArmatureOpTool,
-  registerArmatureBoneOpTool,
-  registerVertexWeightOpTool,
-  registerMaterialInstanceOpTool,
-  registerCubeOpTool,
-  registerMeshPrimitiveOpTool,
-  registerMeshUvOpTool,
-  registerMaterialOpTool,
-  registerBrushPresetOpTool,
-  registerSelectionOpTool,
-  registerAJBlueprintSettingsOpTool,
-  registerElementOpTool,
-  registerTextureOpTool,
-  registerMeshEditOpTool,
-  registerPaintToolOpTool,
-  registerValidatorResources,
+  ["ui", registerRiskyEvalTool],
+  ["inspect", registerInspectTool],
+  ["animated-java", registerAJVariantOpTool],
+  ["animated-java", registerNullObjectOpTool],
+  ["history", registerHistoryOpTool],
+  ["armature", registerArmatureOpTool],
+  ["armature", registerArmatureBoneOpTool],
+  ["armature", registerVertexWeightOpTool],
+  ["material-instances", registerMaterialInstanceOpTool],
+  ["cubes", registerCubeOpTool],
+  ["mesh-editing", registerMeshPrimitiveOpTool],
+  ["uv-mapping", registerMeshUvOpTool],
+  ["textures", registerMaterialOpTool],
+  ["paint", registerBrushPresetOpTool],
+  ["elements", registerSelectionOpTool],
+  ["animated-java", registerAJBlueprintSettingsOpTool],
+  ["elements", registerElementOpTool],
+  ["textures", registerTextureOpTool],
+  ["mesh-editing", registerMeshEditOpTool],
+  ["paint", registerPaintToolOpTool],
 ];
 
-// Register all core tools immediately when this module loads
-for (const register of registrationFunctions) {
+// Register all core tools immediately when this module loads.
+for (const [category, register] of registrationFunctions) {
+  setCurrentCategory(category);
   register();
 }
+setCurrentCategory(null);
+
+// Validator is a resource (not a tool) so it isn't part of the category map.
+registerValidatorResources();
 
 // Function to get tool count - called at runtime after registration
 export function getToolCount(): number {

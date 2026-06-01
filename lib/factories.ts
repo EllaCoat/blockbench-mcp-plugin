@@ -2,6 +2,11 @@ import { z } from "zod";
 import type { IMCPTool, IMCPPrompt, IMCPResource, StatusType } from "@/types";
 import { getServer } from "@/server/server";
 import { ResourceTemplate } from "@modelcontextprotocol/sdk/server/mcp.js";
+import {
+  isCategoryEnabled,
+  buildActiveGroups,
+  type ToggleableGroup,
+} from "./profiles";
 
 /**
  * Declarative tool spec for documentation and registration.
@@ -93,6 +98,32 @@ interface ToolDefinition {
  * Store tool definitions for dynamic server reconstruction
  */
 const toolDefinitions: Record<string, ToolDefinition> = {};
+
+// Stage-II profile machinery (= 14- § 4.5). server/tools.ts sets the current
+// category before each register fn runs; createTool() captures it so we can
+// later flip tools[name].enabled in bulk via applyGroups().
+let currentCategory: string | null = null;
+
+export function setCurrentCategory(category: string | null) {
+  currentCategory = category;
+}
+
+// Tool name → category (e.g. "animation", "modeling", "inspect"). Populated
+// incrementally by createTool() while a setCurrentCategory() window is open.
+export const toolCategories: Record<string, string> = {};
+
+// Flip tools[name].enabled to match the active group set. The new state takes
+// effect on the next /mcp reconnect (= net.ts session re-uses
+// getEnabledToolDefinitions()).
+export function applyGroups(state: Record<ToggleableGroup, boolean>) {
+  const active = buildActiveGroups(state);
+  for (const name of Object.keys(tools)) {
+    const cat = toolCategories[name];
+    // Untagged tools fall through to core (= always enabled). Safe for any
+    // legacy register fn that forgets to call setCurrentCategory.
+    tools[name].enabled = cat === undefined ? true : isCategoryEnabled(active, cat);
+  }
+}
 
 /**
  * Extracts the shape from a Zod schema, unwrapping ZodEffects if necessary.
@@ -217,6 +248,12 @@ export function createTool<T extends z.ZodType>(
     enabled,
     status,
   };
+
+  // Stage-II: tag this tool with the currently-active category so applyGroups()
+  // can flip its enabled flag based on profile state.
+  if (currentCategory !== null) {
+    toolCategories[name] = currentCategory;
+  }
 
   return tools[name];
 }
