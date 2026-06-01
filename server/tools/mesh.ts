@@ -531,6 +531,342 @@ export function meshCreateCylinder(params: {
 }
 
 // ============================================================================
+// Stage-II op implementations (named exports for _redesign/mesh_edit_op.ts)
+// ============================================================================
+
+export function meshExtrude(args: { mesh_id?: string; distance: number; mode: string }) {
+  const mesh = getMeshOrSelected(args.mesh_id);
+  const tool = BarItems.extrude_mesh_selection;
+  if (!tool) {
+    throw new Error(`Extrude tool for ${args.mode} not found.`);
+  }
+  // @ts-ignore
+  tool.click({}, args.distance);
+  return { mesh: mesh.name, distance: args.distance, mode: args.mode };
+}
+
+export function meshSubdivide(args: { mesh_id?: string; cuts: number }) {
+  const mesh = getMeshOrSelected(args.mesh_id);
+  const tool = BarItems.loop_cut;
+  if (!tool) {
+    throw new Error("Loop cut tool not found.");
+  }
+  // @ts-ignore
+  tool.click({}, undefined, undefined, args.cuts);
+  return { mesh: mesh.name, cuts: args.cuts };
+}
+
+interface MeshSelectArgs {
+  mesh_id: string;
+  mode: "vertex" | "edge" | "face";
+  elements?: string[];
+  action: "select" | "add" | "remove" | "toggle";
+}
+
+export function meshSelectElements(args: MeshSelectArgs) {
+  const mesh = findMeshOrThrow(args.mesh_id);
+
+  Undo.initEdit({
+    elements: [mesh],
+    selection: true,
+    collections: [],
+  });
+
+  // @ts-expect-error Selection mode setter available at runtime
+  BarItems.selection_mode.set(args.mode);
+  const selection = (Project?.mesh_selection[mesh.uuid] ?? {
+    vertices: [],
+    edges: [],
+    faces: [],
+  }) as {
+    vertices: string[];
+    edges: unknown[];
+    faces: string[];
+  };
+
+  if (args.action === "select") {
+    selection.vertices = [];
+    selection.edges.length = 0;
+    selection.faces = [];
+  }
+
+  if (!args.elements || args.elements.length === 0) {
+    if (args.mode === "vertex") {
+      selection.vertices = Object.keys(mesh.vertices);
+    } else if (args.mode === "face") {
+      selection.faces = Object.keys(mesh.faces);
+    } else if (args.mode === "edge") {
+      const allEdges: [string, string][] = [];
+      const seen = new Set<string>();
+      for (const fkey in mesh.faces) {
+        const face = mesh.faces[fkey];
+        const edges = face.getEdges() as unknown as [string, string][];
+        for (const [a, b] of edges) {
+          const key = a < b ? `${a}-${b}` : `${b}-${a}`;
+          if (!seen.has(key)) {
+            seen.add(key);
+            allEdges.push([a, b]);
+          }
+        }
+      }
+      const selEdges = selection.edges as unknown as [string, string][];
+      selEdges.length = 0;
+      selEdges.push(...allEdges);
+    }
+  } else {
+    args.elements.forEach((element) => {
+      if (args.mode === "vertex") {
+        const vkey = String(element);
+        if (args.action === "add" || args.action === "select") {
+          if (!selection.vertices.includes(vkey)) selection.vertices.push(vkey);
+        } else if (args.action === "remove") {
+          selection.vertices = selection.vertices.filter((k) => k !== vkey);
+        } else if (args.action === "toggle") {
+          if (selection.vertices.includes(vkey)) {
+            selection.vertices = selection.vertices.filter((k) => k !== vkey);
+          } else {
+            selection.vertices.push(vkey);
+          }
+        }
+      } else if (args.mode === "face") {
+        const fkey = String(element);
+        if (args.action === "add" || args.action === "select") {
+          if (!selection.faces.includes(fkey)) selection.faces.push(fkey);
+        } else if (args.action === "remove") {
+          selection.faces = selection.faces.filter((k) => k !== fkey);
+        } else if (args.action === "toggle") {
+          if (selection.faces.includes(fkey)) {
+            selection.faces = selection.faces.filter((k) => k !== fkey);
+          } else {
+            selection.faces.push(fkey);
+          }
+        }
+      } else if (args.mode === "edge") {
+        const edgeParts = String(element).split("-");
+        if (edgeParts.length === 2) {
+          const edge: [string, string] = [edgeParts[0], edgeParts[1]];
+          const selEdges = selection.edges as unknown as [string, string][];
+          if (args.action === "add" || args.action === "select") {
+            selEdges.push(edge);
+          } else if (args.action === "remove") {
+            const filtered = selEdges.filter(
+              (e) =>
+                !(e[0] === edge[0] && e[1] === edge[1]) &&
+                !(e[0] === edge[1] && e[1] === edge[0])
+            );
+            selEdges.length = 0;
+            selEdges.push(...filtered);
+          } else if (args.action === "toggle") {
+            const exists = selEdges.some(
+              (e) =>
+                (e[0] === edge[0] && e[1] === edge[1]) ||
+                (e[0] === edge[1] && e[1] === edge[0])
+            );
+            if (exists) {
+              const filtered = selEdges.filter(
+                (e) =>
+                  !(e[0] === edge[0] && e[1] === edge[1]) &&
+                  !(e[0] === edge[1] && e[1] === edge[0])
+              );
+              selEdges.length = 0;
+              selEdges.push(...filtered);
+            } else {
+              selEdges.push(edge);
+            }
+          }
+        }
+      }
+    });
+  }
+
+  mesh.select();
+  Canvas.updateView({ elements: [mesh], selection: true });
+  Undo.finishEdit("Select mesh elements");
+
+  return {
+    mesh: mesh.name,
+    mode: args.mode,
+    selected: {
+      vertices: selection.vertices.length,
+      edges: selection.edges.length,
+      faces: selection.faces.length,
+    },
+  };
+}
+
+export function meshMoveVertices(args: {
+  mesh_id?: string;
+  offset: [number, number, number];
+  vertices?: string[];
+}) {
+  const mesh = getMeshOrSelected(args.mesh_id);
+
+  Undo.initEdit({
+    elements: [mesh],
+    element_aspects: { geometry: true, uv: true, faces: true },
+  });
+
+  const verticesToMove = args.vertices || mesh.getSelectedVertices();
+  verticesToMove.forEach((vkey) => {
+    if (mesh.vertices[vkey]) {
+      mesh.vertices[vkey][0] += args.offset[0];
+      mesh.vertices[vkey][1] += args.offset[1];
+      mesh.vertices[vkey][2] += args.offset[2];
+    }
+  });
+
+  mesh.preview_controller.updateGeometry(mesh);
+  Undo.finishEdit("Move mesh vertices");
+  Canvas.updateView({
+    elements: [mesh],
+    element_aspects: { geometry: true, uv: true, faces: true },
+  });
+
+  return { mesh: mesh.name, moved_count: verticesToMove.length };
+}
+
+export function meshDeleteElements(args: {
+  mesh_id?: string;
+  mode: string;
+  keep_vertices?: boolean;
+}) {
+  const mesh = getMeshOrSelected(args.mesh_id);
+  const tool = BarItems.delete_mesh_selection;
+  if (!tool) {
+    throw new Error("Delete mesh selection tool not found.");
+  }
+  // @ts-ignore
+  tool.click({}, args.keep_vertices);
+  return { mesh: mesh.name, mode: args.mode };
+}
+
+export function meshMergeVertices(args: {
+  mesh_id: string;
+  threshold: number;
+  selected_only?: boolean;
+}) {
+  const mesh = findMeshOrThrow(args.mesh_id);
+
+  Undo.initEdit({
+    elements: [mesh],
+    element_aspects: { geometry: true, uv: true, faces: true },
+  });
+
+  const verticesToCheck = args.selected_only
+    ? mesh.getSelectedVertices()
+    : Object.keys(mesh.vertices);
+
+  let mergedCount = 0;
+  const mergeMap: Record<string, string> = {};
+
+  for (let i = 0; i < verticesToCheck.length; i++) {
+    const vkey1 = verticesToCheck[i];
+    if (mergeMap[vkey1]) continue;
+    for (let j = i + 1; j < verticesToCheck.length; j++) {
+      const vkey2 = verticesToCheck[j];
+      if (mergeMap[vkey2]) continue;
+      const v1 = mesh.vertices[vkey1];
+      const v2 = mesh.vertices[vkey2];
+      const distance = Math.sqrt(
+        (v1[0] - v2[0]) ** 2 + (v1[1] - v2[1]) ** 2 + (v1[2] - v2[2]) ** 2
+      );
+      if (distance <= args.threshold) {
+        mergeMap[vkey2] = vkey1;
+        mergedCount++;
+      }
+    }
+  }
+
+  Object.entries(mergeMap).forEach(([oldKey, newKey]) => {
+    for (const fkey in mesh.faces) {
+      const face = mesh.faces[fkey];
+      const index = face.vertices.indexOf(oldKey);
+      if (index !== -1) {
+        face.vertices[index] = newKey;
+        face.uv[newKey] = face.uv[oldKey] || [0, 0];
+        delete face.uv[oldKey];
+      }
+    }
+    delete mesh.vertices[oldKey];
+  });
+
+  mesh.preview_controller.updateGeometry(mesh);
+  Undo.finishEdit("Merge mesh vertices");
+  Canvas.updateView({
+    elements: [mesh],
+    element_aspects: { geometry: true, uv: true, faces: true },
+  });
+
+  return { mesh: mesh.name, merged_count: mergedCount };
+}
+
+export function meshCreateFace(args: {
+  mesh_id?: string;
+  vertices: string[];
+  texture?: string;
+}) {
+  const mesh = getMeshOrSelected(args.mesh_id);
+
+  Undo.initEdit({
+    elements: [mesh],
+    element_aspects: { geometry: true, uv: true, faces: true },
+  });
+
+  const face = new MeshFace(mesh, {
+    vertices: args.vertices,
+    texture: args.texture ? getProjectTexture(args.texture)?.uuid : undefined,
+  });
+
+  const [faceKey] = mesh.addFaces(face);
+  UVEditor.setAutoSize(null, true, [faceKey]);
+
+  mesh.preview_controller.updateGeometry(mesh);
+  mesh.preview_controller.updateUV(mesh);
+  Undo.finishEdit("Create mesh face");
+  Canvas.updateView({
+    elements: [mesh],
+    element_aspects: { geometry: true, uv: true, faces: true },
+  });
+
+  return { mesh: mesh.name, vertex_count: args.vertices.length, face_key: faceKey };
+}
+
+interface KnifePoint {
+  position: [number, number, number];
+  face?: string;
+}
+
+export function meshKnife(args: { mesh_id: string; points: KnifePoint[] }) {
+  const mesh = findMeshOrThrow(args.mesh_id);
+
+  Undo.initEdit({
+    elements: [mesh],
+    element_aspects: { geometry: true, uv: true, faces: true },
+  });
+
+  // @ts-ignore
+  const knifeContext = new KnifeToolContext(mesh);
+
+  args.points.forEach((point) => {
+    knifeContext.points.push({
+      position: new THREE.Vector3(...point.position),
+      fkey: point.face,
+      type: point.face ? "face" : "edge",
+    });
+  });
+
+  knifeContext.apply();
+
+  Undo.finishEdit("Knife cut mesh");
+  Canvas.updateView({
+    elements: [mesh],
+    element_aspects: { geometry: true, uv: true, faces: true },
+  });
+
+  return { mesh: mesh.name, points_count: args.points.length };
+}
+
+// ============================================================================
 // Registration
 // ============================================================================
 

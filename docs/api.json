@@ -1,6 +1,6 @@
 {
   "version": "1.6.0",
-  "generatedAt": "2026-06-01T05:42:11.667Z",
+  "generatedAt": "2026-06-01T05:56:05.085Z",
   "tools": [
     {
       "name": "inspect",
@@ -406,6 +406,64 @@
                 "type": "string",
                 "description": "Display name for create/update. Made unique automatically if it collides.",
                 "markdownDescription": "Display name for create/update. Made unique automatically if it collides."
+              }
+            },
+            "required": [
+              "action"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    },
+    {
+      "name": "aj_blueprint_settings_op",
+      "title": "AJ Blueprint Settings Op",
+      "description": "Animated Java Blueprint Settings operations (get/set) collapsed into a single tool. Returns { ok, data, error?, meta? }. Replaces legacy aj_blueprint_settings_get / aj_blueprint_settings_set. Requires an Animated Java Blueprint project to be open.",
+      "status": "experimental",
+      "category": "Animated Java",
+      "annotations": {},
+      "parameters": {
+        "$ref": "#/definitions/aj_blueprint_settings_op",
+        "definitions": {
+          "aj_blueprint_settings_op": {
+            "type": "object",
+            "properties": {
+              "action": {
+                "type": "string",
+                "enum": [
+                  "get",
+                  "set"
+                ],
+                "description": "Operation. get: returns all Blueprint Settings as a JSON object. set: updates a single setting by key.",
+                "markdownDescription": "Operation. get: returns all Blueprint Settings as a JSON object. set: updates a single setting by key."
+              },
+              "key": {
+                "type": "string",
+                "description": "Blueprint Setting key to update (e.g. `tsb_optimized_export`). Required for set.",
+                "markdownDescription": "Blueprint Setting key to update (e.g. `tsb_optimized_export`). Required for set."
+              },
+              "value": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "boolean"
+                  },
+                  {
+                    "type": "array",
+                    "items": {
+                      "type": "number"
+                    }
+                  }
+                ],
+                "description": "New value for the setting. Type must match the setting's current type. Required for set.",
+                "markdownDescription": "New value for the setting. Type must match the setting's current type. Required for set."
               }
             },
             "required": [
@@ -2245,6 +2303,141 @@
       }
     },
     {
+      "name": "element_op",
+      "title": "Element Op",
+      "description": "Element operations (remove/add_group/duplicate/rename) collapsed into a single tool. Replaces legacy remove_element / add_group / duplicate_element / rename_element. Returns { ok, data, error?, meta? }. Use inspect(target='outline') to discover element ids.",
+      "status": "experimental",
+      "category": "Elements",
+      "annotations": {
+        "destructiveHint": true
+      },
+      "parameters": {
+        "$ref": "#/definitions/element_op",
+        "definitions": {
+          "element_op": {
+            "type": "object",
+            "properties": {
+              "action": {
+                "type": "string",
+                "enum": [
+                  "remove",
+                  "add_group",
+                  "duplicate",
+                  "rename"
+                ],
+                "description": "Operation. remove: delete element by id. add_group: create a new outliner group. duplicate: copy an element with offset. rename: change an element's name.",
+                "markdownDescription": "Operation. remove: delete element by id. add_group: create a new outliner group. duplicate: copy an element with offset. rename: change an element's name."
+              },
+              "id": {
+                "type": "string",
+                "description": "Target element UUID or name. Required for remove/duplicate/rename. Use inspect(target='outline') to discover ids.",
+                "markdownDescription": "Target element UUID or name. Required for remove/duplicate/rename. Use inspect(target='outline') to discover ids."
+              },
+              "name": {
+                "type": "string",
+                "description": "Name for add_group (required) or new name for rename (required).",
+                "markdownDescription": "Name for add_group (required) or new name for rename (required)."
+              },
+              "origin": {
+                "type": "array",
+                "minItems": 3,
+                "maxItems": 3,
+                "items": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "number"
+                  }
+                ],
+                "description": "Pivot origin for add_group.",
+                "markdownDescription": "Pivot origin for add_group."
+              },
+              "rotation": {
+                "type": "array",
+                "minItems": 3,
+                "maxItems": 3,
+                "items": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "number"
+                  }
+                ],
+                "description": "Rotation for add_group.",
+                "markdownDescription": "Rotation for add_group."
+              },
+              "parent": {
+                "type": "string",
+                "description": "Parent group name/uuid for add_group, or 'root' to attach at the outliner root. Defaults to 'root'.",
+                "markdownDescription": "Parent group name/uuid for add_group, or 'root' to attach at the outliner root. Defaults to 'root'."
+              },
+              "visibility": {
+                "type": "boolean",
+                "description": "Visibility for add_group. Defaults to true.",
+                "markdownDescription": "Visibility for add_group. Defaults to true."
+              },
+              "autouv": {
+                "type": "number",
+                "enum": [
+                  0,
+                  1,
+                  2
+                ],
+                "description": "Auto-UV mode for add_group. Defaults to 1.",
+                "markdownDescription": "Auto-UV mode for add_group. Defaults to 1."
+              },
+              "selected": {
+                "type": "boolean",
+                "description": "Whether new group is selected after creation. Defaults to false.",
+                "markdownDescription": "Whether new group is selected after creation. Defaults to false."
+              },
+              "shade": {
+                "type": "boolean",
+                "description": "Shade flag for add_group. Defaults to true.",
+                "markdownDescription": "Shade flag for add_group. Defaults to true."
+              },
+              "offset": {
+                "type": "array",
+                "minItems": 3,
+                "maxItems": 3,
+                "items": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "number"
+                  }
+                ],
+                "description": "Position offset for duplicate. Defaults to [0, 0, 0].",
+                "markdownDescription": "Position offset for duplicate. Defaults to [0, 0, 0]."
+              },
+              "new_name": {
+                "type": "string",
+                "description": "New name for duplicate (optional) or rename (required as 'name').",
+                "markdownDescription": "New name for duplicate (optional) or rename (required as 'name')."
+              }
+            },
+            "required": [
+              "action"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    },
+    {
       "name": "list_export_formats",
       "title": "List Export Formats",
       "description": "Lists all registered export codecs with their id, display name, file extension, and whether they support compile/export. Use before `export_model` to pick a codec.",
@@ -2931,6 +3124,164 @@
             "required": [
               "action",
               "elements"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    },
+    {
+      "name": "mesh_edit_op",
+      "title": "Mesh Edit Op",
+      "description": "Mesh-editing operations (extrude/subdivide/select_elements/move_vertices/delete_elements/merge_vertices/create_face/knife) collapsed into a single tool. Returns { ok, data, error?, meta? }. Replaces legacy extrude_mesh / subdivide_mesh / select_mesh_elements / move_mesh_vertices / delete_mesh_elements / merge_mesh_vertices / create_mesh_face / knife_tool.",
+      "status": "experimental",
+      "category": "Mesh Editing",
+      "annotations": {
+        "destructiveHint": true
+      },
+      "parameters": {
+        "$ref": "#/definitions/mesh_edit_op",
+        "definitions": {
+          "mesh_edit_op": {
+            "type": "object",
+            "properties": {
+              "action": {
+                "type": "string",
+                "enum": [
+                  "extrude",
+                  "subdivide",
+                  "select_elements",
+                  "move_vertices",
+                  "delete_elements",
+                  "merge_vertices",
+                  "create_face",
+                  "knife"
+                ],
+                "description": "Mesh editing operation. extrude/subdivide/delete_elements/knife use Blockbench's built-in mesh tools; the rest mutate vertices/faces directly.",
+                "markdownDescription": "Mesh editing operation. extrude/subdivide/delete_elements/knife use Blockbench's built-in mesh tools; the rest mutate vertices/faces directly."
+              },
+              "mesh_id": {
+                "type": "string",
+                "description": "Mesh uuid or name. Required for select_elements/merge_vertices/knife. Optional for the others (defaults to the selected mesh).",
+                "markdownDescription": "Mesh uuid or name. Required for select_elements/merge_vertices/knife. Optional for the others (defaults to the selected mesh)."
+              },
+              "distance": {
+                "type": "number",
+                "description": "extrude: distance in units.",
+                "markdownDescription": "extrude: distance in units."
+              },
+              "mode": {
+                "type": "string",
+                "description": "extrude: extrusion mode ('faces' etc., kept as label). select_elements: 'vertex'|'edge'|'face'. delete_elements: 'vertex'|'edge'|'face' (label).",
+                "markdownDescription": "extrude: extrusion mode ('faces' etc., kept as label). select_elements: 'vertex'|'edge'|'face'. delete_elements: 'vertex'|'edge'|'face' (label)."
+              },
+              "cuts": {
+                "type": "integer",
+                "description": "subdivide: number of cuts.",
+                "markdownDescription": "subdivide: number of cuts."
+              },
+              "elements": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "select_elements: list of vertex keys, face keys, or edge keys ('vkeyA-vkeyB'). Empty = select all of the chosen mode.",
+                "markdownDescription": "select_elements: list of vertex keys, face keys, or edge keys ('vkeyA-vkeyB'). Empty = select all of the chosen mode."
+              },
+              "selection_action": {
+                "type": "string",
+                "enum": [
+                  "select",
+                  "add",
+                  "remove",
+                  "toggle"
+                ],
+                "description": "select_elements: how to combine with existing selection. Defaults to 'select' (clears then sets).",
+                "markdownDescription": "select_elements: how to combine with existing selection. Defaults to 'select' (clears then sets)."
+              },
+              "offset": {
+                "type": "array",
+                "minItems": 3,
+                "maxItems": 3,
+                "items": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "number"
+                  }
+                ],
+                "description": "move_vertices: per-axis offset.",
+                "markdownDescription": "move_vertices: per-axis offset."
+              },
+              "vertices": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "move_vertices: vertex keys to move (defaults to currently selected vertices). create_face: vertex keys to use as the face's corners (in order).",
+                "markdownDescription": "move_vertices: vertex keys to move (defaults to currently selected vertices). create_face: vertex keys to use as the face's corners (in order)."
+              },
+              "keep_vertices": {
+                "type": "boolean",
+                "description": "delete_elements: keep vertices when deleting faces/edges.",
+                "markdownDescription": "delete_elements: keep vertices when deleting faces/edges."
+              },
+              "threshold": {
+                "type": "number",
+                "description": "merge_vertices: distance threshold for merging.",
+                "markdownDescription": "merge_vertices: distance threshold for merging."
+              },
+              "selected_only": {
+                "type": "boolean",
+                "description": "merge_vertices: limit merge candidates to the current selection.",
+                "markdownDescription": "merge_vertices: limit merge candidates to the current selection."
+              },
+              "texture": {
+                "type": "string",
+                "description": "create_face: texture uuid/name/id to apply to the new face.",
+                "markdownDescription": "create_face: texture uuid/name/id to apply to the new face."
+              },
+              "points": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "position": {
+                      "type": "array",
+                      "minItems": 3,
+                      "maxItems": 3,
+                      "items": [
+                        {
+                          "type": "number"
+                        },
+                        {
+                          "type": "number"
+                        },
+                        {
+                          "type": "number"
+                        }
+                      ]
+                    },
+                    "face": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "position"
+                  ],
+                  "additionalProperties": false
+                },
+                "description": "knife: ordered list of cut points (3D position + optional face uuid).",
+                "markdownDescription": "knife: ordered list of cut points (3D position + optional face uuid)."
+              }
+            },
+            "required": [
+              "action"
             ],
             "additionalProperties": false
           }
@@ -4112,6 +4463,365 @@
       }
     },
     {
+      "name": "paint_tool_op",
+      "title": "Paint Tool Op",
+      "description": "Paint operations (fill/shape/gradient/color_pick/copy_brush/eraser/settings/paint_with_brush/texture_selection/texture_layer) collapsed into a single tool. Replaces legacy paint_fill_tool / draw_shape_tool / gradient_tool / color_picker_tool / copy_brush_tool / eraser_tool / paint_settings / paint_with_brush / texture_selection / texture_layer_management. Returns { ok, data, error?, meta? }.",
+      "status": "experimental",
+      "category": "Paint Tools",
+      "annotations": {},
+      "parameters": {
+        "$ref": "#/definitions/paint_tool_op",
+        "definitions": {
+          "paint_tool_op": {
+            "type": "object",
+            "properties": {
+              "action": {
+                "type": "string",
+                "enum": [
+                  "fill",
+                  "shape",
+                  "gradient",
+                  "color_pick",
+                  "copy_brush",
+                  "eraser",
+                  "settings",
+                  "paint_with_brush",
+                  "texture_selection",
+                  "texture_layer"
+                ],
+                "description": "Paint operation. Most ops require texture_id (defaults to the active texture). Coordinates are in texture-space pixels unless noted.",
+                "markdownDescription": "Paint operation. Most ops require texture_id (defaults to the active texture). Coordinates are in texture-space pixels unless noted."
+              },
+              "texture_id": {
+                "type": "string",
+                "description": "Texture uuid/name/id. Defaults to the currently active texture if omitted.",
+                "markdownDescription": "Texture uuid/name/id. Defaults to the currently active texture if omitted."
+              },
+              "x": {
+                "type": "number",
+                "description": "Texture-space x (fill / color_pick).",
+                "markdownDescription": "Texture-space x (fill / color_pick)."
+              },
+              "y": {
+                "type": "number",
+                "description": "Texture-space y (fill / color_pick).",
+                "markdownDescription": "Texture-space y (fill / color_pick)."
+              },
+              "color": {
+                "type": "string",
+                "description": "Hex color (fill / shape).",
+                "markdownDescription": "Hex color (fill / shape)."
+              },
+              "opacity": {
+                "type": "number",
+                "description": "0-100 for fill/shape/gradient/copy_brush/eraser; 0-100 layer opacity for texture_layer set_opacity.",
+                "markdownDescription": "0-100 for fill/shape/gradient/copy_brush/eraser; 0-100 layer opacity for texture_layer set_opacity."
+              },
+              "tolerance": {
+                "type": "number",
+                "description": "fill: fill tolerance.",
+                "markdownDescription": "fill: fill tolerance."
+              },
+              "fill_mode": {
+                "type": "string",
+                "description": "fill: fill mode label.",
+                "markdownDescription": "fill: fill mode label."
+              },
+              "blend_mode": {
+                "type": "string",
+                "description": "Blend mode (fill/shape/gradient or texture_layer set_blend_mode).",
+                "markdownDescription": "Blend mode (fill/shape/gradient or texture_layer set_blend_mode)."
+              },
+              "shape": {
+                "type": "string",
+                "description": "shape kind (shape) or brush shape (eraser).",
+                "markdownDescription": "shape kind (shape) or brush shape (eraser)."
+              },
+              "start": {
+                "type": "object",
+                "properties": {
+                  "x": {
+                    "type": "number"
+                  },
+                  "y": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "x",
+                  "y"
+                ],
+                "additionalProperties": false,
+                "description": "shape/gradient: start point.",
+                "markdownDescription": "shape/gradient: start point."
+              },
+              "end": {
+                "type": "object",
+                "properties": {
+                  "x": {
+                    "type": "number"
+                  },
+                  "y": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "x",
+                  "y"
+                ],
+                "additionalProperties": false,
+                "description": "shape/gradient: end point.",
+                "markdownDescription": "shape/gradient: end point."
+              },
+              "line_width": {
+                "type": "number",
+                "description": "shape: line/outline width.",
+                "markdownDescription": "shape: line/outline width."
+              },
+              "start_color": {
+                "type": "string",
+                "description": "gradient: starting color (hex).",
+                "markdownDescription": "gradient: starting color (hex)."
+              },
+              "end_color": {
+                "type": "string",
+                "description": "gradient: ending color (hex).",
+                "markdownDescription": "gradient: ending color (hex)."
+              },
+              "set_as_secondary": {
+                "type": "boolean",
+                "description": "color_pick: store the picked color as the secondary color.",
+                "markdownDescription": "color_pick: store the picked color as the secondary color."
+              },
+              "pick_opacity": {
+                "type": "boolean",
+                "description": "color_pick: also pick opacity from the texture alpha.",
+                "markdownDescription": "color_pick: also pick opacity from the texture alpha."
+              },
+              "source": {
+                "type": "object",
+                "properties": {
+                  "x": {
+                    "type": "number"
+                  },
+                  "y": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "x",
+                  "y"
+                ],
+                "additionalProperties": false,
+                "description": "copy_brush: source point.",
+                "markdownDescription": "copy_brush: source point."
+              },
+              "target": {
+                "type": "object",
+                "properties": {
+                  "x": {
+                    "type": "number"
+                  },
+                  "y": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "x",
+                  "y"
+                ],
+                "additionalProperties": false,
+                "description": "copy_brush: target point.",
+                "markdownDescription": "copy_brush: target point."
+              },
+              "brush_size": {
+                "type": "number",
+                "description": "Brush size (copy_brush / eraser).",
+                "markdownDescription": "Brush size (copy_brush / eraser)."
+              },
+              "mode": {
+                "type": "string",
+                "description": "Copy-brush mode (copy_brush) or selection mode (texture_selection).",
+                "markdownDescription": "Copy-brush mode (copy_brush) or selection mode (texture_selection)."
+              },
+              "coordinates": {
+                "anyOf": [
+                  {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "x": {
+                          "type": "number"
+                        },
+                        "y": {
+                          "type": "number"
+                        }
+                      },
+                      "required": [
+                        "x",
+                        "y"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "x1": {
+                        "type": "number"
+                      },
+                      "y1": {
+                        "type": "number"
+                      },
+                      "x2": {
+                        "type": "number"
+                      },
+                      "y2": {
+                        "type": "number"
+                      }
+                    },
+                    "required": [
+                      "x1",
+                      "y1",
+                      "x2",
+                      "y2"
+                    ],
+                    "additionalProperties": false
+                  }
+                ],
+                "description": "Array of points (eraser / paint_with_brush) or rectangle coords (texture_selection select_rectangle / select_ellipse).",
+                "markdownDescription": "Array of points (eraser / paint_with_brush) or rectangle coords (texture_selection select_rectangle / select_ellipse)."
+              },
+              "softness": {
+                "type": "number",
+                "description": "eraser: brush softness.",
+                "markdownDescription": "eraser: brush softness."
+              },
+              "connect_strokes": {
+                "type": "boolean",
+                "description": "eraser / paint_with_brush: continue the previous stroke instead of starting a new one.",
+                "markdownDescription": "eraser / paint_with_brush: continue the previous stroke instead of starting a new one."
+              },
+              "brush_settings": {
+                "type": "object",
+                "properties": {
+                  "color": {
+                    "type": "string"
+                  },
+                  "opacity": {
+                    "type": "number"
+                  },
+                  "size": {
+                    "type": "number"
+                  },
+                  "softness": {
+                    "type": "number"
+                  },
+                  "shape": {
+                    "type": "string"
+                  }
+                },
+                "additionalProperties": false,
+                "description": "paint_with_brush: brush configuration.",
+                "markdownDescription": "paint_with_brush: brush configuration."
+              },
+              "mirror_painting": {
+                "type": "object",
+                "properties": {
+                  "enabled": {
+                    "type": "boolean"
+                  },
+                  "axis": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "texture": {
+                    "type": "number"
+                  },
+                  "texture_center": {
+                    "type": "object",
+                    "properties": {
+                      "x": {
+                        "type": "number"
+                      },
+                      "y": {
+                        "type": "number"
+                      }
+                    },
+                    "required": [
+                      "x",
+                      "y"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "required": [
+                  "enabled"
+                ],
+                "additionalProperties": false,
+                "description": "settings: mirror painting configuration.",
+                "markdownDescription": "settings: mirror painting configuration."
+              },
+              "lock_alpha": {
+                "type": "boolean",
+                "description": "settings: lock alpha channel.",
+                "markdownDescription": "settings: lock alpha channel."
+              },
+              "pixel_perfect": {
+                "type": "boolean",
+                "description": "settings: pixel-perfect drawing.",
+                "markdownDescription": "settings: pixel-perfect drawing."
+              },
+              "paint_side_restrict": {
+                "type": "boolean"
+              },
+              "color_erase_mode": {
+                "type": "boolean"
+              },
+              "brush_opacity_modifier": {
+                "type": "string"
+              },
+              "brush_size_modifier": {
+                "type": "string"
+              },
+              "paint_with_stylus_only": {
+                "type": "boolean"
+              },
+              "pick_color_opacity": {
+                "type": "boolean"
+              },
+              "pick_combined_color": {
+                "type": "boolean"
+              },
+              "radius": {
+                "type": "number",
+                "description": "texture_selection: radius for expand/contract/feather.",
+                "markdownDescription": "texture_selection: radius for expand/contract/feather."
+              },
+              "layer_name": {
+                "type": "string",
+                "description": "texture_layer: name for create_layer or rename_layer.",
+                "markdownDescription": "texture_layer: name for create_layer or rename_layer."
+              },
+              "target_index": {
+                "type": "integer",
+                "description": "texture_layer: target index for move_layer.",
+                "markdownDescription": "texture_layer: target index for move_layer."
+              }
+            },
+            "required": [
+              "action"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    },
+    {
       "name": "create_project",
       "title": "Create Project",
       "description": "Creates a new project with the given name and project type.",
@@ -4587,6 +5297,129 @@
                 "maximum": 255,
                 "description": "Subsurface scattering value (0-255).",
                 "markdownDescription": "Subsurface scattering value (0-255)."
+              }
+            },
+            "required": [
+              "action"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    },
+    {
+      "name": "texture_op",
+      "title": "Texture Op",
+      "description": "Texture operations (create/apply/add_group/import_set/activate) collapsed into a single tool. Replaces legacy create_texture / apply_texture / add_texture_group / import_texture_set / activate_texture. Returns { ok, data, error?, meta? }. For listing/reading textures use inspect(target='textures').",
+      "status": "experimental",
+      "category": "Textures",
+      "annotations": {},
+      "parameters": {
+        "$ref": "#/definitions/texture_op",
+        "definitions": {
+          "texture_op": {
+            "type": "object",
+            "properties": {
+              "action": {
+                "type": "string",
+                "enum": [
+                  "create",
+                  "apply",
+                  "add_group",
+                  "import_set",
+                  "activate"
+                ],
+                "description": "Operation. create: new texture (data URL / file path / fill_color). apply: apply a texture to a cube/mesh/group's faces. add_group: create a texture group (optionally with members). import_set: import a *.texture_set.json file. activate: select an existing texture so paint tools target it.",
+                "markdownDescription": "Operation. create: new texture (data URL / file path / fill_color). apply: apply a texture to a cube/mesh/group's faces. add_group: create a texture group (optionally with members). import_set: import a *.texture_set.json file. activate: select an existing texture so paint tools target it."
+              },
+              "name": {
+                "type": "string",
+                "description": "Texture name (create) or group name (add_group). Required for create/add_group.",
+                "markdownDescription": "Texture name (create) or group name (add_group). Required for create/add_group."
+              },
+              "width": {
+                "type": "integer",
+                "description": "Texture width in px (create). Defaults to 16.",
+                "markdownDescription": "Texture width in px (create). Defaults to 16."
+              },
+              "height": {
+                "type": "integer",
+                "description": "Texture height in px (create). Defaults to 16.",
+                "markdownDescription": "Texture height in px (create). Defaults to 16."
+              },
+              "data": {
+                "type": "string",
+                "description": "Source for create: data: URL ('data:image/png;base64,...') or file path. Omit to start blank.",
+                "markdownDescription": "Source for create: data: URL ('data:image/png;base64,...') or file path. Omit to start blank."
+              },
+              "pbr_channel": {
+                "type": "string",
+                "description": "PBR channel hint for create (e.g. 'color', 'normal').",
+                "markdownDescription": "PBR channel hint for create (e.g. 'color', 'normal')."
+              },
+              "fill_color": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "array",
+                    "items": {
+                      "type": "number"
+                    }
+                  }
+                ],
+                "description": "Fill color for create when no data is given. Hex string or [r, g, b, a?].",
+                "markdownDescription": "Fill color for create when no data is given. Hex string or [r, g, b, a?]."
+              },
+              "group": {
+                "type": "string",
+                "description": "Existing texture group uuid/name to attach the new texture to (create).",
+                "markdownDescription": "Existing texture group uuid/name to attach the new texture to (create)."
+              },
+              "layer_name": {
+                "type": "string",
+                "description": "Optional layer name for create.",
+                "markdownDescription": "Optional layer name for create."
+              },
+              "id": {
+                "type": "string",
+                "description": "Target element uuid/name for action='apply' (cube/mesh/group). Use inspect(target='outline') to discover.",
+                "markdownDescription": "Target element uuid/name for action='apply' (cube/mesh/group). Use inspect(target='outline') to discover."
+              },
+              "applyTo": {
+                "type": "string",
+                "enum": [
+                  "all",
+                  "blank",
+                  "none"
+                ],
+                "description": "apply: 'all' = every face, 'blank' = untextured only, 'none' = clear. Defaults to 'blank'.",
+                "markdownDescription": "apply: 'all' = every face, 'blank' = untextured only, 'none' = clear. Defaults to 'blank'."
+              },
+              "texture": {
+                "type": "string",
+                "description": "Texture uuid/name/id. Required for activate. Optional for apply (defaults to the project's default texture).",
+                "markdownDescription": "Texture uuid/name/id. Required for activate. Optional for apply (defaults to the project's default texture)."
+              },
+              "textures": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "Texture uuids/names to include in the new group (add_group).",
+                "markdownDescription": "Texture uuids/names to include in the new group (add_group)."
+              },
+              "is_material": {
+                "type": "boolean",
+                "description": "Whether the new group is a material group (add_group). Defaults to false.",
+                "markdownDescription": "Whether the new group is a material group (add_group). Defaults to false."
+              },
+              "path": {
+                "type": "string",
+                "description": "Absolute filesystem path to a *.texture_set.json file (import_set).",
+                "markdownDescription": "Absolute filesystem path to a *.texture_set.json file (import_set)."
               }
             },
             "required": [

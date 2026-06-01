@@ -592,6 +592,256 @@ export function materialSaveConfig(params: { material: string }) {
 }
 
 // ============================================================================
+// Stage-II op implementations (named exports for _redesign/texture_op.ts)
+// ============================================================================
+
+interface TextureCreateArgs {
+  name: string;
+  width: number;
+  height: number;
+  data?: string;
+  pbr_channel?: string;
+  fill_color?: string | number[];
+  group?: string;
+  layer_name?: string;
+}
+
+export function textureCreate(args: TextureCreateArgs) {
+  Undo.initEdit({ textures: [], collections: [] });
+
+  let texture = new Texture({
+    name: args.name,
+    width: args.width,
+    height: args.height,
+    group: args.group,
+    pbr_channel: args.pbr_channel,
+    internal: true,
+  });
+
+  if (args.data) {
+    if (args.data.startsWith("data:image/")) {
+      texture.source = args.data;
+      texture.width = args.width;
+      texture.height = args.height;
+    } else {
+      texture = texture.fromFile({
+        name: args.data.split(/[\/\\]/).pop() || args.data,
+        path: args.data.replace(/^file:\/\//, ""),
+      });
+    }
+    texture.load();
+    texture.fillParticle();
+    texture.layers_enabled = false;
+  } else {
+    const { ctx } = texture.getActiveCanvas();
+    if (args.fill_color) {
+      const color = Array.isArray(args.fill_color)
+        // @ts-ignore - tinycolor available globally
+        ? tinycolor({
+            r: Number(args.fill_color[0]),
+            g: Number(args.fill_color[1]),
+            b: Number(args.fill_color[2]),
+            a: Number(args.fill_color[3] ?? 255),
+          })
+        // @ts-ignore - tinycolor available globally
+        : tinycolor(args.fill_color);
+      ctx.fillStyle = color.toRgbString().toLowerCase();
+      ctx.fillRect(0, 0, texture.width, texture.height);
+    } else {
+      ctx.clearRect(0, 0, texture.width, texture.height);
+    }
+    texture.updateSource(ctx.canvas.toDataURL("image/png", 1));
+    texture.updateLayerChanges(true);
+  }
+
+  texture.add();
+  Undo.finishEdit("Agent created texture");
+  Canvas.updateAll();
+
+  return {
+    id: texture.uuid,
+    name: texture.name,
+    width: texture.width,
+    height: texture.height,
+    data_url: texture.getDataURL(),
+  };
+}
+
+interface TextureApplyArgs {
+  applyTo: "all" | "blank" | "none";
+  id: string;
+  texture?: string;
+}
+
+export function textureApply(args: TextureApplyArgs) {
+  const element = findElementOrThrow(args.id);
+  const projectTexture = args.texture
+    ? findTextureOrThrow(args.texture)
+    : Texture.getDefault();
+
+  if (!projectTexture) {
+    throw new Error(
+      "No default texture available. Use texture_op(action='create') to create one first."
+    );
+  }
+
+  const targets: Array<Cube | Mesh> = [];
+  if (element instanceof Group) {
+    const collectDescendants = (group: Group) => {
+      for (const child of group.children ?? []) {
+        if (child instanceof Cube || child instanceof Mesh) {
+          targets.push(child);
+          continue;
+        }
+        if (child instanceof Group) collectDescendants(child);
+      }
+    };
+    collectDescendants(element);
+  } else if (element instanceof Cube || element instanceof Mesh) {
+    targets.push(element);
+  } else {
+    throw new Error(
+      `Element "${args.id}" is not a cube, mesh, or group — cannot apply texture to it.`
+    );
+  }
+
+  if (targets.length === 0) {
+    throw new Error(
+      `Element "${args.id}" resolved to no paintable cubes or meshes.`
+    );
+  }
+
+  const prevCubeSelection = [...Cube.selected];
+  const prevMeshSelection = [...Mesh.selected];
+  const prevGroup = Group.selected ?? null;
+
+  Undo.initEdit({ elements: targets, outliner: false, collections: [] });
+
+  try {
+    Cube.all.forEach((c: Cube) => {
+      if (c.selected) c.unselect?.();
+    });
+    Mesh.all.forEach((m: Mesh) => {
+      if (m.selected) m.unselect?.();
+    });
+    for (const target of targets) {
+      // @ts-ignore - select method
+      target.select?.({ shiftKey: true });
+    }
+    updateSelection();
+    projectTexture.select();
+    Texture.selected?.apply(
+      args.applyTo === "none" ? false : args.applyTo === "all" ? true : "blank"
+    );
+    projectTexture.updateChangesAfterEdit();
+  } finally {
+    Cube.all.forEach((c: Cube) => {
+      if (c.selected) c.unselect?.();
+    });
+    Mesh.all.forEach((m: Mesh) => {
+      if (m.selected) m.unselect?.();
+    });
+    for (const c of prevCubeSelection) {
+      // @ts-ignore - select method
+      c.select?.({ shiftKey: true });
+    }
+    for (const m of prevMeshSelection) {
+      // @ts-ignore - select method
+      m.select?.({ shiftKey: true });
+    }
+    if (prevGroup) prevGroup.selected = true;
+    updateSelection();
+  }
+
+  Undo.finishEdit("Agent applied texture");
+
+  Canvas.updateView({
+    elements: targets,
+    element_aspects: { faces: true, uv: true, geometry: false },
+  });
+  Canvas.updateAll();
+
+  const scope =
+    element instanceof Group ? "group" : element instanceof Cube ? "cube" : "mesh";
+
+  return {
+    texture: { id: projectTexture.uuid, name: projectTexture.name },
+    target_count: targets.length,
+    scope,
+  };
+}
+
+interface TextureAddGroupArgs {
+  name: string;
+  textures?: string[];
+  is_material: boolean;
+}
+
+export function textureAddGroup(args: TextureAddGroupArgs) {
+  Undo.initEdit({
+    elements: [],
+    outliner: true,
+    collections: [],
+    textures: [],
+  });
+
+  const textureGroup = new TextureGroup({
+    name: args.name,
+    is_material: args.is_material,
+  }).add();
+
+  if (args.textures) {
+    const textureList = args.textures
+      .map((texture) => getProjectTexture(texture))
+      .filter(Boolean);
+
+    if (textureList.length === 0) {
+      throw new Error(`No textures found for "${args.textures}".`);
+    }
+
+    textureList.forEach((texture) => {
+      texture?.extend({ group: textureGroup.uuid });
+    });
+  }
+
+  Undo.finishEdit("Agent added texture group");
+  Canvas.updateAll();
+
+  return {
+    id: textureGroup.uuid,
+    name: textureGroup.name,
+    is_material: args.is_material,
+  };
+}
+
+export function textureImportSet(path: string) {
+  if (!path.endsWith(".texture_set.json")) {
+    throw new Error(
+      "Path must end with '.texture_set.json'. Example: 'path/to/mytexture.texture_set.json'"
+    );
+  }
+
+  // @ts-ignore - requireNativeModule available via Blockbench
+  const fs = requireNativeModule("fs");
+  if (!fs.existsSync(path)) {
+    throw new Error(`File not found: ${path}`);
+  }
+
+  // @ts-ignore - importTextureSet is globally available
+  importTextureSet({ path, name: path.split(/[\/\\]/).pop() });
+
+  return { path, imported_name: path.split(/[\/\\]/).pop() ?? path };
+}
+
+export function textureActivate(texture: string) {
+  const target = findTextureOrThrow(texture);
+  if (Texture.selected?.uuid !== target.uuid) {
+    target.select();
+  }
+  return { id: target.uuid, name: target.name };
+}
+
+// ============================================================================
 // Tool Registration
 // ============================================================================
 

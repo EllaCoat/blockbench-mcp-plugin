@@ -18,7 +18,7 @@
 
       <div class="nav-group">
         <p class="nav-heading">Overview</p>
-        <a href="#tools" class="nav-link">Tools <span class="count">(66)</span></a>
+        <a href="#tools" class="nav-link">Tools <span class="count">(71)</span></a>
         <a href="#prompts" class="nav-link">Prompts <span class="count">(3)</span></a>
         <a href="#resources" class="nav-link">Resources <span class="count">(8)</span></a>
       </div>
@@ -26,21 +26,21 @@
       <div class="nav-group">
         <p class="nav-heading">Categories</p>
         <a href="#cat-inspect-stage-ii" class="nav-link">Inspect (Stage II) <span class="count">(1)</span></a>
-        <a href="#cat-animated-java" class="nav-link">Animated Java <span class="count">(5)</span></a>
+        <a href="#cat-animated-java" class="nav-link">Animated Java <span class="count">(6)</span></a>
         <a href="#cat-cubes" class="nav-link">Cubes <span class="count">(1)</span></a>
         <a href="#cat-camera-screenshots" class="nav-link">Camera &amp; Screenshots <span class="count">(3)</span></a>
         <a href="#cat-animation" class="nav-link">Animation <span class="count">(7)</span></a>
         <a href="#cat-armature" class="nav-link">Armature <span class="count">(3)</span></a>
-        <a href="#cat-elements" class="nav-link">Elements <span class="count">(5)</span></a>
+        <a href="#cat-elements" class="nav-link">Elements <span class="count">(6)</span></a>
         <a href="#cat-export" class="nav-link">Export <span class="count">(2)</span></a>
         <a href="#cat-history" class="nav-link">History <span class="count">(1)</span></a>
         <a href="#cat-import-export" class="nav-link">Import/Export <span class="count">(1)</span></a>
         <a href="#cat-material-instances" class="nav-link">Material Instances <span class="count">(1)</span></a>
-        <a href="#cat-mesh-editing" class="nav-link">Mesh Editing <span class="count">(9)</span></a>
+        <a href="#cat-mesh-editing" class="nav-link">Mesh Editing <span class="count">(10)</span></a>
         <a href="#cat-null-objects-ik" class="nav-link">Null Objects / IK <span class="count">(1)</span></a>
-        <a href="#cat-paint-tools" class="nav-link">Paint Tools <span class="count">(11)</span></a>
+        <a href="#cat-paint-tools" class="nav-link">Paint Tools <span class="count">(12)</span></a>
         <a href="#cat-project" class="nav-link">Project <span class="count">(2)</span></a>
-        <a href="#cat-textures" class="nav-link">Textures <span class="count">(8)</span></a>
+        <a href="#cat-textures" class="nav-link">Textures <span class="count">(9)</span></a>
         <a href="#cat-ui-interaction" class="nav-link">UI Interaction <span class="count">(4)</span></a>
         <a href="#cat-uv-mapping" class="nav-link">UV Mapping <span class="count">(1)</span></a>
       </div>
@@ -51,7 +51,7 @@
         <h1>Blockbench MCP Plugin</h1>
         <p class="subtitle">API Reference — v1.6.0</p>
         <nav class="stats">
-          <a href="#tools"><strong>66</strong> tools (14 stable, 52 experimental)</a>
+          <a href="#tools"><strong>71</strong> tools (14 stable, 57 experimental)</a>
           <a href="#prompts"><strong>3</strong> prompts</a>
           <a href="#resources"><strong>8</strong> resources</a>
         </nav>
@@ -373,6 +373,45 @@
       <td class="col-type">string</td>
       <td><span class="param-optional">optional</span></td>
       <td class="col-desc">Display name for create/update. Made unique automatically if it collides.</td>
+    </tr></tbody>
+    </table>
+      </div>
+    </div>
+<div id="tool-aj_blueprint_settings_op" class="card tool-card">
+      <div class="card-header">
+        <h3 class="card-name">aj_blueprint_settings_op</h3>
+        <div class="card-badges">
+          <span class="badge badge-experimental">experimental</span>
+          
+        </div>
+      </div>
+      <p class="card-title">AJ Blueprint Settings Op</p>
+      <p class="card-desc">Animated Java Blueprint Settings operations (get/set) collapsed into a single tool. Returns { ok, data, error?, meta? }. Replaces legacy aj_blueprint_settings_get / aj_blueprint_settings_set. Requires an Animated Java Blueprint project to be open.</p>
+      <div class="overflow-x">
+        <table class="param-table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Required</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody><tr>
+      <td class="col-name">action</td>
+      <td class="col-type">&quot;get&quot; | &quot;set&quot;</td>
+      <td><span class="param-required">required</span></td>
+      <td class="col-desc">Operation. get: returns all Blueprint Settings as a JSON object. set: updates a single setting by key.</td>
+    </tr><tr>
+      <td class="col-name">key</td>
+      <td class="col-type">string</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">Blueprint Setting key to update (e.g. `tsb_optimized_export`). Required for set.</td>
+    </tr><tr>
+      <td class="col-name">value</td>
+      <td class="col-type">string | number | boolean | number[]</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">New value for the setting. Type must match the setting's current type. Required for set.</td>
     </tr></tbody>
     </table>
       </div>
@@ -1363,6 +1402,90 @@
     </table>
       </div>
     </div>
+<div id="tool-element_op" class="card tool-card">
+      <div class="card-header">
+        <h3 class="card-name">element_op</h3>
+        <div class="card-badges">
+          <span class="badge badge-experimental">experimental</span>
+          <span class="badge badge-destructive">destructive</span>
+        </div>
+      </div>
+      <p class="card-title">Element Op</p>
+      <p class="card-desc">Element operations (remove/add_group/duplicate/rename) collapsed into a single tool. Replaces legacy remove_element / add_group / duplicate_element / rename_element. Returns { ok, data, error?, meta? }. Use inspect(target='outline') to discover element ids.</p>
+      <div class="overflow-x">
+        <table class="param-table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Required</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody><tr>
+      <td class="col-name">action</td>
+      <td class="col-type">&quot;remove&quot; | &quot;add_group&quot; | &quot;duplicate&quot; | &quot;rename&quot;</td>
+      <td><span class="param-required">required</span></td>
+      <td class="col-desc">Operation. remove: delete element by id. add_group: create a new outliner group. duplicate: copy an element with offset. rename: change an element's name.</td>
+    </tr><tr>
+      <td class="col-name">id</td>
+      <td class="col-type">string</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">Target element UUID or name. Required for remove/duplicate/rename. Use inspect(target='outline') to discover ids.</td>
+    </tr><tr>
+      <td class="col-name">name</td>
+      <td class="col-type">string</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">Name for add_group (required) or new name for rename (required).</td>
+    </tr><tr>
+      <td class="col-name">origin</td>
+      <td class="col-type">unknown[]</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">Pivot origin for add_group. <span class="param-meta">[minItems: 3, maxItems: 3]</span></td>
+    </tr><tr>
+      <td class="col-name">rotation</td>
+      <td class="col-type">unknown[]</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">Rotation for add_group. <span class="param-meta">[minItems: 3, maxItems: 3]</span></td>
+    </tr><tr>
+      <td class="col-name">parent</td>
+      <td class="col-type">string</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">Parent group name/uuid for add_group, or 'root' to attach at the outliner root. Defaults to 'root'.</td>
+    </tr><tr>
+      <td class="col-name">visibility</td>
+      <td class="col-type">boolean</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">Visibility for add_group. Defaults to true.</td>
+    </tr><tr>
+      <td class="col-name">autouv</td>
+      <td class="col-type">&quot;0&quot; | &quot;1&quot; | &quot;2&quot;</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">Auto-UV mode for add_group. Defaults to 1.</td>
+    </tr><tr>
+      <td class="col-name">selected</td>
+      <td class="col-type">boolean</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">Whether new group is selected after creation. Defaults to false.</td>
+    </tr><tr>
+      <td class="col-name">shade</td>
+      <td class="col-type">boolean</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">Shade flag for add_group. Defaults to true.</td>
+    </tr><tr>
+      <td class="col-name">offset</td>
+      <td class="col-type">unknown[]</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">Position offset for duplicate. Defaults to [0, 0, 0]. <span class="param-meta">[minItems: 3, maxItems: 3]</span></td>
+    </tr><tr>
+      <td class="col-name">new_name</td>
+      <td class="col-type">string</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">New name for duplicate (optional) or rename (required as 'name').</td>
+    </tr></tbody>
+    </table>
+      </div>
+    </div>
         </section>
 <section id="cat-export" class="category-section">
           <h3 class="category-title">Export</h3>
@@ -1920,6 +2043,100 @@
       <td class="col-type">string</td>
       <td><span class="param-optional">optional</span></td>
       <td class="col-desc">Group/bone to which the primitives belong.</td>
+    </tr></tbody>
+    </table>
+      </div>
+    </div>
+<div id="tool-mesh_edit_op" class="card tool-card">
+      <div class="card-header">
+        <h3 class="card-name">mesh_edit_op</h3>
+        <div class="card-badges">
+          <span class="badge badge-experimental">experimental</span>
+          <span class="badge badge-destructive">destructive</span>
+        </div>
+      </div>
+      <p class="card-title">Mesh Edit Op</p>
+      <p class="card-desc">Mesh-editing operations (extrude/subdivide/select_elements/move_vertices/delete_elements/merge_vertices/create_face/knife) collapsed into a single tool. Returns { ok, data, error?, meta? }. Replaces legacy extrude_mesh / subdivide_mesh / select_mesh_elements / move_mesh_vertices / delete_mesh_elements / merge_mesh_vertices / create_mesh_face / knife_tool.</p>
+      <div class="overflow-x">
+        <table class="param-table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Required</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody><tr>
+      <td class="col-name">action</td>
+      <td class="col-type">&quot;extrude&quot; | &quot;subdivide&quot; | &quot;select_elements&quot; | &quot;move_vertices&quot; | &quot;delete_elements&quot; | &quot;merge_vertices&quot; | &quot;create_face&quot; | &quot;knife&quot;</td>
+      <td><span class="param-required">required</span></td>
+      <td class="col-desc">Mesh editing operation. extrude/subdivide/delete_elements/knife use Blockbench's built-in mesh tools; the rest mutate vertices/faces directly.</td>
+    </tr><tr>
+      <td class="col-name">mesh_id</td>
+      <td class="col-type">string</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">Mesh uuid or name. Required for select_elements/merge_vertices/knife. Optional for the others (defaults to the selected mesh).</td>
+    </tr><tr>
+      <td class="col-name">distance</td>
+      <td class="col-type">number</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">extrude: distance in units.</td>
+    </tr><tr>
+      <td class="col-name">mode</td>
+      <td class="col-type">string</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">extrude: extrusion mode ('faces' etc., kept as label). select_elements: 'vertex'|'edge'|'face'. delete_elements: 'vertex'|'edge'|'face' (label).</td>
+    </tr><tr>
+      <td class="col-name">cuts</td>
+      <td class="col-type">integer</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">subdivide: number of cuts.</td>
+    </tr><tr>
+      <td class="col-name">elements</td>
+      <td class="col-type">string[]</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">select_elements: list of vertex keys, face keys, or edge keys ('vkeyA-vkeyB'). Empty = select all of the chosen mode.</td>
+    </tr><tr>
+      <td class="col-name">selection_action</td>
+      <td class="col-type">&quot;select&quot; | &quot;add&quot; | &quot;remove&quot; | &quot;toggle&quot;</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">select_elements: how to combine with existing selection. Defaults to 'select' (clears then sets).</td>
+    </tr><tr>
+      <td class="col-name">offset</td>
+      <td class="col-type">unknown[]</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">move_vertices: per-axis offset. <span class="param-meta">[minItems: 3, maxItems: 3]</span></td>
+    </tr><tr>
+      <td class="col-name">vertices</td>
+      <td class="col-type">string[]</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">move_vertices: vertex keys to move (defaults to currently selected vertices). create_face: vertex keys to use as the face's corners (in order).</td>
+    </tr><tr>
+      <td class="col-name">keep_vertices</td>
+      <td class="col-type">boolean</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">delete_elements: keep vertices when deleting faces/edges.</td>
+    </tr><tr>
+      <td class="col-name">threshold</td>
+      <td class="col-type">number</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">merge_vertices: distance threshold for merging.</td>
+    </tr><tr>
+      <td class="col-name">selected_only</td>
+      <td class="col-type">boolean</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">merge_vertices: limit merge candidates to the current selection.</td>
+    </tr><tr>
+      <td class="col-name">texture</td>
+      <td class="col-type">string</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">create_face: texture uuid/name/id to apply to the new face.</td>
+    </tr><tr>
+      <td class="col-name">points</td>
+      <td class="col-type">object[]</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">knife: ordered list of cut points (3D position + optional face uuid).</td>
     </tr></tbody>
     </table>
       </div>
@@ -2643,6 +2860,220 @@
     </table>
       </div>
     </div>
+<div id="tool-paint_tool_op" class="card tool-card">
+      <div class="card-header">
+        <h3 class="card-name">paint_tool_op</h3>
+        <div class="card-badges">
+          <span class="badge badge-experimental">experimental</span>
+          
+        </div>
+      </div>
+      <p class="card-title">Paint Tool Op</p>
+      <p class="card-desc">Paint operations (fill/shape/gradient/color_pick/copy_brush/eraser/settings/paint_with_brush/texture_selection/texture_layer) collapsed into a single tool. Replaces legacy paint_fill_tool / draw_shape_tool / gradient_tool / color_picker_tool / copy_brush_tool / eraser_tool / paint_settings / paint_with_brush / texture_selection / texture_layer_management. Returns { ok, data, error?, meta? }.</p>
+      <div class="overflow-x">
+        <table class="param-table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Required</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody><tr>
+      <td class="col-name">action</td>
+      <td class="col-type">&quot;fill&quot; | &quot;shape&quot; | &quot;gradient&quot; | &quot;color_pick&quot; | &quot;copy_brush&quot; | &quot;eraser&quot; | &quot;settings&quot; | &quot;paint_with_brush&quot; | &quot;texture_selection&quot; | &quot;texture_layer&quot;</td>
+      <td><span class="param-required">required</span></td>
+      <td class="col-desc">Paint operation. Most ops require texture_id (defaults to the active texture). Coordinates are in texture-space pixels unless noted.</td>
+    </tr><tr>
+      <td class="col-name">texture_id</td>
+      <td class="col-type">string</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">Texture uuid/name/id. Defaults to the currently active texture if omitted.</td>
+    </tr><tr>
+      <td class="col-name">x</td>
+      <td class="col-type">number</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">Texture-space x (fill / color_pick).</td>
+    </tr><tr>
+      <td class="col-name">y</td>
+      <td class="col-type">number</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">Texture-space y (fill / color_pick).</td>
+    </tr><tr>
+      <td class="col-name">color</td>
+      <td class="col-type">string</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">Hex color (fill / shape).</td>
+    </tr><tr>
+      <td class="col-name">opacity</td>
+      <td class="col-type">number</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">0-100 for fill/shape/gradient/copy_brush/eraser; 0-100 layer opacity for texture_layer set_opacity.</td>
+    </tr><tr>
+      <td class="col-name">tolerance</td>
+      <td class="col-type">number</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">fill: fill tolerance.</td>
+    </tr><tr>
+      <td class="col-name">fill_mode</td>
+      <td class="col-type">string</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">fill: fill mode label.</td>
+    </tr><tr>
+      <td class="col-name">blend_mode</td>
+      <td class="col-type">string</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">Blend mode (fill/shape/gradient or texture_layer set_blend_mode).</td>
+    </tr><tr>
+      <td class="col-name">shape</td>
+      <td class="col-type">string</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">shape kind (shape) or brush shape (eraser).</td>
+    </tr><tr>
+      <td class="col-name">start</td>
+      <td class="col-type">object</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">shape/gradient: start point.</td>
+    </tr><tr>
+      <td class="col-name">end</td>
+      <td class="col-type">object</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">shape/gradient: end point.</td>
+    </tr><tr>
+      <td class="col-name">line_width</td>
+      <td class="col-type">number</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">shape: line/outline width.</td>
+    </tr><tr>
+      <td class="col-name">start_color</td>
+      <td class="col-type">string</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">gradient: starting color (hex).</td>
+    </tr><tr>
+      <td class="col-name">end_color</td>
+      <td class="col-type">string</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">gradient: ending color (hex).</td>
+    </tr><tr>
+      <td class="col-name">set_as_secondary</td>
+      <td class="col-type">boolean</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">color_pick: store the picked color as the secondary color.</td>
+    </tr><tr>
+      <td class="col-name">pick_opacity</td>
+      <td class="col-type">boolean</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">color_pick: also pick opacity from the texture alpha.</td>
+    </tr><tr>
+      <td class="col-name">source</td>
+      <td class="col-type">object</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">copy_brush: source point.</td>
+    </tr><tr>
+      <td class="col-name">target</td>
+      <td class="col-type">object</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">copy_brush: target point.</td>
+    </tr><tr>
+      <td class="col-name">brush_size</td>
+      <td class="col-type">number</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">Brush size (copy_brush / eraser).</td>
+    </tr><tr>
+      <td class="col-name">mode</td>
+      <td class="col-type">string</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">Copy-brush mode (copy_brush) or selection mode (texture_selection).</td>
+    </tr><tr>
+      <td class="col-name">coordinates</td>
+      <td class="col-type">object[] | object</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">Array of points (eraser / paint_with_brush) or rectangle coords (texture_selection select_rectangle / select_ellipse).</td>
+    </tr><tr>
+      <td class="col-name">softness</td>
+      <td class="col-type">number</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">eraser: brush softness.</td>
+    </tr><tr>
+      <td class="col-name">connect_strokes</td>
+      <td class="col-type">boolean</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">eraser / paint_with_brush: continue the previous stroke instead of starting a new one.</td>
+    </tr><tr>
+      <td class="col-name">brush_settings</td>
+      <td class="col-type">object</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">paint_with_brush: brush configuration.</td>
+    </tr><tr>
+      <td class="col-name">mirror_painting</td>
+      <td class="col-type">object</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">settings: mirror painting configuration.</td>
+    </tr><tr>
+      <td class="col-name">lock_alpha</td>
+      <td class="col-type">boolean</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">settings: lock alpha channel.</td>
+    </tr><tr>
+      <td class="col-name">pixel_perfect</td>
+      <td class="col-type">boolean</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">settings: pixel-perfect drawing.</td>
+    </tr><tr>
+      <td class="col-name">paint_side_restrict</td>
+      <td class="col-type">boolean</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc"></td>
+    </tr><tr>
+      <td class="col-name">color_erase_mode</td>
+      <td class="col-type">boolean</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc"></td>
+    </tr><tr>
+      <td class="col-name">brush_opacity_modifier</td>
+      <td class="col-type">string</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc"></td>
+    </tr><tr>
+      <td class="col-name">brush_size_modifier</td>
+      <td class="col-type">string</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc"></td>
+    </tr><tr>
+      <td class="col-name">paint_with_stylus_only</td>
+      <td class="col-type">boolean</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc"></td>
+    </tr><tr>
+      <td class="col-name">pick_color_opacity</td>
+      <td class="col-type">boolean</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc"></td>
+    </tr><tr>
+      <td class="col-name">pick_combined_color</td>
+      <td class="col-type">boolean</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc"></td>
+    </tr><tr>
+      <td class="col-name">radius</td>
+      <td class="col-type">number</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">texture_selection: radius for expand/contract/feather.</td>
+    </tr><tr>
+      <td class="col-name">layer_name</td>
+      <td class="col-type">string</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">texture_layer: name for create_layer or rename_layer.</td>
+    </tr><tr>
+      <td class="col-name">target_index</td>
+      <td class="col-type">integer</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">texture_layer: target index for move_layer.</td>
+    </tr></tbody>
+    </table>
+      </div>
+    </div>
         </section>
 <section id="cat-project" class="category-section">
           <h3 class="category-title">Project</h3>
@@ -3034,6 +3465,105 @@
     </table>
       </div>
     </div>
+<div id="tool-texture_op" class="card tool-card">
+      <div class="card-header">
+        <h3 class="card-name">texture_op</h3>
+        <div class="card-badges">
+          <span class="badge badge-experimental">experimental</span>
+          
+        </div>
+      </div>
+      <p class="card-title">Texture Op</p>
+      <p class="card-desc">Texture operations (create/apply/add_group/import_set/activate) collapsed into a single tool. Replaces legacy create_texture / apply_texture / add_texture_group / import_texture_set / activate_texture. Returns { ok, data, error?, meta? }. For listing/reading textures use inspect(target='textures').</p>
+      <div class="overflow-x">
+        <table class="param-table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Required</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody><tr>
+      <td class="col-name">action</td>
+      <td class="col-type">&quot;create&quot; | &quot;apply&quot; | &quot;add_group&quot; | &quot;import_set&quot; | &quot;activate&quot;</td>
+      <td><span class="param-required">required</span></td>
+      <td class="col-desc">Operation. create: new texture (data URL / file path / fill_color). apply: apply a texture to a cube/mesh/group's faces. add_group: create a texture group (optionally with members). import_set: import a *.texture_set.json file. activate: select an existing texture so paint tools target it.</td>
+    </tr><tr>
+      <td class="col-name">name</td>
+      <td class="col-type">string</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">Texture name (create) or group name (add_group). Required for create/add_group.</td>
+    </tr><tr>
+      <td class="col-name">width</td>
+      <td class="col-type">integer</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">Texture width in px (create). Defaults to 16.</td>
+    </tr><tr>
+      <td class="col-name">height</td>
+      <td class="col-type">integer</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">Texture height in px (create). Defaults to 16.</td>
+    </tr><tr>
+      <td class="col-name">data</td>
+      <td class="col-type">string</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">Source for create: data: URL ('data:image/png;base64,...') or file path. Omit to start blank.</td>
+    </tr><tr>
+      <td class="col-name">pbr_channel</td>
+      <td class="col-type">string</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">PBR channel hint for create (e.g. 'color', 'normal').</td>
+    </tr><tr>
+      <td class="col-name">fill_color</td>
+      <td class="col-type">string | number[]</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">Fill color for create when no data is given. Hex string or [r, g, b, a?].</td>
+    </tr><tr>
+      <td class="col-name">group</td>
+      <td class="col-type">string</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">Existing texture group uuid/name to attach the new texture to (create).</td>
+    </tr><tr>
+      <td class="col-name">layer_name</td>
+      <td class="col-type">string</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">Optional layer name for create.</td>
+    </tr><tr>
+      <td class="col-name">id</td>
+      <td class="col-type">string</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">Target element uuid/name for action='apply' (cube/mesh/group). Use inspect(target='outline') to discover.</td>
+    </tr><tr>
+      <td class="col-name">applyTo</td>
+      <td class="col-type">&quot;all&quot; | &quot;blank&quot; | &quot;none&quot;</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">apply: 'all' = every face, 'blank' = untextured only, 'none' = clear. Defaults to 'blank'.</td>
+    </tr><tr>
+      <td class="col-name">texture</td>
+      <td class="col-type">string</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">Texture uuid/name/id. Required for activate. Optional for apply (defaults to the project's default texture).</td>
+    </tr><tr>
+      <td class="col-name">textures</td>
+      <td class="col-type">string[]</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">Texture uuids/names to include in the new group (add_group).</td>
+    </tr><tr>
+      <td class="col-name">is_material</td>
+      <td class="col-type">boolean</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">Whether the new group is a material group (add_group). Defaults to false.</td>
+    </tr><tr>
+      <td class="col-name">path</td>
+      <td class="col-type">string</td>
+      <td><span class="param-optional">optional</span></td>
+      <td class="col-desc">Absolute filesystem path to a *.texture_set.json file (import_set).</td>
+    </tr></tbody>
+    </table>
+      </div>
+    </div>
         </section>
 <section id="cat-ui-interaction" class="category-section">
           <h3 class="category-title">UI Interaction</h3>
@@ -3368,7 +3898,7 @@
       </section>
 
       <footer class="page-footer">
-        Generated 2026-06-01T05:42:11.667Z from Zod schemas
+        Generated 2026-06-01T05:56:05.085Z from Zod schemas
       </footer>
     </main>
   </div>

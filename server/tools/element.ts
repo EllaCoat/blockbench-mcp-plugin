@@ -382,6 +382,159 @@ export function selectAllOfType(params: {
 // Keep (0/1/3/4) + Off (2/5/6/7/8) so tools.ts and docs-manifest.ts can drop
 // the Off half. The legacy registerElementTools below stays as an inventory
 // wrapper that calls both — it is no longer registered via tools.ts.
+// ============================================================================
+// Stage-II op implementations (named exports for _redesign/element_op.ts reuse)
+// ============================================================================
+
+export function elementRemove(id: string) {
+  const element = findElementOrThrow(id);
+  const name = element.name ?? "";
+  Undo.initEdit({ elements: [], outliner: true, collections: [] });
+  element.remove();
+  Undo.finishEdit("Agent removed element");
+  Canvas.updateAll();
+  return { id, name };
+}
+
+interface AddGroupArgs {
+  name: string;
+  origin: [number, number, number];
+  rotation: [number, number, number];
+  parent: string;
+  visibility: boolean;
+  autouv: 0 | 1 | 2;
+  selected: boolean;
+  shade: boolean;
+}
+
+export function elementAddGroup(args: AddGroupArgs) {
+  Undo.initEdit({ elements: [], outliner: true, collections: [] });
+  const group = new Group({
+    name: args.name,
+    origin: args.origin,
+    rotation: args.rotation,
+    autouv: Number(args.autouv) as 0 | 1 | 2,
+    visibility: Boolean(args.visibility),
+    selected: Boolean(args.selected),
+    shade: Boolean(args.shade),
+  }).init();
+
+  const parentGroup =
+    args.parent === "root"
+      ? "root"
+      : // @ts-ignore — getAllGroups is a Blockbench global
+        getAllGroups().find(
+          (g: Group) => g.name === args.parent || g.uuid === args.parent
+        );
+  group.addTo(parentGroup);
+
+  Undo.finishEdit("Agent added group");
+  Canvas.updateAll();
+  return { id: group.uuid, name: group.name };
+}
+
+interface DuplicateArgs {
+  id: string;
+  offset: [number, number, number];
+  newName?: string;
+}
+
+export function elementDuplicate(args: DuplicateArgs) {
+  const element = findElementOrThrow(args.id);
+  const { offset, newName } = args;
+
+  function cloneCube(cube: Cube, parent: any) {
+    const dupe = new Cube({
+      name: newName || `${cube.name}_copy`,
+      from: cube.from.map((v, i) => v + offset[i]),
+      to: cube.to.map((v, i) => v + offset[i]),
+      origin: cube.origin.map((v, i) => v + offset[i]),
+      rotation: cube.rotation,
+      autouv: cube.autouv,
+      uv_offset: cube.uv_offset,
+      mirror_uv: cube.mirror_uv,
+      shade: cube.shade,
+      inflate: cube.inflate,
+      color: cube.color,
+      visibility: cube.visibility,
+    }).init();
+    dupe.addTo(parent);
+    return dupe;
+  }
+
+  function cloneGroup(group: Group, parent: any) {
+    const dupeGroup = new Group({
+      name: newName || `${group.name}_copy`,
+      origin: group.origin.map((v, i) => v + offset[i]),
+      rotation: group.rotation,
+      autouv: group.autouv,
+      selected: group.selected,
+      shade: group.shade,
+      visibility: group.visibility,
+    }).init();
+    dupeGroup.addTo(parent);
+    group.children.forEach((child: any) => cloneElement(child, dupeGroup));
+    return dupeGroup;
+  }
+
+  function cloneMesh(mesh: Mesh, parent: any) {
+    const dupe = new Mesh({
+      name: newName || `${mesh.name}_copy`,
+      vertices: {},
+      origin: mesh.origin.map((v, i) => v + offset[i]),
+      rotation: mesh.rotation,
+    }).init();
+    const map: Record<string, any> = {};
+    Object.entries(mesh.vertices).forEach(([key, coords]: [any, any]) => {
+      map[key] = dupe.addVertices([
+        coords[0] + offset[0],
+        coords[1] + offset[1],
+        coords[2] + offset[2],
+      ])[0];
+    });
+    mesh.faces.forEach((face: any) => {
+      dupe.addFaces(
+        new MeshFace(dupe, {
+          vertices: face.vertices.map((v: any) => map[v]),
+          uv: face.uv,
+        })
+      );
+    });
+    dupe.addTo(parent);
+    if ((mesh as any).material) dupe.applyTexture((mesh as any).material);
+    return dupe;
+  }
+
+  function cloneElement(el: any, parent: any): any {
+    if (el instanceof Cube) return cloneCube(el, parent);
+    if (el instanceof Group) return cloneGroup(el, parent);
+    if (el instanceof Mesh) return cloneMesh(el, parent);
+    throw new Error("Unsupported element type.");
+  }
+
+  Undo.initEdit({ elements: [], outliner: true, collections: [] });
+  const dup = cloneElement(element, (element as any).parent ?? Outliner);
+  Undo.finishEdit("Agent duplicated element");
+  Canvas.updateAll();
+  return {
+    source: { id: element.uuid ?? args.id, name: element.name ?? "" },
+    copy: { id: dup.uuid, name: dup.name },
+  };
+}
+
+export function elementRename(id: string, newName: string) {
+  const element = findElementOrThrow(id);
+  Undo.initEdit({ elements: [element], outliner: true, collections: [] });
+  (element as any).extend({ name: newName });
+  Undo.finishEdit("Agent renamed element");
+  Canvas.updateAll();
+  return { id, name: newName };
+}
+
+// ============================================================================
+// Registration
+// ============================================================================
+
 export function registerElementKeepTools() {
   createTool(elementToolDocs[0].name, {
     ...elementToolDocs[0],

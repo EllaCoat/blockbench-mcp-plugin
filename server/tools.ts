@@ -37,6 +37,11 @@ import { registerMeshUvOpTool } from "./tools/_redesign/mesh_uv_op";
 import { registerMaterialOpTool } from "./tools/_redesign/material_op";
 import { registerBrushPresetOpTool } from "./tools/_redesign/brush_preset_op";
 import { registerSelectionOpTool } from "./tools/_redesign/selection_op";
+import { registerAJBlueprintSettingsOpTool } from "./tools/_redesign/aj_blueprint_settings_op";
+import { registerElementOpTool } from "./tools/_redesign/element_op";
+import { registerTextureOpTool } from "./tools/_redesign/texture_op";
+import { registerMeshEditOpTool } from "./tools/_redesign/mesh_edit_op";
+import { registerPaintToolOpTool } from "./tools/_redesign/paint_tool_op";
 
 // Core resource registrations
 import { registerValidatorResources } from "./resources/validator";
@@ -70,6 +75,11 @@ const registrationFunctions = [
   registerMaterialOpTool,
   registerBrushPresetOpTool,
   registerSelectionOpTool,
+  registerAJBlueprintSettingsOpTool,
+  registerElementOpTool,
+  registerTextureOpTool,
+  registerMeshEditOpTool,
+  registerPaintToolOpTool,
   registerValidatorResources,
 ];
 

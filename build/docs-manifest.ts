@@ -35,6 +35,11 @@ import { meshUvOpToolDocs } from "../server/tools/_redesign/mesh_uv_op";
 import { materialOpToolDocs } from "../server/tools/_redesign/material_op";
 import { brushPresetOpToolDocs } from "../server/tools/_redesign/brush_preset_op";
 import { selectionOpToolDocs } from "../server/tools/_redesign/selection_op";
+import { ajBlueprintSettingsOpToolDocs } from "../server/tools/_redesign/aj_blueprint_settings_op";
+import { elementOpToolDocs } from "../server/tools/_redesign/element_op";
+import { textureOpToolDocs } from "../server/tools/_redesign/texture_op";
+import { meshEditOpToolDocs } from "../server/tools/_redesign/mesh_edit_op";
+import { paintToolOpToolDocs } from "../server/tools/_redesign/paint_tool_op";
 
 export interface CategoryGroup {
   category: string;
@@ -43,21 +48,21 @@ export interface CategoryGroup {
 
 export const toolManifest: CategoryGroup[] = [
   { category: "Inspect (Stage II)", tools: inspectToolDocs },
-  { category: "Animated Java", tools: [...ajKeepToolDocs, ...ajVariantOpToolDocs] },
+  { category: "Animated Java", tools: [...ajKeepToolDocs, ...ajVariantOpToolDocs, ...ajBlueprintSettingsOpToolDocs] },
   { category: "Cubes", tools: [...cubeOpToolDocs] },
   { category: "Camera & Screenshots", tools: cameraToolDocs },
   { category: "Animation", tools: animationToolDocs },
   { category: "Armature", tools: [...armatureOpToolDocs, ...armatureBoneOpToolDocs, ...vertexWeightOpToolDocs] },
-  { category: "Elements", tools: [...elementKeepToolDocs, ...selectionOpToolDocs] },
+  { category: "Elements", tools: [...elementKeepToolDocs, ...selectionOpToolDocs, ...elementOpToolDocs] },
   { category: "Export", tools: exportToolDocs },
   { category: "History", tools: [...historyOpToolDocs] },
   { category: "Import/Export", tools: importToolDocs },
   { category: "Material Instances", tools: [...materialInstanceOpToolDocs] },
-  { category: "Mesh Editing", tools: [...meshKeepToolDocs, ...meshPrimitiveOpToolDocs] },
+  { category: "Mesh Editing", tools: [...meshKeepToolDocs, ...meshPrimitiveOpToolDocs, ...meshEditOpToolDocs] },
   { category: "Null Objects / IK", tools: [...nullObjectOpToolDocs] },
-  { category: "Paint Tools", tools: [...paintKeepToolDocs, ...brushPresetOpToolDocs] },
+  { category: "Paint Tools", tools: [...paintKeepToolDocs, ...brushPresetOpToolDocs, ...paintToolOpToolDocs] },
   { category: "Project", tools: projectToolDocs },
-  { category: "Textures", tools: [...textureKeepToolDocs, ...materialOpToolDocs] },
+  { category: "Textures", tools: [...textureKeepToolDocs, ...materialOpToolDocs, ...textureOpToolDocs] },
   { category: "UI Interaction", tools: [...uiToolDocs, ...riskyEvalToolDocs] },
   { category: "UV Mapping", tools: [...meshUvOpToolDocs] },
 ];

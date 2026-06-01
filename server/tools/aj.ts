@@ -626,6 +626,43 @@ export function ajVariantApply(variantId: string) {
   return { applied: serializeVariant(target, target.uuid) };
 }
 
+export function ajBlueprintSettingsGet() {
+  return getAJSettings();
+}
+
+export function ajBlueprintSettingsSet(key: string, value: SettingValue) {
+  const settings = getAJSettings();
+
+  if (!(key in settings)) {
+    throw new Error(
+      `Unknown Blueprint Setting "${key}". ` +
+        `Use inspect(target='settings') to see available keys.`
+    );
+  }
+
+  const current = settings[key];
+  const expected = typeName(current);
+  const actual = typeName(value);
+
+  let nextValue: SettingValue = value;
+  if (expected !== actual) {
+    if (isNumericLike(current) && isNumericLike(value)) {
+      // Coerce to the setting's current representation so NumberSlider
+      // settings stored as strings stay strings.
+      nextValue = expected === "string" ? String(value) : Number(value);
+    } else {
+      throw new Error(
+        `Type mismatch for "${key}": expected ${expected}, got ${actual}.`
+      );
+    }
+  }
+
+  settings[key] = nextValue;
+  markUnsaved();
+
+  return { key, previous: current, next: nextValue };
+}
+
 // ============================================================================
 // Registration
 // ============================================================================

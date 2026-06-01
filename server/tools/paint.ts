@@ -463,6 +463,563 @@ export function brushPresetLoad(params: { preset_name: string }) {
   };
 }
 
+// ============================================================================
+// Stage-II op implementations (named exports for _redesign/paint_tool_op.ts)
+// ============================================================================
+
+export function paintFillTool(args: {
+  texture_id?: string;
+  x: number;
+  y: number;
+  color?: string;
+  opacity?: number;
+  tolerance?: number;
+  fill_mode?: string;
+  blend_mode?: string;
+}) {
+  const texture = getAndActivateTexture(args.texture_id);
+  Undo.initEdit({ textures: [texture], bitmap: true });
+
+  if (args.color) ColorPanel.set(args.color);
+  if (args.opacity !== undefined) setBarItemValue("slider_brush_opacity", args.opacity);
+  if (args.fill_mode) setBarItemValue("fill_mode", args.fill_mode);
+  if (args.blend_mode) setBarItemValue("blend_mode", args.blend_mode);
+
+  // @ts-ignore
+  BarItems.fill_tool.select();
+  Painter.startPaintTool(texture, args.x, args.y, {}, { shiftKey: false });
+  Painter.stopPaintTool();
+
+  Undo.finishEdit("Fill tool");
+  Canvas.updateAll();
+
+  return { texture: texture.name, x: args.x, y: args.y };
+}
+
+interface Point2D { x: number; y: number; }
+
+export function paintDrawShape(args: {
+  texture_id?: string;
+  shape: string;
+  start: Point2D;
+  end: Point2D;
+  color?: string;
+  line_width?: number;
+  opacity?: number;
+  blend_mode?: string;
+}) {
+  const texture = getAndActivateTexture(args.texture_id);
+  Undo.initEdit({ textures: [texture], bitmap: true });
+
+  if (args.color) ColorPanel.set(args.color);
+  if (args.opacity !== undefined) setBarItemValue("slider_brush_opacity", args.opacity);
+  if (args.line_width !== undefined) setBarItemValue("slider_brush_size", args.line_width);
+  if (args.blend_mode) setBarItemValue("blend_mode", args.blend_mode);
+  setBarItemValue("draw_shape_type", args.shape);
+
+  // @ts-ignore
+  BarItems.draw_shape_tool.select();
+  Painter.startPaintTool(texture, args.start.x, args.start.y, {}, { shiftKey: false });
+  Painter.useShapeTool(texture, args.end.x, args.end.y, {});
+  Painter.stopPaintTool();
+
+  Undo.finishEdit("Draw shape");
+  Canvas.updateAll();
+
+  return { texture: texture.name, shape: args.shape, start: args.start, end: args.end };
+}
+
+export function paintGradient(args: {
+  texture_id?: string;
+  start: Point2D;
+  end: Point2D;
+  start_color: string;
+  end_color: string;
+  opacity?: number;
+  blend_mode?: string;
+}) {
+  const texture = getAndActivateTexture(args.texture_id);
+  Undo.initEdit({ textures: [texture], bitmap: true });
+
+  ColorPanel.set(args.start_color);
+  // @ts-ignore
+  ColorPanel.set(args.end_color, true);
+
+  if (args.opacity !== undefined) setBarItemValue("slider_brush_opacity", args.opacity);
+  if (args.blend_mode) setBarItemValue("blend_mode", args.blend_mode);
+
+  // @ts-ignore
+  BarItems.gradient_tool.select();
+  Painter.startPaintTool(texture, args.start.x, args.start.y, {}, { shiftKey: false });
+  Painter.useGradientTool(texture, args.end.x, args.end.y, {});
+  Painter.stopPaintTool();
+
+  Undo.finishEdit("Apply gradient");
+  Canvas.updateAll();
+
+  return { texture: texture.name, start: args.start, end: args.end };
+}
+
+export function paintColorPick(args: {
+  texture_id?: string;
+  x: number;
+  y: number;
+  set_as_secondary?: boolean;
+  pick_opacity?: boolean;
+}) {
+  const texture = getAndActivateTexture(args.texture_id);
+  Painter.colorPicker(texture, args.x, args.y, {
+    button: args.set_as_secondary ? 2 : 0,
+  });
+  const color = ColorPanel.get();
+
+  let opacity: number | undefined;
+  if (args.pick_opacity) {
+    const pixelColor = Painter.getPixelColor(texture.ctx, args.x, args.y);
+    opacity = Math.floor(pixelColor.getAlpha() * 255);
+    for (let id in BarItems) {
+      const tool = BarItems[id];
+      // @ts-ignore
+      if (tool.tool_settings && tool.tool_settings.brush_opacity >= 0) {
+        // @ts-ignore
+        tool.tool_settings.brush_opacity = opacity;
+      }
+    }
+  }
+
+  return { texture: texture.name, x: args.x, y: args.y, color, opacity };
+}
+
+export function paintCopyBrush(args: {
+  texture_id?: string;
+  source: Point2D;
+  target: Point2D;
+  brush_size?: number;
+  opacity?: number;
+  mode?: string;
+}) {
+  const texture = getAndActivateTexture(args.texture_id);
+  Undo.initEdit({ textures: [texture], bitmap: true });
+
+  if (args.brush_size !== undefined) setBarItemValue("slider_brush_size", args.brush_size);
+  if (args.opacity !== undefined) setBarItemValue("slider_brush_opacity", args.opacity);
+  if (args.mode) setBarItemValue("copy_brush_mode", args.mode);
+
+  // @ts-ignore
+  BarItems.copy_brush.select();
+  Painter.startPaintTool(texture, args.source.x, args.source.y, {}, { ctrlOrCmd: true });
+  Painter.startPaintTool(texture, args.target.x, args.target.y, {}, { shiftKey: false });
+  Painter.stopPaintTool();
+
+  Undo.finishEdit("Copy brush");
+  Canvas.updateAll();
+
+  return { texture: texture.name, source: args.source, target: args.target };
+}
+
+export function paintEraser(args: {
+  texture_id?: string;
+  coordinates: Point2D[];
+  brush_size?: number;
+  opacity?: number;
+  softness?: number;
+  shape?: string;
+  connect_strokes?: boolean;
+}) {
+  const texture = getAndActivateTexture(args.texture_id);
+  Undo.initEdit({ textures: [texture], bitmap: true });
+
+  if (args.brush_size !== undefined) setBarItemValue("slider_brush_size", args.brush_size);
+  if (args.opacity !== undefined) setBarItemValue("slider_brush_opacity", args.opacity);
+  if (args.softness !== undefined) setBarItemValue("slider_brush_softness", args.softness);
+  if (args.shape !== undefined) setBarItemValue("brush_shape", args.shape);
+
+  // @ts-ignore
+  BarItems.eraser.select();
+
+  for (let i = 0; i < args.coordinates.length; i++) {
+    const coord = args.coordinates[i];
+    if (i === 0 || !args.connect_strokes) {
+      Painter.startPaintTool(texture, coord.x, coord.y, {}, { shiftKey: false });
+    } else {
+      Painter.movePaintTool(texture, coord.x, coord.y, {});
+    }
+  }
+  Painter.stopPaintTool();
+
+  Undo.finishEdit("Erase texture");
+  Canvas.updateAll();
+
+  return { texture: texture.name, points_count: args.coordinates.length };
+}
+
+interface MirrorPaintingSettings {
+  enabled: boolean;
+  axis?: string[];
+  texture?: number;
+  texture_center?: Point2D;
+}
+
+interface PaintSettingsArgs {
+  mirror_painting?: MirrorPaintingSettings;
+  lock_alpha?: boolean;
+  pixel_perfect?: boolean;
+  paint_side_restrict?: boolean;
+  color_erase_mode?: boolean;
+  brush_opacity_modifier?: string;
+  brush_size_modifier?: string;
+  paint_with_stylus_only?: boolean;
+  pick_color_opacity?: boolean;
+  pick_combined_color?: boolean;
+}
+
+export function paintSettings(args: PaintSettingsArgs) {
+  const updated: string[] = [];
+
+  if (args.mirror_painting !== undefined) {
+    setBarItemValue("mirror_painting", args.mirror_painting.enabled);
+    Painter.mirror_painting = args.mirror_painting.enabled;
+    updated.push(`Mirror painting: ${args.mirror_painting.enabled}`);
+
+    if (
+      args.mirror_painting.enabled &&
+      (args.mirror_painting.axis ||
+        args.mirror_painting.texture !== undefined ||
+        args.mirror_painting.texture_center)
+    ) {
+      // @ts-ignore
+      const options = Painter.mirror_painting_options;
+      if (args.mirror_painting.axis) {
+        args.mirror_painting.axis.forEach((axis) => {
+          options[axis] = true;
+        });
+      }
+      if (args.mirror_painting.texture !== undefined) {
+        options.texture = args.mirror_painting.texture;
+      }
+      if (args.mirror_painting.texture_center) {
+        options.texture_center = [
+          args.mirror_painting.texture_center.x,
+          args.mirror_painting.texture_center.y,
+        ];
+      }
+      updated.push("Mirror options updated");
+    }
+  }
+
+  if (args.lock_alpha !== undefined) {
+    Painter.lock_alpha = args.lock_alpha;
+    updated.push(`Lock alpha: ${args.lock_alpha}`);
+  }
+  if (args.pixel_perfect !== undefined) {
+    setBarItemValue("pixel_perfect_drawing", args.pixel_perfect);
+    updated.push(`Pixel perfect: ${args.pixel_perfect}`);
+  }
+  if (args.color_erase_mode !== undefined) {
+    setBarItemValue("color_erase_mode", args.color_erase_mode);
+    Painter.erase_mode = args.color_erase_mode;
+    updated.push(`Color erase mode: ${args.color_erase_mode}`);
+  }
+
+  // The original code assigns to a "settings" variable referring to the
+  // string[] array of messages — preserve that quirk (it's effectively a no-op
+  // for the runtime settings store, the values just get appended for echo).
+  const settingsRecord = updated as unknown as Record<string, { value: unknown }>;
+  if (args.paint_side_restrict !== undefined) {
+    settingsRecord.paint_side_restrict = { value: args.paint_side_restrict };
+    updated.push(`Paint side restrict: ${args.paint_side_restrict}`);
+  }
+  if (args.brush_opacity_modifier !== undefined) {
+    settingsRecord.brush_opacity_modifier = { value: args.brush_opacity_modifier };
+    updated.push(`Brush opacity modifier: ${args.brush_opacity_modifier}`);
+  }
+  if (args.brush_size_modifier !== undefined) {
+    settingsRecord.brush_size_modifier = { value: args.brush_size_modifier };
+    updated.push(`Brush size modifier: ${args.brush_size_modifier}`);
+  }
+  if (args.paint_with_stylus_only !== undefined) {
+    settingsRecord.paint_with_stylus_only = { value: args.paint_with_stylus_only };
+    updated.push(`Paint with stylus only: ${args.paint_with_stylus_only}`);
+  }
+  if (args.pick_color_opacity !== undefined) {
+    settingsRecord.pick_color_opacity = { value: args.pick_color_opacity };
+    updated.push(`Pick color opacity: ${args.pick_color_opacity}`);
+  }
+  if (args.pick_combined_color !== undefined) {
+    settingsRecord.pick_combined_color = { value: args.pick_combined_color };
+    updated.push(`Pick combined color: ${args.pick_combined_color}`);
+  }
+
+  return { updated };
+}
+
+interface BrushSettings {
+  color?: string;
+  opacity?: number;
+  size?: number;
+  softness?: number;
+  shape?: string;
+}
+
+export function paintWithBrush(args: {
+  texture_id?: string;
+  coordinates: Point2D[];
+  brush_settings?: BrushSettings;
+  connect_strokes?: boolean;
+}) {
+  const texture = getAndActivateTexture(args.texture_id);
+
+  Undo.initEdit({
+    textures: [texture],
+    selected_texture: true,
+    bitmap: true,
+  });
+
+  const colorHex = args.brush_settings?.color ?? "#000000";
+  const red = parseInt(colorHex.slice(1, 3), 16);
+  const green = parseInt(colorHex.slice(3, 5), 16);
+  const blue = parseInt(colorHex.slice(5, 7), 16);
+  const alpha = args.brush_settings?.opacity ?? 255;
+  const size = args.brush_settings?.size ?? 1;
+  const softness = args.brush_settings?.softness ?? 0;
+  const shape = args.brush_settings?.shape ?? "square";
+
+  // @ts-ignore
+  BarItems.slider_brush_size.value = size;
+  // @ts-ignore
+  BarItems.slider_brush_opacity.value = alpha;
+  // @ts-ignore
+  BarItems.slider_brush_softness.value = softness;
+  // @ts-ignore
+  BarItems.brush_shape.value = shape;
+  ColorPanel.set(colorHex);
+
+  texture.edit(
+    (canvas: HTMLCanvasElement) => {
+      const ctx = canvas.getContext("2d")!;
+      for (const coord of args.coordinates) {
+        if (shape === "circle") {
+          Painter.editCircle(ctx, coord.x, coord.y, size, softness, () => ({
+            r: red,
+            g: green,
+            b: blue,
+            a: alpha,
+          }));
+        } else {
+          Painter.editSquare(ctx, coord.x, coord.y, size, softness, () => ({
+            r: red,
+            g: green,
+            b: blue,
+            a: alpha,
+          }));
+        }
+      }
+    },
+    { edit_name: "Paint with brush" }
+  );
+
+  Undo.finishEdit("Paint with brush");
+  Canvas.updateAll();
+
+  return { texture: texture.name, points_count: args.coordinates.length };
+}
+
+interface SelectionCoords {
+  x1: number;
+  y1: number;
+  x2: number;
+  y2: number;
+}
+
+export function paintTextureSelection(args: {
+  action: string;
+  texture_id?: string;
+  coordinates?: SelectionCoords;
+  radius?: number;
+  mode?: string;
+}) {
+  const texture = getAndActivateTexture(args.texture_id);
+  Undo.initEdit({ textures: [texture], bitmap: true });
+
+  const selection = texture.selection;
+
+  switch (args.action) {
+    case "select_rectangle":
+      if (!args.coordinates) throw new Error("Coordinates required for rectangle selection.");
+      selection.clear();
+      selection.start_x = args.coordinates.x1;
+      selection.start_y = args.coordinates.y1;
+      selection.end_x = args.coordinates.x2;
+      selection.end_y = args.coordinates.y2;
+      selection.is_custom = false;
+      break;
+
+    case "select_ellipse": {
+      if (!args.coordinates) throw new Error("Coordinates required for ellipse selection.");
+      selection.clear();
+      selection.is_custom = true;
+      const centerX = (args.coordinates.x1 + args.coordinates.x2) / 2;
+      const centerY = (args.coordinates.y1 + args.coordinates.y2) / 2;
+      const radiusX = Math.abs(args.coordinates.x2 - args.coordinates.x1) / 2;
+      const radiusY = Math.abs(args.coordinates.y2 - args.coordinates.y1) / 2;
+
+      for (
+        let x = Math.floor(centerX - radiusX);
+        x <= Math.ceil(centerX + radiusX);
+        x++
+      ) {
+        for (
+          let y = Math.floor(centerY - radiusY);
+          y <= Math.ceil(centerY + radiusY);
+          y++
+        ) {
+          const dx = (x - centerX) / radiusX;
+          const dy = (y - centerY) / radiusY;
+          if (dx * dx + dy * dy <= 1) {
+            selection.set(x, y, true);
+          }
+        }
+      }
+      break;
+    }
+
+    case "select_all":
+      selection.clear();
+      selection.start_x = 0;
+      selection.start_y = 0;
+      selection.end_x = texture.width;
+      selection.end_y = texture.height;
+      selection.is_custom = false;
+      break;
+
+    case "clear_selection":
+      selection.clear();
+      break;
+
+    case "invert_selection":
+      selection.invert();
+      break;
+
+    case "expand_selection":
+      if (args.radius === undefined) throw new Error("Radius required for expand selection.");
+      selection.expand(args.radius);
+      break;
+
+    case "contract_selection":
+      if (args.radius === undefined) throw new Error("Radius required for contract selection.");
+      selection.contract(args.radius);
+      break;
+
+    case "feather_selection":
+      if (args.radius === undefined) throw new Error("Radius required for feather selection.");
+      selection.feather(args.radius);
+      break;
+  }
+
+  UVEditor.vue.updateTexture();
+  Undo.finishEdit("Texture selection");
+
+  return { texture: texture.name, action: args.action };
+}
+
+export function paintTextureLayer(args: {
+  action: string;
+  texture_id?: string;
+  layer_name?: string;
+  opacity?: number;
+  blend_mode?: string;
+  target_index?: number;
+}) {
+  const texture = getAndActivateTexture(args.texture_id);
+  Undo.initEdit({
+    textures: [texture],
+    layers: texture.layers,
+    bitmap: true,
+  });
+
+  let result = "";
+
+  switch (args.action) {
+    case "create_layer": {
+      if (!texture.layers_enabled) texture.activateLayers(true);
+      const newLayer = new TextureLayer(
+        { name: args.layer_name || `Layer ${texture.layers.length + 1}` },
+        texture
+      );
+      newLayer.setSize(texture.width, texture.height);
+      newLayer.addForEditing();
+      result = `Created layer "${newLayer.name}"`;
+      break;
+    }
+    case "delete_layer": {
+      if (!TextureLayer.selected) throw new Error("No layer selected.");
+      const layerToDelete = TextureLayer.selected;
+      layerToDelete.remove();
+      result = `Deleted layer "${layerToDelete.name}"`;
+      break;
+    }
+    case "duplicate_layer": {
+      if (!TextureLayer.selected) throw new Error("No layer selected.");
+      const layerToDuplicate = TextureLayer.selected;
+      const duplicatedLayer = layerToDuplicate.duplicate();
+      duplicatedLayer.name = `${layerToDuplicate.name} copy`;
+      result = `Duplicated layer "${duplicatedLayer.name}"`;
+      break;
+    }
+    case "merge_down":
+      if (!TextureLayer.selected) throw new Error("No layer selected.");
+      TextureLayer.selected.mergeDown(true);
+      result = "Merged layer down";
+      break;
+    case "set_opacity":
+      if (!TextureLayer.selected) throw new Error("No layer selected.");
+      if (args.opacity === undefined) throw new Error("Opacity value required.");
+      TextureLayer.selected.opacity = args.opacity / 100;
+      texture.updateChangesAfterEdit();
+      result = `Set layer opacity to ${args.opacity}%`;
+      break;
+    case "set_blend_mode":
+      if (!TextureLayer.selected) throw new Error("No layer selected.");
+      if (!args.blend_mode) throw new Error("Blend mode required.");
+      TextureLayer.selected.blend_mode = args.blend_mode;
+      texture.updateChangesAfterEdit();
+      result = `Set layer blend mode to ${args.blend_mode}`;
+      break;
+    case "move_layer": {
+      if (!TextureLayer.selected) throw new Error("No layer selected.");
+      if (args.target_index === undefined) throw new Error("Target index required.");
+      const layerToMove = TextureLayer.selected;
+      texture.layers.remove(layerToMove);
+      texture.layers.splice(args.target_index, 0, layerToMove);
+      result = `Moved layer to position ${args.target_index}`;
+      break;
+    }
+    case "rename_layer": {
+      if (!TextureLayer.selected) throw new Error("No layer selected.");
+      if (!args.layer_name) throw new Error("New layer name required.");
+      const oldName = TextureLayer.selected.name;
+      TextureLayer.selected.name = args.layer_name;
+      result = `Renamed layer from "${oldName}" to "${args.layer_name}"`;
+      break;
+    }
+    case "flatten_layers":
+      if (!texture.layers_enabled) throw new Error("Texture has no layers to flatten.");
+      texture.flattenLayers();
+      result = "Flattened all layers";
+      break;
+  }
+
+  texture.updateChangesAfterEdit();
+  Undo.finishEdit(`Layer management: ${args.action}`);
+  updateInterfacePanels();
+
+  return { texture: texture.name, action: args.action, message: result };
+}
+
+// ============================================================================
+// Registration
+// ============================================================================
+
 // Stage-II partial OFF (= 14- § 3.4.1, case X): split createTool calls into
 // Keep (0/1/2/3/4/5/6/7/10/11) + Off (8/9) so tools.ts and docs-manifest.ts
 // can drop the Off half. The legacy registerPaintTools below stays as an
