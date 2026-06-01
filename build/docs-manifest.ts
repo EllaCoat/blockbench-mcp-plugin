@@ -5,8 +5,8 @@ import type { ToolSpec, PromptSpec, ResourceSpec } from "../lib/factories";
 // Files whose registrations are fully replaced by Stage-II _redesign/ tools are NOT imported
 // here (the .ts files stay in repo as inventory but their toolDocs aren't manifested).
 // Currently dropped: armature / null-object / history / cubes / uv / material-instances.
-// Partial-OFF files (element / mesh / texture / paint) expose Keep / Off derived
-// toolDocs arrays — only the Keep arrays are manifested. See 14- § 3.4.1.
+// Partial-OFF files (element / mesh / texture / paint / aj) expose Keep / Off derived
+// toolDocs arrays — only the Keep arrays are manifested. See 14- § 3.4.1 / § 3.4.2.
 import { cameraToolDocs } from "../server/tools/camera";
 import { elementKeepToolDocs } from "../server/tools/element";
 import { importToolDocs } from "../server/tools/import";
@@ -17,7 +17,7 @@ import { textureKeepToolDocs } from "../server/tools/texture";
 import { animationToolDocs } from "../server/tools/animation";
 import { uiToolDocs } from "../server/tools/ui";
 import { exportToolDocs } from "../server/tools/export";
-import { ajToolDocs } from "../server/tools/aj";
+import { ajKeepToolDocs } from "../server/tools/aj";
 
 // Stage-II redesigned tools
 import { riskyEvalToolDocs } from "../server/tools/_redesign/risky_eval";
@@ -43,7 +43,7 @@ export interface CategoryGroup {
 
 export const toolManifest: CategoryGroup[] = [
   { category: "Inspect (Stage II)", tools: inspectToolDocs },
-  { category: "Animated Java", tools: [...ajToolDocs, ...ajVariantOpToolDocs] },
+  { category: "Animated Java", tools: [...ajKeepToolDocs, ...ajVariantOpToolDocs] },
   { category: "Cubes", tools: [...cubeOpToolDocs] },
   { category: "Camera & Screenshots", tools: cameraToolDocs },
   { category: "Animation", tools: animationToolDocs },

@@ -18,7 +18,7 @@
 
       <div class="nav-group">
         <p class="nav-heading">Overview</p>
-        <a href="#tools" class="nav-link">Tools <span class="count">(74)</span></a>
+        <a href="#tools" class="nav-link">Tools <span class="count">(66)</span></a>
         <a href="#prompts" class="nav-link">Prompts <span class="count">(3)</span></a>
         <a href="#resources" class="nav-link">Resources <span class="count">(8)</span></a>
       </div>
@@ -26,7 +26,7 @@
       <div class="nav-group">
         <p class="nav-heading">Categories</p>
         <a href="#cat-inspect-stage-ii" class="nav-link">Inspect (Stage II) <span class="count">(1)</span></a>
-        <a href="#cat-animated-java" class="nav-link">Animated Java <span class="count">(13)</span></a>
+        <a href="#cat-animated-java" class="nav-link">Animated Java <span class="count">(5)</span></a>
         <a href="#cat-cubes" class="nav-link">Cubes <span class="count">(1)</span></a>
         <a href="#cat-camera-screenshots" class="nav-link">Camera &amp; Screenshots <span class="count">(3)</span></a>
         <a href="#cat-animation" class="nav-link">Animation <span class="count">(7)</span></a>
@@ -51,7 +51,7 @@
         <h1>Blockbench MCP Plugin</h1>
         <p class="subtitle">API Reference — v1.6.0</p>
         <nav class="stats">
-          <a href="#tools"><strong>74</strong> tools (14 stable, 60 experimental)</a>
+          <a href="#tools"><strong>66</strong> tools (14 stable, 52 experimental)</a>
           <a href="#prompts"><strong>3</strong> prompts</a>
           <a href="#resources"><strong>8</strong> resources</a>
         </nav>
@@ -270,199 +270,6 @@
     </table>
       </div>
     </div>
-<div id="tool-aj_rig_tree" class="card tool-card">
-      <div class="card-header">
-        <h3 class="card-name">aj_rig_tree</h3>
-        <div class="card-badges">
-          <span class="badge badge-experimental">experimental</span>
-          <span class="badge badge-readonly">read-only</span>
-        </div>
-      </div>
-      <p class="card-title">AJ: Rig Tree</p>
-      <p class="card-desc">Returns the active Animated Java Blueprint's rig as a single hierarchical JSON tree, unifying regular bones (groups) and Armature bones — which Blockbench otherwise exposes through separate windows. Each node reports { name, uuid, type, children? } plus type-specific fields (armature bones add origin/rotation/length/connected; locators and null objects add position). Geometry (cubes/meshes) is omitted unless include_geometry is true. Requires an Animated Java Blueprint project to be open.</p>
-      <div class="overflow-x">
-        <table class="param-table">
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Type</th>
-          <th>Required</th>
-          <th>Description</th>
-        </tr>
-      </thead>
-      <tbody><tr>
-      <td class="col-name">include_geometry</td>
-      <td class="col-type">boolean</td>
-      <td><span class="param-optional">optional</span></td>
-      <td class="col-desc">Include cube and mesh leaves under each bone. Defaults to false, returning a bone/locator/armature skeleton only. <span class="param-meta">(default: <code>false</code>)</span></td>
-    </tr></tbody>
-    </table>
-      </div>
-    </div>
-<div id="tool-aj_variant_list" class="card tool-card">
-      <div class="card-header">
-        <h3 class="card-name">aj_variant_list</h3>
-        <div class="card-badges">
-          <span class="badge badge-experimental">experimental</span>
-          <span class="badge badge-readonly">read-only</span>
-        </div>
-      </div>
-      <p class="card-title">AJ: List Variants</p>
-      <p class="card-desc">Lists all variants of the active Animated Java Blueprint. Each entry reports uuid, name, display_name, is_default, selected, texture_map (source→replacement texture UUIDs), and excluded_nodes. Use this to discover variant identifiers for the other aj_variant_* tools.</p>
-      <div class="overflow-x">
-        <p class="empty-params">No parameters</p>
-      </div>
-    </div>
-<div id="tool-aj_variant_create" class="card tool-card">
-      <div class="card-header">
-        <h3 class="card-name">aj_variant_create</h3>
-        <div class="card-badges">
-          <span class="badge badge-experimental">experimental</span>
-          
-        </div>
-      </div>
-      <p class="card-title">AJ: Create Variant</p>
-      <p class="card-desc">Creates a new (empty) variant with the given display name. The internal name and display name are made unique automatically. The new variant has no texture overrides yet — use the Blockbench UI or aj_variant_duplicate to populate its texture map. Marks the project unsaved.</p>
-      <div class="overflow-x">
-        <table class="param-table">
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Type</th>
-          <th>Required</th>
-          <th>Description</th>
-        </tr>
-      </thead>
-      <tbody><tr>
-      <td class="col-name">display_name</td>
-      <td class="col-type">string</td>
-      <td><span class="param-required">required</span></td>
-      <td class="col-desc">Display name for the new variant. Made unique automatically if it collides.</td>
-    </tr></tbody>
-    </table>
-      </div>
-    </div>
-<div id="tool-aj_variant_duplicate" class="card tool-card">
-      <div class="card-header">
-        <h3 class="card-name">aj_variant_duplicate</h3>
-        <div class="card-badges">
-          <span class="badge badge-experimental">experimental</span>
-          
-        </div>
-      </div>
-      <p class="card-title">AJ: Duplicate Variant</p>
-      <p class="card-desc">Duplicates an existing variant (copying its texture map and excluded nodes) and selects the copy. Identify the source by UUID, name, or display name. Marks the project unsaved. Use aj_variant_update afterwards to rename the copy.</p>
-      <div class="overflow-x">
-        <table class="param-table">
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Type</th>
-          <th>Required</th>
-          <th>Description</th>
-        </tr>
-      </thead>
-      <tbody><tr>
-      <td class="col-name">variant</td>
-      <td class="col-type">string</td>
-      <td><span class="param-required">required</span></td>
-      <td class="col-desc">Target variant: UUID, internal name, or display name.</td>
-    </tr></tbody>
-    </table>
-      </div>
-    </div>
-<div id="tool-aj_variant_update" class="card tool-card">
-      <div class="card-header">
-        <h3 class="card-name">aj_variant_update</h3>
-        <div class="card-badges">
-          <span class="badge badge-experimental">experimental</span>
-          
-        </div>
-      </div>
-      <p class="card-title">AJ: Update Variant</p>
-      <p class="card-desc">Renames a variant. Sets a new display_name (made unique) and regenerates the internal name to match. The default variant cannot be renamed. Marks the project unsaved. Note: the variants panel may need to be reopened to reflect the new name.</p>
-      <div class="overflow-x">
-        <table class="param-table">
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Type</th>
-          <th>Required</th>
-          <th>Description</th>
-        </tr>
-      </thead>
-      <tbody><tr>
-      <td class="col-name">variant</td>
-      <td class="col-type">string</td>
-      <td><span class="param-required">required</span></td>
-      <td class="col-desc">Target variant: UUID, internal name, or display name.</td>
-    </tr><tr>
-      <td class="col-name">display_name</td>
-      <td class="col-type">string</td>
-      <td><span class="param-required">required</span></td>
-      <td class="col-desc">New display name. The internal name is regenerated to match (made unique).</td>
-    </tr></tbody>
-    </table>
-      </div>
-    </div>
-<div id="tool-aj_variant_delete" class="card tool-card">
-      <div class="card-header">
-        <h3 class="card-name">aj_variant_delete</h3>
-        <div class="card-badges">
-          <span class="badge badge-experimental">experimental</span>
-          <span class="badge badge-destructive">destructive</span>
-        </div>
-      </div>
-      <p class="card-title">AJ: Delete Variant</p>
-      <p class="card-desc">Deletes a variant by UUID, name, or display name. The default variant cannot be deleted. If the deleted variant was selected, the default variant becomes selected. Marks the project unsaved.</p>
-      <div class="overflow-x">
-        <table class="param-table">
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Type</th>
-          <th>Required</th>
-          <th>Description</th>
-        </tr>
-      </thead>
-      <tbody><tr>
-      <td class="col-name">variant</td>
-      <td class="col-type">string</td>
-      <td><span class="param-required">required</span></td>
-      <td class="col-desc">Target variant: UUID, internal name, or display name.</td>
-    </tr></tbody>
-    </table>
-      </div>
-    </div>
-<div id="tool-aj_variant_apply" class="card tool-card">
-      <div class="card-header">
-        <h3 class="card-name">aj_variant_apply</h3>
-        <div class="card-badges">
-          <span class="badge badge-experimental">experimental</span>
-          
-        </div>
-      </div>
-      <p class="card-title">AJ: Apply Variant</p>
-      <p class="card-desc">Applies (selects) a variant by UUID, name, or display name so its texture overrides are shown in the editor viewport. This is the editor preview selection, not an export action.</p>
-      <div class="overflow-x">
-        <table class="param-table">
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Type</th>
-          <th>Required</th>
-          <th>Description</th>
-        </tr>
-      </thead>
-      <tbody><tr>
-      <td class="col-name">variant</td>
-      <td class="col-type">string</td>
-      <td><span class="param-required">required</span></td>
-      <td class="col-desc">Target variant: UUID, internal name, or display name.</td>
-    </tr></tbody>
-    </table>
-      </div>
-    </div>
 <div id="tool-aj_export" class="card tool-card">
       <div class="card-header">
         <h3 class="card-name">aj_export</h3>
@@ -473,20 +280,6 @@
       </div>
       <p class="card-title">AJ: Export</p>
       <p class="card-desc">Exports the active Animated Java Blueprint using its configured export settings (data pack / resource pack paths and modes). This overwrites the existing output at those paths and may show progress or error dialogs in Blockbench. Returns whether the export completed. Requires an Animated Java Blueprint project to be open.</p>
-      <div class="overflow-x">
-        <p class="empty-params">No parameters</p>
-      </div>
-    </div>
-<div id="tool-aj_anim_id_mapping" class="card tool-card">
-      <div class="card-header">
-        <h3 class="card-name">aj_anim_id_mapping</h3>
-        <div class="card-badges">
-          <span class="badge badge-experimental">experimental</span>
-          <span class="badge badge-readonly">read-only</span>
-        </div>
-      </div>
-      <p class="card-title">AJ: Animation ID Mapping</p>
-      <p class="card-desc">Returns the animation id ↔ name mapping used by TSB Optimized Export. Each entry is { id, name, storage_name, loop_mode, length }, where id is the animation's index in the project's animation list (the value stored in the `&lt;bp&gt;.current_anim` scoreboard, with -1 meaning stopped) and storage_name is the sanitized name used as the storage path key. Useful for debugging exported datapacks. Requires an Animated Java Blueprint project to be open.</p>
       <div class="overflow-x">
         <p class="empty-params">No parameters</p>
       </div>
@@ -3575,7 +3368,7 @@
       </section>
 
       <footer class="page-footer">
-        Generated 2026-06-01T04:14:26.624Z from Zod schemas
+        Generated 2026-06-01T05:42:11.667Z from Zod schemas
       </footer>
     </main>
   </div>

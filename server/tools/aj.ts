@@ -630,7 +630,7 @@ export function ajVariantApply(variantId: string) {
 // Registration
 // ============================================================================
 
-export function registerAJTools() {
+export function registerAJKeepTools() {
   createTool(
     ajToolDocs[0].name,
     {
@@ -683,6 +683,148 @@ export function registerAJTools() {
     ajToolDocs[1].status
   );
 
+  createTool(
+    ajToolDocs[9].name,
+    {
+      ...ajToolDocs[9],
+      async execute() {
+        const api = getAJApi();
+        if (typeof api.exportProject !== "function") {
+          throw new Error("window.AnimatedJava.exportProject is not available.");
+        }
+
+        const ok = await api.exportProject();
+        if (!ok) {
+          return (
+            "Export did not complete: it was cancelled or failed validation. " +
+            "Check Blockbench for an error dialog (e.g. missing data pack path or invalid " +
+            "blueprint settings)."
+          );
+        }
+        return "Export completed using the project's configured export settings.";
+      },
+    },
+    ajToolDocs[9].status
+  );
+
+  createTool(
+    ajToolDocs[11].name,
+    {
+      ...ajToolDocs[11],
+      async execute({
+        easing,
+        easing_arg,
+        animation_id,
+        bone_name,
+        channel,
+        keyframe_range,
+      }: {
+        easing: string;
+        easing_arg?: number;
+        animation_id?: string;
+        bone_name?: string;
+        channel?: string;
+        keyframe_range?: { start: number; end: number };
+      }) {
+        getAJProject();
+
+        const AnimationRef = Animation as unknown as {
+          all: AJAnimationRuntime[];
+          selected?: AJAnimationRuntime;
+        };
+        const animation = animation_id
+          ? AnimationRef.all.find(
+              (a) => a.uuid === animation_id || a.name === animation_id
+            )
+          : AnimationRef.selected;
+        if (!animation) {
+          throw new Error(
+            "No animation found or selected. Pass animation_id, or select an animation in Blockbench."
+          );
+        }
+
+        const groupFilter = bone_name ? findGroupOrThrow(bone_name).uuid : undefined;
+        const channels = channel ? [channel] : ["rotation", "position", "scale"];
+
+        const needsArg = easingHasArg(easing);
+        const argValue = needsArg ? easing_arg ?? easingArgDefault(easing) : undefined;
+
+        const animators = animation.animators ?? {};
+
+        const targets: Array<{ easing?: string; easingArgs?: number[] }> = [];
+        let skippedNonLinear = 0;
+
+        for (const [uuid, animator] of Object.entries(animators)) {
+          if (groupFilter && uuid !== groupFilter) continue;
+          for (const ch of channels) {
+            const arr = animator[ch];
+            if (!Array.isArray(arr)) continue;
+            for (const kf of arr as Array<{
+              time: number;
+              interpolation?: string;
+              easing?: string;
+              easingArgs?: number[];
+            }>) {
+              if (
+                keyframe_range &&
+                (kf.time < keyframe_range.start || kf.time > keyframe_range.end)
+              ) {
+                continue;
+              }
+              if (kf.interpolation !== "linear") {
+                skippedNonLinear++;
+                continue;
+              }
+              targets.push(kf);
+            }
+          }
+        }
+
+        const skipNote =
+          skippedNonLinear > 0
+            ? ` Skipped ${skippedNonLinear} non-linear keyframe(s) (easing only applies to linear interpolation).`
+            : "";
+
+        if (targets.length === 0) {
+          return (
+            `No matching linear keyframes found in animation "${animation.name}".${skipNote} ` +
+            "Easing only applies to keyframes with 'linear' interpolation; relax the " +
+            "bone_name/channel/keyframe_range filters or switch the keyframes to linear first."
+          );
+        }
+
+        Undo.initEdit({
+          animations: [animation] as unknown as _Animation[],
+          keyframes: targets as unknown as _Keyframe[],
+        });
+
+        for (const kf of targets) {
+          if (easing === "linear") {
+            kf.easing = "linear";
+            delete kf.easingArgs;
+          } else {
+            kf.easing = easing;
+            if (argValue !== undefined && !Number.isNaN(argValue)) {
+              kf.easingArgs = [argValue];
+            } else {
+              delete kf.easingArgs;
+            }
+          }
+        }
+
+        Undo.finishEdit("Set keyframe easing");
+        Animator.preview();
+        markUnsaved();
+
+        const argNote = needsArg && argValue !== undefined ? ` (arg ${argValue})` : "";
+        return `Set easing "${easing}"${argNote} on ${targets.length} keyframe(s) in animation "${animation.name}".${skipNote}`;
+      },
+    },
+    ajToolDocs[11].status
+  );
+}
+
+export function registerAJOffTools() {
   createTool(
     ajToolDocs[2].name,
     {
@@ -815,30 +957,6 @@ export function registerAJTools() {
   );
 
   createTool(
-    ajToolDocs[9].name,
-    {
-      ...ajToolDocs[9],
-      async execute() {
-        const api = getAJApi();
-        if (typeof api.exportProject !== "function") {
-          throw new Error("window.AnimatedJava.exportProject is not available.");
-        }
-
-        const ok = await api.exportProject();
-        if (!ok) {
-          return (
-            "Export did not complete: it was cancelled or failed validation. " +
-            "Check Blockbench for an error dialog (e.g. missing data pack path or invalid " +
-            "blueprint settings)."
-          );
-        }
-        return "Export completed using the project's configured export settings.";
-      },
-    },
-    ajToolDocs[9].status
-  );
-
-  createTool(
     ajToolDocs[10].name,
     {
       ...ajToolDocs[10],
@@ -858,120 +976,29 @@ export function registerAJTools() {
     },
     ajToolDocs[10].status
   );
-
-  createTool(
-    ajToolDocs[11].name,
-    {
-      ...ajToolDocs[11],
-      async execute({
-        easing,
-        easing_arg,
-        animation_id,
-        bone_name,
-        channel,
-        keyframe_range,
-      }: {
-        easing: string;
-        easing_arg?: number;
-        animation_id?: string;
-        bone_name?: string;
-        channel?: string;
-        keyframe_range?: { start: number; end: number };
-      }) {
-        getAJProject();
-
-        const AnimationRef = Animation as unknown as {
-          all: AJAnimationRuntime[];
-          selected?: AJAnimationRuntime;
-        };
-        const animation = animation_id
-          ? AnimationRef.all.find(
-              (a) => a.uuid === animation_id || a.name === animation_id
-            )
-          : AnimationRef.selected;
-        if (!animation) {
-          throw new Error(
-            "No animation found or selected. Pass animation_id, or select an animation in Blockbench."
-          );
-        }
-
-        const groupFilter = bone_name ? findGroupOrThrow(bone_name).uuid : undefined;
-        const channels = channel ? [channel] : ["rotation", "position", "scale"];
-
-        const needsArg = easingHasArg(easing);
-        const argValue = needsArg ? easing_arg ?? easingArgDefault(easing) : undefined;
-
-        const animators = animation.animators ?? {};
-
-        const targets: Array<{ easing?: string; easingArgs?: number[] }> = [];
-        let skippedNonLinear = 0;
-
-        for (const [uuid, animator] of Object.entries(animators)) {
-          if (groupFilter && uuid !== groupFilter) continue;
-          for (const ch of channels) {
-            const arr = animator[ch];
-            if (!Array.isArray(arr)) continue;
-            for (const kf of arr as Array<{
-              time: number;
-              interpolation?: string;
-              easing?: string;
-              easingArgs?: number[];
-            }>) {
-              if (
-                keyframe_range &&
-                (kf.time < keyframe_range.start || kf.time > keyframe_range.end)
-              ) {
-                continue;
-              }
-              if (kf.interpolation !== "linear") {
-                skippedNonLinear++;
-                continue;
-              }
-              targets.push(kf);
-            }
-          }
-        }
-
-        const skipNote =
-          skippedNonLinear > 0
-            ? ` Skipped ${skippedNonLinear} non-linear keyframe(s) (easing only applies to linear interpolation).`
-            : "";
-
-        if (targets.length === 0) {
-          return (
-            `No matching linear keyframes found in animation "${animation.name}".${skipNote} ` +
-            "Easing only applies to keyframes with 'linear' interpolation; relax the " +
-            "bone_name/channel/keyframe_range filters or switch the keyframes to linear first."
-          );
-        }
-
-        Undo.initEdit({
-          animations: [animation] as unknown as _Animation[],
-          keyframes: targets as unknown as _Keyframe[],
-        });
-
-        for (const kf of targets) {
-          if (easing === "linear") {
-            kf.easing = "linear";
-            delete kf.easingArgs;
-          } else {
-            kf.easing = easing;
-            if (argValue !== undefined && !Number.isNaN(argValue)) {
-              kf.easingArgs = [argValue];
-            } else {
-              delete kf.easingArgs;
-            }
-          }
-        }
-
-        Undo.finishEdit("Set keyframe easing");
-        Animator.preview();
-        markUnsaved();
-
-        const argNote = needsArg && argValue !== undefined ? ` (arg ${argValue})` : "";
-        return `Set easing "${easing}"${argNote} on ${targets.length} keyframe(s) in animation "${animation.name}".${skipNote}`;
-      },
-    },
-    ajToolDocs[11].status
-  );
 }
+
+// Legacy wrapper — kept as inventory (not registered via tools.ts).
+export function registerAJTools() {
+  registerAJKeepTools();
+  registerAJOffTools();
+}
+
+// Derived toolDocs for docs-manifest.ts partial OFF.
+export const ajKeepToolDocs: ToolSpec[] = [
+  ajToolDocs[0],
+  ajToolDocs[1],
+  ajToolDocs[9],
+  ajToolDocs[11],
+];
+
+export const ajOffToolDocs: ToolSpec[] = [
+  ajToolDocs[2],
+  ajToolDocs[3],
+  ajToolDocs[4],
+  ajToolDocs[5],
+  ajToolDocs[6],
+  ajToolDocs[7],
+  ajToolDocs[8],
+  ajToolDocs[10],
+];
