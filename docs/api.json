@@ -1,6 +1,6 @@
 {
   "version": "1.6.0",
-  "generatedAt": "2026-06-01T03:57:30.031Z",
+  "generatedAt": "2026-06-01T04:14:26.624Z",
   "tools": [
     {
       "name": "inspect",
@@ -245,7 +245,7 @@
     {
       "name": "aj_rig_tree",
       "title": "AJ: Rig Tree",
-      "description": "Returns the active Animated Java Blueprint's rig as a single hierarchical JSON tree, unifying regular bones (groups) and Armature bones — which Blockbench otherwise exposes through separate windows (list_outline vs list_armatures). Each node reports { name, uuid, type, children? } plus type-specific fields (armature bones add origin/rotation/length/connected; locators and null objects add position). Geometry (cubes/meshes) is omitted unless include_geometry is true. Requires an Animated Java Blueprint project to be open.",
+      "description": "Returns the active Animated Java Blueprint's rig as a single hierarchical JSON tree, unifying regular bones (groups) and Armature bones — which Blockbench otherwise exposes through separate windows. Each node reports { name, uuid, type, children? } plus type-specific fields (armature bones add origin/rotation/length/connected; locators and null objects add position). Geometry (cubes/meshes) is omitted unless include_geometry is true. Requires an Animated Java Blueprint project to be open.",
       "status": "experimental",
       "category": "Animated Java",
       "annotations": {

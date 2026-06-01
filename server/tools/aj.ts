@@ -372,7 +372,7 @@ export const ajToolDocs: ToolSpec[] = [
     description:
       "Returns the active Animated Java Blueprint's rig as a single hierarchical JSON tree, " +
       "unifying regular bones (groups) and Armature bones — which Blockbench otherwise exposes " +
-      "through separate windows (list_outline vs list_armatures). Each node reports " +
+      "through separate windows. Each node reports " +
       "{ name, uuid, type, children? } plus type-specific fields (armature bones add origin/rotation/" +
       "length/connected; locators and null objects add position). Geometry (cubes/meshes) is omitted " +
       "unless include_geometry is true. Requires an Animated Java Blueprint project to be open.",

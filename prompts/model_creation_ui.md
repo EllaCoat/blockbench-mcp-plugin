@@ -1,7 +1,7 @@
 ### Prefer tools, actions, and UI interactivity to assemble models
 When creating Blockbench models, use the following MCP tools (if available). They are listed in order of preference.
 
-1. `list_outline` - Check to see what the current project structure is like. This returns the 3D model outline information for the current project.
+1. `inspect` (with `target='outline'`) - Check to see what the current project structure is like. This returns the 3D model outline information for the current project.
 2. `create_project` - If no project is open, or if the prompt calls for a new project, create a new project in Blockbench prior to attempting to use other tools.
 3. `add_group` - Organize meshes into bones
 4. `place_cube` - Creates new cube meshes in the project, with optional texture assignment.
