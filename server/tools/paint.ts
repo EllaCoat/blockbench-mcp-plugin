@@ -656,7 +656,7 @@ export function paintEraser(args: {
 interface MirrorPaintingSettings {
   enabled: boolean;
   axis?: string[];
-  texture?: number;
+  texture?: boolean;
   texture_center?: Point2D;
 }
 
@@ -838,6 +838,23 @@ export function paintTextureSelection(args: {
   radius?: number;
   mode?: string;
 }) {
+  // Validate action-specific inputs *before* Undo.initEdit so a throw doesn't
+  // leave the Undo scope open (= 14- § 5.3.1 pitfall 1).
+  if (
+    (args.action === "select_rectangle" || args.action === "select_ellipse") &&
+    !args.coordinates
+  ) {
+    throw new Error(`Coordinates required for ${args.action}.`);
+  }
+  if (
+    (args.action === "expand_selection" ||
+      args.action === "contract_selection" ||
+      args.action === "feather_selection") &&
+    args.radius === undefined
+  ) {
+    throw new Error(`Radius required for ${args.action}.`);
+  }
+
   const texture = getAndActivateTexture(args.texture_id);
   Undo.initEdit({ textures: [texture], bitmap: true });
 
@@ -845,23 +862,21 @@ export function paintTextureSelection(args: {
 
   switch (args.action) {
     case "select_rectangle":
-      if (!args.coordinates) throw new Error("Coordinates required for rectangle selection.");
       selection.clear();
-      selection.start_x = args.coordinates.x1;
-      selection.start_y = args.coordinates.y1;
-      selection.end_x = args.coordinates.x2;
-      selection.end_y = args.coordinates.y2;
+      selection.start_x = args.coordinates!.x1;
+      selection.start_y = args.coordinates!.y1;
+      selection.end_x = args.coordinates!.x2;
+      selection.end_y = args.coordinates!.y2;
       selection.is_custom = false;
       break;
 
     case "select_ellipse": {
-      if (!args.coordinates) throw new Error("Coordinates required for ellipse selection.");
       selection.clear();
       selection.is_custom = true;
-      const centerX = (args.coordinates.x1 + args.coordinates.x2) / 2;
-      const centerY = (args.coordinates.y1 + args.coordinates.y2) / 2;
-      const radiusX = Math.abs(args.coordinates.x2 - args.coordinates.x1) / 2;
-      const radiusY = Math.abs(args.coordinates.y2 - args.coordinates.y1) / 2;
+      const centerX = (args.coordinates!.x1 + args.coordinates!.x2) / 2;
+      const centerY = (args.coordinates!.y1 + args.coordinates!.y2) / 2;
+      const radiusX = Math.abs(args.coordinates!.x2 - args.coordinates!.x1) / 2;
+      const radiusY = Math.abs(args.coordinates!.y2 - args.coordinates!.y1) / 2;
 
       for (
         let x = Math.floor(centerX - radiusX);
@@ -901,18 +916,15 @@ export function paintTextureSelection(args: {
       break;
 
     case "expand_selection":
-      if (args.radius === undefined) throw new Error("Radius required for expand selection.");
-      selection.expand(args.radius);
+      selection.expand(args.radius!);
       break;
 
     case "contract_selection":
-      if (args.radius === undefined) throw new Error("Radius required for contract selection.");
-      selection.contract(args.radius);
+      selection.contract(args.radius!);
       break;
 
     case "feather_selection":
-      if (args.radius === undefined) throw new Error("Radius required for feather selection.");
-      selection.feather(args.radius);
+      selection.feather(args.radius!);
       break;
   }
 
@@ -930,7 +942,39 @@ export function paintTextureLayer(args: {
   blend_mode?: string;
   target_index?: number;
 }) {
+  // Validate inputs *before* Undo.initEdit so a throw doesn't leave the Undo
+  // scope open (= 14- § 5.3.1 pitfall 1).
+  const needsSelected = [
+    "delete_layer",
+    "duplicate_layer",
+    "merge_down",
+    "set_opacity",
+    "set_blend_mode",
+    "move_layer",
+    "rename_layer",
+  ];
+  if (needsSelected.includes(args.action) && !TextureLayer.selected) {
+    throw new Error("No layer selected.");
+  }
+  if (args.action === "set_opacity" && args.opacity === undefined) {
+    throw new Error("Opacity value required.");
+  }
+  if (args.action === "set_blend_mode" && !args.blend_mode) {
+    throw new Error("Blend mode required.");
+  }
+  if (args.action === "move_layer" && args.target_index === undefined) {
+    throw new Error("Target index required.");
+  }
+  if (args.action === "rename_layer" && !args.layer_name) {
+    throw new Error("New layer name required.");
+  }
+
   const texture = getAndActivateTexture(args.texture_id);
+
+  if (args.action === "flatten_layers" && !texture.layers_enabled) {
+    throw new Error("Texture has no layers to flatten.");
+  }
+
   Undo.initEdit({
     textures: [texture],
     layers: texture.layers,
@@ -952,58 +996,46 @@ export function paintTextureLayer(args: {
       break;
     }
     case "delete_layer": {
-      if (!TextureLayer.selected) throw new Error("No layer selected.");
-      const layerToDelete = TextureLayer.selected;
+      const layerToDelete = TextureLayer.selected!;
       layerToDelete.remove();
       result = `Deleted layer "${layerToDelete.name}"`;
       break;
     }
     case "duplicate_layer": {
-      if (!TextureLayer.selected) throw new Error("No layer selected.");
-      const layerToDuplicate = TextureLayer.selected;
+      const layerToDuplicate = TextureLayer.selected!;
       const duplicatedLayer = layerToDuplicate.duplicate();
       duplicatedLayer.name = `${layerToDuplicate.name} copy`;
       result = `Duplicated layer "${duplicatedLayer.name}"`;
       break;
     }
     case "merge_down":
-      if (!TextureLayer.selected) throw new Error("No layer selected.");
-      TextureLayer.selected.mergeDown(true);
+      TextureLayer.selected!.mergeDown(true);
       result = "Merged layer down";
       break;
     case "set_opacity":
-      if (!TextureLayer.selected) throw new Error("No layer selected.");
-      if (args.opacity === undefined) throw new Error("Opacity value required.");
-      TextureLayer.selected.opacity = args.opacity / 100;
+      TextureLayer.selected!.opacity = args.opacity! / 100;
       texture.updateChangesAfterEdit();
       result = `Set layer opacity to ${args.opacity}%`;
       break;
     case "set_blend_mode":
-      if (!TextureLayer.selected) throw new Error("No layer selected.");
-      if (!args.blend_mode) throw new Error("Blend mode required.");
-      TextureLayer.selected.blend_mode = args.blend_mode;
+      TextureLayer.selected!.blend_mode = args.blend_mode!;
       texture.updateChangesAfterEdit();
       result = `Set layer blend mode to ${args.blend_mode}`;
       break;
     case "move_layer": {
-      if (!TextureLayer.selected) throw new Error("No layer selected.");
-      if (args.target_index === undefined) throw new Error("Target index required.");
-      const layerToMove = TextureLayer.selected;
+      const layerToMove = TextureLayer.selected!;
       texture.layers.remove(layerToMove);
-      texture.layers.splice(args.target_index, 0, layerToMove);
+      texture.layers.splice(args.target_index!, 0, layerToMove);
       result = `Moved layer to position ${args.target_index}`;
       break;
     }
     case "rename_layer": {
-      if (!TextureLayer.selected) throw new Error("No layer selected.");
-      if (!args.layer_name) throw new Error("New layer name required.");
-      const oldName = TextureLayer.selected.name;
-      TextureLayer.selected.name = args.layer_name;
+      const oldName = TextureLayer.selected!.name;
+      TextureLayer.selected!.name = args.layer_name!;
       result = `Renamed layer from "${oldName}" to "${args.layer_name}"`;
       break;
     }
     case "flatten_layers":
-      if (!texture.layers_enabled) throw new Error("Texture has no layers to flatten.");
       texture.flattenLayers();
       result = "Flattened all layers";
       break;

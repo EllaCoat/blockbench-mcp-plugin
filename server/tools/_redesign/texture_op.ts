@@ -144,7 +144,8 @@ export function registerTextureOpTool() {
                   textureAddGroup({
                     name: args.name,
                     textures: args.textures,
-                    is_material: args.is_material ?? false,
+                    // Match legacy zod default (= addTextureGroupParameters.is_material.default(true)).
+                    is_material: args.is_material ?? true,
                   }),
                   { dispatch_target: "add_group" }
                 )

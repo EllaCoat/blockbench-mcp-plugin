@@ -113,7 +113,8 @@ export const paintToolOpParameters = z.object({
     .object({
       enabled: z.boolean(),
       axis: z.array(z.string()).optional(),
-      texture: z.number().optional(),
+      // Match legacy schema (= paintSettingsParameters.mirror_painting.texture).
+      texture: z.boolean().optional(),
       texture_center: point2D.optional(),
     })
     .optional()

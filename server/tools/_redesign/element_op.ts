@@ -105,9 +105,11 @@ export function registerElementOpTool() {
                     rotation: args.rotation ?? [0, 0, 0],
                     parent: args.parent ?? "root",
                     visibility: args.visibility ?? true,
-                    autouv: (args.autouv ?? 1) as 0 | 1 | 2,
+                    // Match legacy zod defaults (= server/tools/element.ts addGroupParameters):
+                    // autouv default was "0" (disabled); shade default was false.
+                    autouv: (args.autouv ?? 0) as 0 | 1 | 2,
                     selected: args.selected ?? false,
-                    shade: args.shade ?? true,
+                    shade: args.shade ?? false,
                   }),
                   { dispatch_target: "add_group" }
                 )

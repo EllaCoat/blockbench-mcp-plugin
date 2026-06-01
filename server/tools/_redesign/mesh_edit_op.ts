@@ -116,16 +116,12 @@ export function registerMeshEditOpTool() {
         try {
           switch (args.action) {
             case "extrude": {
-              if (args.distance === undefined) {
-                return wrap(
-                  err("INVALID_INPUT", "action='extrude' requires 'distance'.")
-                );
-              }
+              // Match legacy zod defaults: distance=1, mode='faces'.
               return wrap(
                 ok(
                   meshExtrude({
                     mesh_id: args.mesh_id,
-                    distance: args.distance,
+                    distance: args.distance ?? 1,
                     mode: args.mode ?? "faces",
                   }),
                   { dispatch_target: "extrude" }
@@ -133,15 +129,12 @@ export function registerMeshEditOpTool() {
               );
             }
             case "subdivide": {
-              if (args.cuts === undefined) {
-                return wrap(
-                  err("INVALID_INPUT", "action='subdivide' requires 'cuts'.")
-                );
-              }
+              // Match legacy zod default: cuts=1.
               return wrap(
-                ok(meshSubdivide({ mesh_id: args.mesh_id, cuts: args.cuts }), {
-                  dispatch_target: "subdivide",
-                })
+                ok(
+                  meshSubdivide({ mesh_id: args.mesh_id, cuts: args.cuts ?? 1 }),
+                  { dispatch_target: "subdivide" }
+                )
               );
             }
             case "select_elements": {
@@ -211,20 +204,13 @@ export function registerMeshEditOpTool() {
                   )
                 );
               }
-              if (args.threshold === undefined) {
-                return wrap(
-                  err(
-                    "INVALID_INPUT",
-                    "action='merge_vertices' requires 'threshold'."
-                  )
-                );
-              }
+              // Match legacy zod defaults: threshold=0.1, selected_only=true.
               return wrap(
                 ok(
                   meshMergeVertices({
                     mesh_id: args.mesh_id,
-                    threshold: args.threshold,
-                    selected_only: args.selected_only,
+                    threshold: args.threshold ?? 0.1,
+                    selected_only: args.selected_only ?? true,
                   }),
                   { dispatch_target: "merge_vertices" }
                 )

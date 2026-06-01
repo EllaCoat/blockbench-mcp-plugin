@@ -778,6 +778,20 @@ interface TextureAddGroupArgs {
 }
 
 export function textureAddGroup(args: TextureAddGroupArgs) {
+  // Resolve textures *before* Undo.initEdit so a missing-texture throw doesn't
+  // leave the Undo scope open (= 14- § 5.3.1 pitfall 1).
+  let resolvedTextures: Texture[] | undefined;
+  if (args.textures) {
+    const textureList = args.textures
+      .map((texture) => getProjectTexture(texture))
+      .filter((t): t is Texture => Boolean(t));
+
+    if (textureList.length === 0) {
+      throw new Error(`No textures found for "${args.textures}".`);
+    }
+    resolvedTextures = textureList;
+  }
+
   Undo.initEdit({
     elements: [],
     outliner: true,
@@ -790,17 +804,9 @@ export function textureAddGroup(args: TextureAddGroupArgs) {
     is_material: args.is_material,
   }).add();
 
-  if (args.textures) {
-    const textureList = args.textures
-      .map((texture) => getProjectTexture(texture))
-      .filter(Boolean);
-
-    if (textureList.length === 0) {
-      throw new Error(`No textures found for "${args.textures}".`);
-    }
-
-    textureList.forEach((texture) => {
-      texture?.extend({ group: textureGroup.uuid });
+  if (resolvedTextures) {
+    resolvedTextures.forEach((texture) => {
+      texture.extend({ group: textureGroup.uuid });
     });
   }
 
