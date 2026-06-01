@@ -7,19 +7,15 @@ import { tools, prompts } from "@/lib/factories";
 // Legacy registrations fully replaced by Stage-II _redesign/ tools are NOT imported
 // here (the source files stay in repo as inventory but are no longer registered).
 // Currently dropped: armature / null-object / history / cubes / uv / material-instances.
-// Partial-OFF files (element / mesh / texture / paint / aj) register only the Keep
-// half — the Off half is dead code in the file (= inventory). See 14- § 3.4.1 / § 3.4.2.
+// Phase 3.3 (= 14- § 3.4.2): the Keep halves of aj/element/mesh/paint/texture are
+// now also dropped — their behaviour is fully covered by the new *_op aggregators
+// in _redesign/. The source files stay in repo as inventory.
 import { registerCameraTools } from "./tools/camera";
 import { registerAnimationTools } from "./tools/animation";
-import { registerElementKeepTools } from "./tools/element";
 import { registerImportTools } from "./tools/import";
-import { registerMeshKeepTools } from "./tools/mesh";
-import { registerPaintKeepTools } from "./tools/paint";
 import { registerProjectTools } from "./tools/project";
-import { registerTextureKeepTools } from "./tools/texture";
 import { registerUITools } from "./tools/ui";
 import { registerExportTools } from "./tools/export";
-import { registerAJKeepTools } from "./tools/aj";
 
 // Stage-II redesigned tools (server/tools/_redesign/)
 import { registerRiskyEvalTool } from "./tools/_redesign/risky_eval";
@@ -48,16 +44,11 @@ import { registerValidatorResources } from "./resources/validator";
 
 // All registration functions - MUST be used to prevent tree-shaking
 const registrationFunctions = [
-  registerAJKeepTools,
   registerAnimationTools,
   registerCameraTools,
-  registerElementKeepTools,
   registerExportTools,
   registerImportTools,
-  registerMeshKeepTools,
-  registerPaintKeepTools,
   registerProjectTools,
-  registerTextureKeepTools,
   registerUITools,
   // Stage-II redesigned tools
   registerRiskyEvalTool,

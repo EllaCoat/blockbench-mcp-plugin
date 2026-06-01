@@ -4,20 +4,14 @@ import type { ToolSpec, PromptSpec, ResourceSpec } from "../lib/factories";
 // Tool docs imports — each file exports schemas at module level with zero Blockbench deps.
 // Files whose registrations are fully replaced by Stage-II _redesign/ tools are NOT imported
 // here (the .ts files stay in repo as inventory but their toolDocs aren't manifested).
-// Currently dropped: armature / null-object / history / cubes / uv / material-instances.
-// Partial-OFF files (element / mesh / texture / paint / aj) expose Keep / Off derived
-// toolDocs arrays — only the Keep arrays are manifested. See 14- § 3.4.1 / § 3.4.2.
+// Phase 3.3 (= 14- § 3.4.2): the Keep halves of aj/element/mesh/paint/texture are now
+// also dropped — their toolDocs are covered by the new *_op aggregators in _redesign/.
 import { cameraToolDocs } from "../server/tools/camera";
-import { elementKeepToolDocs } from "../server/tools/element";
 import { importToolDocs } from "../server/tools/import";
-import { meshKeepToolDocs } from "../server/tools/mesh";
-import { paintKeepToolDocs } from "../server/tools/paint";
 import { projectToolDocs } from "../server/tools/project";
-import { textureKeepToolDocs } from "../server/tools/texture";
 import { animationToolDocs } from "../server/tools/animation";
 import { uiToolDocs } from "../server/tools/ui";
 import { exportToolDocs } from "../server/tools/export";
-import { ajKeepToolDocs } from "../server/tools/aj";
 
 // Stage-II redesigned tools
 import { riskyEvalToolDocs } from "../server/tools/_redesign/risky_eval";
@@ -48,21 +42,29 @@ export interface CategoryGroup {
 
 export const toolManifest: CategoryGroup[] = [
   { category: "Inspect (Stage II)", tools: inspectToolDocs },
-  { category: "Animated Java", tools: [...ajKeepToolDocs, ...ajVariantOpToolDocs, ...ajBlueprintSettingsOpToolDocs] },
+  {
+    category: "Animated Java",
+    // Null Objects / IK folded in here (= 14- § 4.4): a single-tool category felt
+    // out of place, and null objects are exclusively used inside AJ blueprints.
+    tools: [
+      ...ajVariantOpToolDocs,
+      ...ajBlueprintSettingsOpToolDocs,
+      ...nullObjectOpToolDocs,
+    ],
+  },
   { category: "Cubes", tools: [...cubeOpToolDocs] },
   { category: "Camera & Screenshots", tools: cameraToolDocs },
   { category: "Animation", tools: animationToolDocs },
   { category: "Armature", tools: [...armatureOpToolDocs, ...armatureBoneOpToolDocs, ...vertexWeightOpToolDocs] },
-  { category: "Elements", tools: [...elementKeepToolDocs, ...selectionOpToolDocs, ...elementOpToolDocs] },
+  { category: "Elements", tools: [...selectionOpToolDocs, ...elementOpToolDocs] },
   { category: "Export", tools: exportToolDocs },
   { category: "History", tools: [...historyOpToolDocs] },
   { category: "Import/Export", tools: importToolDocs },
   { category: "Material Instances", tools: [...materialInstanceOpToolDocs] },
-  { category: "Mesh Editing", tools: [...meshKeepToolDocs, ...meshPrimitiveOpToolDocs, ...meshEditOpToolDocs] },
-  { category: "Null Objects / IK", tools: [...nullObjectOpToolDocs] },
-  { category: "Paint Tools", tools: [...paintKeepToolDocs, ...brushPresetOpToolDocs, ...paintToolOpToolDocs] },
+  { category: "Mesh Editing", tools: [...meshPrimitiveOpToolDocs, ...meshEditOpToolDocs] },
+  { category: "Paint Tools", tools: [...brushPresetOpToolDocs, ...paintToolOpToolDocs] },
   { category: "Project", tools: projectToolDocs },
-  { category: "Textures", tools: [...textureKeepToolDocs, ...materialOpToolDocs, ...textureOpToolDocs] },
+  { category: "Textures", tools: [...materialOpToolDocs, ...textureOpToolDocs] },
   { category: "UI Interaction", tools: [...uiToolDocs, ...riskyEvalToolDocs] },
   { category: "UV Mapping", tools: [...meshUvOpToolDocs] },
 ];
