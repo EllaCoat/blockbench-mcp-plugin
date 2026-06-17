@@ -219,19 +219,52 @@
         transition: transform 0.2s ease;
     }
 
-    .filter-switch input:checked + .switch-slider {
-        background: var(--color-accent);
-    }
-
-    .filter-switch input:checked + .switch-slider::before {
-        transform: translateX(12px);
-    }
-
     .switch-label {
         color: var(--color-subtle_text);
     }
 
-    .filter-switch input:checked ~ .switch-label {
+    /* Shared :checked styling for both filter-switch and group-toggle slider rows. */
+    .filter-switch input:checked + .switch-slider,
+    .group-toggle input:checked + .switch-slider {
+        background: var(--color-accent);
+    }
+
+    .filter-switch input:checked + .switch-slider::before,
+    .group-toggle input:checked + .switch-slider::before {
+        transform: translateX(12px);
+    }
+
+    .filter-switch input:checked ~ .switch-label,
+    .group-toggle input:checked ~ .switch-label {
         color: var(--color-text);
+    }
+
+    .group-toggle-list {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        padding: 8px 0;
+    }
+
+    .group-toggle {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.9em;
+        color: var(--color-subtle_text);
+        cursor: pointer;
+        user-select: none;
+    }
+
+    .group-toggle input[type="checkbox"] {
+        display: none;
+    }
+
+    .group-hint {
+        margin: 8px 0 0;
+        padding: 0;
+        font-size: 0.75em;
+        color: var(--color-subtle_text);
+        font-style: italic;
     }
 }

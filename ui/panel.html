@@ -1,5 +1,32 @@
 <div class="mcp-panel">
+    <!-- name="mcp_panel" makes <details> blocks act as an accordion (= only one
+         open at a time). Tool Groups is the only block with `open` here, so the
+         panel starts focused on it; sessions/server/tools/etc. start collapsed. -->
     <details name="mcp_panel" open>
+        <summary>{{tl('mcp.panel.groups')}}</summary>
+        <div class="group-toggle-list">
+            <label class="group-toggle">
+                <input type="checkbox" :checked="groupState.aj"
+                    @change="toggleGroup('aj', $event.target.checked)">
+                <span class="switch-slider"></span>
+                <span class="switch-label">{{tl('mcp.panel.group_aj_name')}}</span>
+            </label>
+            <label class="group-toggle">
+                <input type="checkbox" :checked="groupState.modeling"
+                    @change="toggleGroup('modeling', $event.target.checked)">
+                <span class="switch-slider"></span>
+                <span class="switch-label">{{tl('mcp.panel.group_modeling_name')}}</span>
+            </label>
+            <label class="group-toggle">
+                <input type="checkbox" :checked="groupState.camera"
+                    @change="toggleGroup('camera', $event.target.checked)">
+                <span class="switch-slider"></span>
+                <span class="switch-label">{{tl('mcp.panel.group_camera_name')}}</span>
+            </label>
+        </div>
+        <p class="group-hint">{{tl('mcp.panel.group_reconnect_hint')}}</p>
+    </details>
+    <details name="mcp_panel">
         <summary>{{tl('mcp.panel.sessions')}} ({{sessions.length}})</summary>
         <div v-if="sessions.length > 0">
             <div v-for="session in sessions" :key="session.id" class="session-item" :title="session.id">

@@ -16,6 +16,13 @@ const en: Record<string, string> = {
   "mcp.panel.tools": "Tools",
   "mcp.panel.resources": "Resources",
   "mcp.panel.prompts": "Prompts",
+  "mcp.panel.groups": "Tool Groups",
+
+  // Tool groups (Stage-II profile toggles, persisted in localStorage)
+  "mcp.panel.group_aj_name": "AJ",
+  "mcp.panel.group_modeling_name": "Modeling",
+  "mcp.panel.group_camera_name": "Camera",
+  "mcp.panel.group_reconnect_hint": "Reconnect the MCP client to apply changes.",
 
   // Sessions section
   "mcp.sessions.no_clients": "No clients connected",
@@ -112,6 +119,13 @@ const de: Record<string, string> = {
   "mcp.panel.tools": "Werkzeuge",
   "mcp.panel.resources": "Ressourcen",
   "mcp.panel.prompts": "Prompts",
+  "mcp.panel.groups": "Werkzeuggruppen",
+
+  // Tool groups
+  "mcp.panel.group_aj_name": "AJ",
+  "mcp.panel.group_modeling_name": "Modellierung",
+  "mcp.panel.group_camera_name": "Kamera",
+  "mcp.panel.group_reconnect_hint": "MCP-Client neu verbinden, um Änderungen anzuwenden.",
 
   // Sessions section
   "mcp.sessions.no_clients": "Keine Clients verbunden",
@@ -208,6 +222,13 @@ const ja: Record<string, string> = {
   "mcp.panel.tools": "ツール",
   "mcp.panel.resources": "リソース",
   "mcp.panel.prompts": "プロンプト",
+  "mcp.panel.groups": "ツールグループ",
+
+  // Tool groups
+  "mcp.panel.group_aj_name": "AJ",
+  "mcp.panel.group_modeling_name": "モデリング",
+  "mcp.panel.group_camera_name": "カメラ",
+  "mcp.panel.group_reconnect_hint": "MCP クライアントを再接続して反映してください。",
 
   // Sessions section
   "mcp.sessions.no_clients": "クライアントが接続されていません",
@@ -304,6 +325,13 @@ const zh: Record<string, string> = {
   "mcp.panel.tools": "工具",
   "mcp.panel.resources": "资源",
   "mcp.panel.prompts": "提示词",
+  "mcp.panel.groups": "工具组",
+
+  // Tool groups
+  "mcp.panel.group_aj_name": "AJ",
+  "mcp.panel.group_modeling_name": "建模",
+  "mcp.panel.group_camera_name": "相机",
+  "mcp.panel.group_reconnect_hint": "重新连接 MCP 客户端以应用更改。",
 
   // Sessions section
   "mcp.sessions.no_clients": "没有客户端连接",

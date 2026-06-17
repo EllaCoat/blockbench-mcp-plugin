@@ -8,6 +8,12 @@ import { openPromptPreviewDialog } from "@/ui/promptPreviewDialog";
 import { openPromptOverrideDialog, overrideDialogTeardown, PROMPT_OVERRIDE_CHANGED } from "@/ui/promptOverrideDialog";
 import { hasPromptOverride } from "@/lib/promptLoader";
 import { formatArgumentCount } from "@/ui/i18n";
+import {
+  readGroupState,
+  writeGroupState,
+  type ToggleableGroup,
+} from "@/lib/profiles";
+import { applyGroups } from "@/lib/factories";
 import panelCSS from "@/ui/panel.css";
 import template from "@/ui/panel.html";
 
@@ -70,6 +76,9 @@ export function uiSetup({
       },
       data: () => ({
         sessions: [] as Array<{ id: string; connectedAt: Date; lastActivity: Date; clientName?: string; clientVersion?: string }>,
+        // Stage-II group toggles. Persisted to localStorage via profiles.ts;
+        // toggle UI lives in the panel (this file), no Settings dialog entry.
+        groupState: readGroupState() as Record<ToggleableGroup, boolean>,
         server: {
           connected: false,
           name: "Blockbench MCP",
@@ -193,6 +202,18 @@ export function uiSetup({
             // @ts-ignore - Vue component context
             this.promptsFilter.search = "";
           }
+        },
+        toggleGroup(group: ToggleableGroup, value: boolean): void {
+          // @ts-ignore - Vue component context
+          this.groupState[group] = value;
+          writeGroupState(group, value);
+          // Pass in-memory state (not a fresh readGroupState()) so that a
+          // failed localStorage write doesn't roll back the toggle to the
+          // stale persisted value. Takes effect on next /mcp reconnect
+          // (= net.ts:324 reads enabled per-session at register).
+          // @ts-ignore - Vue component context
+          applyGroups(this.groupState);
+          Blockbench.showQuickMessage(tl("mcp.panel.group_reconnect_hint"), 2000);
         },
       },
       name: "mcp_panel",

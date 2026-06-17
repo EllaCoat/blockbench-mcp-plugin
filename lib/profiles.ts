@@ -92,3 +92,38 @@ export function buildActiveGroups(
   }
   return active;
 }
+
+// === Persistence (localStorage) ===
+//
+// Toggle state is persisted in localStorage rather than as Blockbench
+// Setting() entries — the UI lives in the MCP panel (= ui/index.ts toggleGroup
+// + ui/panel.html), so there's no benefit to surfacing the underlying value
+// in Settings > General. localStorage survives plugin reloads and is scoped
+// per Blockbench install. ui/settings.ts only does the initial apply on load.
+
+const STORAGE_KEY_PREFIX = "mcp_group_";
+
+function storageKey(group: ToggleableGroup): string {
+  return `${STORAGE_KEY_PREFIX}${group}`;
+}
+
+export function readGroupState(): Record<ToggleableGroup, boolean> {
+  const state: Record<ToggleableGroup, boolean> = { ...DEFAULT_GROUP_STATE };
+  for (const g of TOGGLEABLE_GROUPS) {
+    try {
+      const raw = localStorage.getItem(storageKey(g));
+      if (raw !== null) state[g] = raw === "true";
+    } catch {
+      // localStorage unavailable; keep default.
+    }
+  }
+  return state;
+}
+
+export function writeGroupState(group: ToggleableGroup, value: boolean): void {
+  try {
+    localStorage.setItem(storageKey(group), String(value));
+  } catch {
+    // localStorage unavailable; silently ignore (toggle still applies in-memory).
+  }
+}

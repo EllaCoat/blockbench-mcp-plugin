@@ -1,23 +1,11 @@
 import { applyGroups } from "@/lib/factories";
-import {
-  DEFAULT_GROUP_STATE,
-  TOGGLEABLE_GROUPS,
-  type ToggleableGroup,
-} from "@/lib/profiles";
+import { readGroupState } from "@/lib/profiles";
 
 const settings: Setting[] = [];
 
-// Read the current toggle state from Blockbench Settings, falling back to
-// defaults for any toggle that hasn't been persisted yet.
-function readGroupState(): Record<ToggleableGroup, boolean> {
-  const state: Record<ToggleableGroup, boolean> = { ...DEFAULT_GROUP_STATE };
-  for (const g of TOGGLEABLE_GROUPS) {
-    const raw = Settings.get(`mcp_group_${g}`);
-    if (raw !== undefined && raw !== null) state[g] = Boolean(raw);
-  }
-  return state;
-}
-
+// Apply the persisted toggle state (= localStorage) to tools[name].enabled.
+// Called after settingsSetup() to flip off any group the user had disabled.
+// The toggle UI itself lives in the MCP panel (= ui/index.ts), not here.
 function applyCurrentGroupState() {
   applyGroups(readGroupState());
 }
@@ -79,51 +67,12 @@ export function settingsSetup() {
       max: 600,
       category,
       icon: "favorite",
-    }),
-    // Stage-II group toggles (= 14- § 4.5). core is always ON so it has no
-    // toggle. Each onChange flips tools[name].enabled in bulk via applyGroups;
-    // the new set takes effect on the next /mcp reconnect.
-    new Setting("mcp_group_aj", {
-      name: tl("mcp.settings.group_aj_name"),
-      description: tl("mcp.settings.group_aj_desc"),
-      type: "toggle",
-      value: DEFAULT_GROUP_STATE.aj,
-      category,
-      icon: "view_in_ar",
-      // @ts-ignore - onChange is available at runtime
-      onChange() {
-        applyCurrentGroupState();
-      },
-    }),
-    new Setting("mcp_group_modeling", {
-      name: tl("mcp.settings.group_modeling_name"),
-      description: tl("mcp.settings.group_modeling_desc"),
-      type: "toggle",
-      value: DEFAULT_GROUP_STATE.modeling,
-      category,
-      icon: "brush",
-      // @ts-ignore - onChange is available at runtime
-      onChange() {
-        applyCurrentGroupState();
-      },
-    }),
-    new Setting("mcp_group_camera", {
-      name: tl("mcp.settings.group_camera_name"),
-      description: tl("mcp.settings.group_camera_desc"),
-      type: "toggle",
-      value: DEFAULT_GROUP_STATE.camera,
-      category,
-      icon: "photo_camera",
-      // @ts-ignore - onChange is available at runtime
-      onChange() {
-        applyCurrentGroupState();
-      },
     })
   );
 
-  // Apply the persisted toggle state to tools[name].enabled now that the
-  // settings exist. Tools registered before settingsSetup() ran came in
-  // enabled=true; this flips off any group that the user had disabled.
+  // Apply the persisted toggle state (= localStorage) to tools[name].enabled.
+  // Tools registered before settingsSetup() ran came in enabled=true; this
+  // flips off any group the user had disabled in a previous session.
   applyCurrentGroupState();
 }
 
