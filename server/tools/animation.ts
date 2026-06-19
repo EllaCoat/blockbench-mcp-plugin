@@ -330,48 +330,108 @@ createTool(
   {
     ...animationToolDocs[0],
     async execute({ name, loop, animation_length, bones, particle_effects }) {
-      const animationData = {
-        loop,
-        ...(animation_length && { animation_length }),
-        bones: Object.fromEntries(
-          Object.entries(bones).map(([boneName, keyframes]) => {
-            const boneData: Record<
-              string,
-              Record<string, number | number[]>
-            > = keyframes.reduce((acc, keyframe) => {
-              const timeKey = keyframe.time.toString();
-              if (keyframe.position) {
-                (acc.position ??= {})[timeKey] = keyframe.position;
-              }
-              if (keyframe.rotation) {
-                (acc.rotation ??= {})[timeKey] = keyframe.rotation;
-              }
-              if (keyframe.scale) {
-                (acc.scale ??= {})[timeKey] = keyframe.scale;
-              }
-              return acc;
-            }, {} as Record<string, Record<string, number | number[]>>);
-
-            return [boneName, boneData];
-          })
-        ),
-        ...(particle_effects && { particle_effects }),
+      // name → node (Group | NullObject | Locator | VanillaItemDisplay 等) を uuid base で解決。
+      // bedrock 形式 (name-based) からの移行で AJ 拡張 OutlinerNode (NullObject 等) が
+      // BB の Group 検索 fallback で BoneAnimator になる問題を回避するため、
+      // 内部 API (= AJ codec と同じ extend({animators}) 経路) を直叩きする。
+      const resolveNode = (boneName: string) => {
+        // @ts-ignore
+        const byUuid = OutlinerNode.uuids?.[boneName];
+        if (byUuid) return byUuid;
+        const pools: any[] = [...Group.all];
+        // @ts-ignore
+        if (typeof NullObject !== "undefined") pools.push(...NullObject.all);
+        // @ts-ignore
+        if (typeof Locator !== "undefined") pools.push(...Locator.all);
+        return pools.find((n) => n.name === boneName);
       };
 
-      Animator.loadFile({
-        content: JSON.stringify({
-          format_version: "1.8.0",
-          animations: {
-            [`animation.${name}`]: animationData,
-          },
-        }),
-      });
+      const determineType = (node: any): string => {
+        // @ts-ignore
+        if (typeof NullObject !== "undefined" && node instanceof NullObject) return "null_object";
+        // @ts-ignore
+        if (typeof Locator !== "undefined" && node instanceof Locator) return "locator";
+        // Group / VanillaItemDisplay / VanillaBlockDisplay / TextDisplay 等は
+        // 全て BoneAnimator subclass なので 'bone' で OK (= BB extend が type→class 解決)
+        return "bone";
+      };
+
+      const expandKeyframes = (
+        input: Array<{
+          time: number;
+          position?: number[];
+          rotation?: number[];
+          scale?: number[] | number;
+        }>,
+        nodeType: string
+      ) => {
+        // NullObjectAnimator = position channel のみ、 LocatorAnimator = function channel のみ。
+        // 未対応 channel は黙って drop (= 既存 Animator.loadFile 経路でも同じ挙動)。
+        const allowed: string[] =
+          nodeType === "null_object"
+            ? ["position"]
+            : nodeType === "locator"
+            ? []
+            : ["position", "rotation", "scale"];
+        const out: any[] = [];
+        for (const kf of input) {
+          for (const ch of ["position", "rotation", "scale"] as const) {
+            const v = kf[ch];
+            if (v === undefined) continue;
+            if (!allowed.includes(ch)) continue;
+            const arr = Array.isArray(v) ? v : [v, v, v];
+            out.push({
+              channel: ch,
+              time: kf.time,
+              data_points: [
+                { x: String(arr[0]), y: String(arr[1]), z: String(arr[2]) },
+              ],
+              interpolation: "linear",
+            });
+          }
+        }
+        return out;
+      };
+
+      const animators: Record<string, any> = {};
+      for (const [boneName, keyframes] of Object.entries(bones)) {
+        const node = resolveNode(boneName);
+        if (!node) throw new Error(`Node not found: ${boneName}`);
+        const type = determineType(node);
+        animators[node.uuid] = {
+          name: node.name,
+          type,
+          keyframes: expandKeyframes(keyframes, type),
+        };
+      }
+
+      // AJ codec.ts:182-185 と同じ構築パターン。
+      // @ts-ignore - Blockbench types incomplete
+      const newAnimation = new Blockbench.Animation();
+      // @ts-ignore
+      newAnimation.uuid = guid();
+      newAnimation
+        .extend({
+          name: `animation.${name}`,
+          loop: loop ? "loop" : "once",
+          ...(animation_length !== undefined && { length: animation_length }),
+          // @ts-ignore - animators は AJ codec が使う内部形式 (uuid → AnimatorData)
+          animators,
+        })
+        .add();
+
+      // particle_effects は別 fix で対応 (= 現状未サポート、 既存ユーザーは MCP 経由では渡してない想定)
+      if (particle_effects) {
+        console.warn(
+          "[MCP] create_animation: particle_effects is not yet supported via internal API path, ignored"
+        );
+      }
 
       return `Created animation "${name}" with keyframes for ${
         Object.keys(bones).length
       } bones${
         particle_effects
-          ? ` and ${Object.keys(particle_effects).length} particle effects`
+          ? ` and ${Object.keys(particle_effects).length} particle effects (ignored)`
           : ""
       }`;
     },
