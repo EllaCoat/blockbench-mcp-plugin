@@ -1,6 +1,6 @@
 {
   "version": "1.6.0",
-  "generatedAt": "2026-06-01T06:14:31.433Z",
+  "generatedAt": "2026-06-19T10:01:27.733Z",
   "tools": [
     {
       "name": "inspect",
@@ -1467,10 +1467,12 @@
                   "reverse",
                   "mirror",
                   "smooth",
-                  "bake"
+                  "bake",
+                  "stagger",
+                  "fix_loop_seam"
                 ],
-                "description": "Operation to perform on keyframes.",
-                "markdownDescription": "Operation to perform on keyframes."
+                "description": "Operation to perform on keyframes. stagger = shift each bone's keyframes progressively by stagger_interval (cascade/wave effect across bones). fix_loop_seam = copy each animator's first keyframe value onto its last keyframe per channel, eliminating the jump when an animation loops.",
+                "markdownDescription": "Operation to perform on keyframes. stagger = shift each bone's keyframes progressively by stagger_interval (cascade/wave effect across bones). fix_loop_seam = copy each animator's first keyframe value onto its last keyframe per channel, eliminating the jump when an animation loops."
               },
               "parameters": {
                 "type": "object",
@@ -1514,6 +1516,11 @@
                     "type": "number",
                     "description": "Interval for baking keyframes.",
                     "markdownDescription": "Interval for baking keyframes."
+                  },
+                  "stagger_interval": {
+                    "type": "number",
+                    "description": "Time offset added per bone for the 'stagger' operation (the Nth bone in selection order is shifted by N * stagger_interval). Defaults to one frame (1 / animation snapping).",
+                    "markdownDescription": "Time offset added per bone for the 'stagger' operation (the Nth bone in selection order is shifted by N * stagger_interval). Defaults to one frame (1 / animation snapping)."
                   }
                 },
                 "additionalProperties": false,

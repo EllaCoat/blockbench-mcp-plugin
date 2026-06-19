@@ -865,9 +865,9 @@
       <td class="col-desc">Pattern-based selection.</td>
     </tr><tr>
       <td class="col-name">operation</td>
-      <td class="col-type">&quot;offset&quot; | &quot;scale&quot; | &quot;reverse&quot; | &quot;mirror&quot; | &quot;smooth&quot; | &quot;bake&quot;</td>
+      <td class="col-type">&quot;offset&quot; | &quot;scale&quot; | &quot;reverse&quot; | &quot;mirror&quot; | &quot;smooth&quot; | &quot;bake&quot; | &quot;stagger&quot; | &quot;fix_loop_seam&quot;</td>
       <td><span class="param-required">required</span></td>
-      <td class="col-desc">Operation to perform on keyframes.</td>
+      <td class="col-desc">Operation to perform on keyframes. stagger = shift each bone's keyframes progressively by stagger_interval (cascade/wave effect across bones). fix_loop_seam = copy each animator's first keyframe value onto its last keyframe per channel, eliminating the jump when an animation loops.</td>
     </tr><tr>
       <td class="col-name">parameters</td>
       <td class="col-type">object</td>
@@ -2482,7 +2482,7 @@
       </section>
 
       <footer class="page-footer">
-        Generated 2026-06-01T06:14:31.433Z from Zod schemas
+        Generated 2026-06-19T10:01:27.733Z from Zod schemas
       </footer>
     </main>
   </div>

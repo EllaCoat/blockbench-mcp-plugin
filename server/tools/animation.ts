@@ -180,8 +180,19 @@ export const batchKeyframeOperationsParameters = z.object({
     .optional()
     .describe("Pattern-based selection."),
   operation: z
-    .enum(["offset", "scale", "reverse", "mirror", "smooth", "bake"])
-    .describe("Operation to perform on keyframes."),
+    .enum([
+      "offset",
+      "scale",
+      "reverse",
+      "mirror",
+      "smooth",
+      "bake",
+      "stagger",
+      "fix_loop_seam",
+    ])
+    .describe(
+      "Operation to perform on keyframes. stagger = shift each bone's keyframes progressively by stagger_interval (cascade/wave effect across bones). fix_loop_seam = copy each animator's first keyframe value onto its last keyframe per channel, eliminating the jump when an animation loops; selection is used only to pick which animators are affected — the whole channel's first/last keyframes are matched regardless of range/pattern."
+    ),
   parameters: z
     .object({
       offset_time: z.number().optional().describe("Time offset to apply."),
@@ -199,6 +210,12 @@ export const batchKeyframeOperationsParameters = z.object({
         .number()
         .optional()
         .describe("Interval for baking keyframes."),
+      stagger_interval: z
+        .number()
+        .optional()
+        .describe(
+          "Time offset added per bone for the 'stagger' operation (the Nth bone in selection order is shifted by N * stagger_interval). Defaults to one frame (1 / animation snapping)."
+        ),
     })
     .optional()
     .describe("Operation-specific parameters."),
@@ -1057,6 +1074,56 @@ createTool(
             });
           });
           break;
+
+        case "stagger": {
+          const stagger =
+            parameters.stagger_interval ?? 1 / Animation.selected.snapping;
+          // Group keyframes per animator (bone), preserving collection order.
+          const byAnimator = new Map<any, any[]>();
+          keyframes.forEach((kf) => {
+            const list = byAnimator.get(kf.animator);
+            if (list) {
+              list.push(kf);
+            } else {
+              byAnimator.set(kf.animator, [kf]);
+            }
+          });
+          let boneIndex = 0;
+          byAnimator.forEach((kfs) => {
+            const shift = boneIndex * stagger;
+            boneIndex++;
+            if (shift === 0) return;
+            kfs.forEach((kf) => {
+              kf.time += shift;
+            });
+          });
+          break;
+        }
+
+        case "fix_loop_seam": {
+          // For each affected animator, force the last keyframe of every
+          // channel to match the first one so the loop has no visible jump.
+          // NOTE: BB Keyframe.set() only handles per-axis setters ("x"/"y"/"z").
+          // The seemingly natural set("values", arr) is silently a no-op, so we
+          // explicitly write each axis. (Existing mirror/offset cases use the
+          // same broken API — outside this PR's scope.)
+          const seamAnimators = new Set(keyframes.map((kf) => kf.animator));
+          seamAnimators.forEach((animator) => {
+            ["rotation", "position", "scale"].forEach((channel) => {
+              const channelKfs = (animator[channel] || [])
+                .slice()
+                .sort((a, b) => a.time - b.time);
+              if (channelKfs.length < 2) return;
+              const first = channelKfs[0];
+              const last = channelKfs[channelKfs.length - 1];
+              const arr = first.getArray();
+              last.set("x", arr[0]);
+              last.set("y", arr[1]);
+              last.set("z", arr[2]);
+            });
+          });
+          break;
+        }
       }
 
       Undo.finishEdit(`Batch keyframe operation: ${operation}`);
