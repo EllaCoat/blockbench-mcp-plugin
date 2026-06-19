@@ -16,6 +16,7 @@
     "dev": "bun run prompts:build && bun run ./build --sourcemap",
     "dev:watch": "bun run prompts:build && bun run dev --watch",
     "build": "bun run prompts:build && bun run ./build --minify",
+    "build:push": "bun run build && /home/ubuntu/aj-workspace/scripts/push-to-laptop.sh dist/mcp.js mcp.js",
     "docs:build": "bun run ./build/docs.ts",
     "docs:serve": "bun run docs/index.html",
     "docs": "bun run prompts:build && bun run docs:build && bun run docs:serve",
