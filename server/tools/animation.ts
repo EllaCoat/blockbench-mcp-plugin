@@ -536,8 +536,14 @@ createTool(
               (k) => Math.abs(k.time - kf.time) < 0.001
             );
             if (keyframe) {
-              if (kf.values) {
-                keyframe.set("values", kf.values);
+              // BB Keyframe.set() は per-axis setter ("x"/"y"/"z") のみ受理。
+              // set("values", arr) は通常 keyframe では未知 property に代入されて
+              // silent no-op、 uniform=true (= scale 等) では axis 値に配列が
+              // 文字列化されて代入されデータ破壊。 必ず個別 set で書く。
+              if (kf.values && kf.values.length === 3) {
+                keyframe.set("x", kf.values[0]);
+                keyframe.set("y", kf.values[1]);
+                keyframe.set("z", kf.values[2]);
               }
               if (kf.interpolation) {
                 keyframe.interpolation = kf.interpolation;
@@ -986,11 +992,9 @@ createTool(
             }
             if (parameters.offset_values) {
               const values = kf.getArray();
-              kf.set("values", [
-                values[0] + parameters.offset_values[0],
-                values[1] + parameters.offset_values[1],
-                values[2] + parameters.offset_values[2],
-              ]);
+              kf.set("x", values[0] + parameters.offset_values[0]);
+              kf.set("y", values[1] + parameters.offset_values[1]);
+              kf.set("z", values[2] + parameters.offset_values[2]);
             }
           });
           break;
@@ -1025,7 +1029,9 @@ createTool(
           keyframes.forEach((kf) => {
             const values = kf.getArray();
             values[axisIndex] *= -1;
-            kf.set("values", values);
+            kf.set("x", values[0]);
+            kf.set("y", values[1]);
+            kf.set("z", values[2]);
           });
           break;
 
@@ -1105,8 +1111,8 @@ createTool(
           // channel to match the first one so the loop has no visible jump.
           // NOTE: BB Keyframe.set() only handles per-axis setters ("x"/"y"/"z").
           // The seemingly natural set("values", arr) is silently a no-op, so we
-          // explicitly write each axis. (Existing mirror/offset cases use the
-          // same broken API — outside this PR's scope.)
+          // explicitly write each axis. (manage_keyframes/edit と batch
+          // offset/mirror も同 commit で個別 set に書き直し済。)
           const seamAnimators = new Set(keyframes.map((kf) => kf.animator));
           seamAnimators.forEach((animator) => {
             ["rotation", "position", "scale"].forEach((channel) => {
