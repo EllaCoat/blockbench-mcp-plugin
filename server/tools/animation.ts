@@ -472,14 +472,36 @@ createTool(
         throw new Error("No animation found or selected.");
       }
 
-      // Find the bone
-      const group = findGroupOrThrow(bone_name);
+      // Find the bone (Group / NullObject / Locator 等 AJ 拡張 OutlinerNode を
+      // uuid → name の順で解決。 旧 findGroupOrThrow は Group しか返さず
+      // NullObject / Locator が取り逃される問題を回避)
+      const resolveNode = (nameOrUuid: string): any => {
+        // @ts-ignore
+        const byUuid = OutlinerNode.uuids?.[nameOrUuid];
+        if (byUuid) return byUuid;
+        const pools: any[] = [...Group.all];
+        // @ts-ignore
+        if (typeof NullObject !== "undefined") pools.push(...NullObject.all);
+        // @ts-ignore
+        if (typeof Locator !== "undefined") pools.push(...Locator.all);
+        return pools.find((n) => n.name === nameOrUuid);
+      };
 
-      // Get or create animator
-      let animator = animation.animators[group.uuid];
+      const node = resolveNode(bone_name);
+      if (!node) {
+        throw new Error(`Bone "${bone_name}" not found.`);
+      }
+
+      // Get or create animator (= node.constructor.animator で BB / AJ が
+      // 各 OutlinerNode 用に登録した正しい Animator class を選ぶ。 旧 new
+      // BoneAnimator() 直書きでは NullObject / Locator が BoneAnimator 化して
+      // 壊れていた)
+      let animator = animation.animators[node.uuid];
       if (!animator) {
-        animator = new BoneAnimator(group.uuid, animation, bone_name);
-        animation.animators[group.uuid] = animator;
+        // @ts-ignore
+        const AnimatorClass = node.constructor?.animator || BoneAnimator;
+        animator = new AnimatorClass(node.uuid, animation, bone_name);
+        animation.animators[node.uuid] = animator;
       }
 
       Undo.initEdit({
@@ -1240,11 +1262,33 @@ createTool(
             throw new Error("Target animation not found.");
           }
 
-          const tgtBone = findGroupOrThrow(target.bone);
+          // AJ 拡張 OutlinerNode (NullObject / Locator 等) を uuid → name で解決。
+          // 旧 findGroupOrThrow は Group しか返さず、 取り逃した状態で
+          // new BoneAnimator() 直書きしていたため NullObject / Locator の
+          // animator が壊れていた。
+          const resolveNode = (nameOrUuid: string): any => {
+            // @ts-ignore
+            const byUuid = OutlinerNode.uuids?.[nameOrUuid];
+            if (byUuid) return byUuid;
+            const pools: any[] = [...Group.all];
+            // @ts-ignore
+            if (typeof NullObject !== "undefined") pools.push(...NullObject.all);
+            // @ts-ignore
+            if (typeof Locator !== "undefined") pools.push(...Locator.all);
+            return pools.find((n) => n.name === nameOrUuid);
+          };
+
+          const tgtBone = resolveNode(target.bone);
+          if (!tgtBone) {
+            throw new Error(`Target bone "${target.bone}" not found.`);
+          }
 
           let animator = tgtAnimation.animators[tgtBone.uuid];
           if (!animator) {
-            animator = new BoneAnimator(
+            // node.constructor.animator で正しい Animator class を選択
+            // @ts-ignore
+            const AnimatorClass = tgtBone.constructor?.animator || BoneAnimator;
+            animator = new AnimatorClass(
               tgtBone.uuid,
               tgtAnimation,
               target.bone
