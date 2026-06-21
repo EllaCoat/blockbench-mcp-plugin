@@ -182,6 +182,33 @@ export function findGroupOrThrow(name: string): Group {
 }
 
 /**
+ * animatable な OutlinerNode (Group / NullObject / Locator / AJ 拡張型
+ * VanillaItemDisplay / VanillaBlockDisplay / TextDisplay 等) を
+ * uuid → name の順で解決する。 旧 findGroupOrThrow は Group しか返さないため
+ * AJ 拡張 OutlinerNode が取り逃され、 BoneAnimator 復元バグや name 解決
+ * 非対称を引き起こしていた。 AJ プラグイン未 load 環境では拡張型が
+ * undefined なので defensive に typeof チェックで skip。
+ * 返り値が null の場合は呼び出し側で throw すること。
+ */
+export function findAnimatableNode(nameOrUuid: string): any {
+  // @ts-ignore - BB native global
+  const byUuid = OutlinerNode.uuids?.[nameOrUuid];
+  if (byUuid) return byUuid;
+  const pools: any[] = [...Group.all];
+  // @ts-ignore - BB native
+  if (typeof NullObject !== "undefined") pools.push(...NullObject.all);
+  // @ts-ignore - BB native
+  if (typeof Locator !== "undefined") pools.push(...Locator.all);
+  // @ts-ignore - AJ extension (= AJ プラグイン未 load なら undefined)
+  if (typeof VanillaItemDisplay !== "undefined") pools.push(...VanillaItemDisplay.all);
+  // @ts-ignore - AJ extension
+  if (typeof VanillaBlockDisplay !== "undefined") pools.push(...VanillaBlockDisplay.all);
+  // @ts-ignore - AJ extension
+  if (typeof TextDisplay !== "undefined") pools.push(...TextDisplay.all);
+  return pools.find((n) => n.name === nameOrUuid);
+}
+
+/**
  * Finds a mesh by ID or name and throws an actionable error if not found.
  * @param id - The UUID or name of the mesh to find
  * @returns The found Mesh

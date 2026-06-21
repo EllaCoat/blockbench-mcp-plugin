@@ -2,7 +2,7 @@
 /// <reference types="blockbench-types" />
 import { z } from "zod";
 import { createTool, type ToolSpec } from "@/lib/factories";
-import { findGroupOrThrow } from "@/lib/util";
+import { findAnimatableNode, findGroupOrThrow } from "@/lib/util";
 import { STATUS_EXPERIMENTAL, STATUS_STABLE } from "@/lib/constants";
 import {
   vector3Schema,
@@ -351,17 +351,8 @@ createTool(
       // bedrock 形式 (name-based) からの移行で AJ 拡張 OutlinerNode (NullObject 等) が
       // BB の Group 検索 fallback で BoneAnimator になる問題を回避するため、
       // 内部 API (= AJ codec と同じ extend({animators}) 経路) を直叩きする。
-      const resolveNode = (boneName: string) => {
-        // @ts-ignore
-        const byUuid = OutlinerNode.uuids?.[boneName];
-        if (byUuid) return byUuid;
-        const pools: any[] = [...Group.all];
-        // @ts-ignore
-        if (typeof NullObject !== "undefined") pools.push(...NullObject.all);
-        // @ts-ignore
-        if (typeof Locator !== "undefined") pools.push(...Locator.all);
-        return pools.find((n) => n.name === boneName);
-      };
+      // 解決は共通 util findAnimatableNode に委譲 (= 3 tool で重複していた helper を統合)。
+      const resolveNode = findAnimatableNode;
 
       const determineType = (node: any): string => {
         // @ts-ignore
@@ -472,22 +463,9 @@ createTool(
         throw new Error("No animation found or selected.");
       }
 
-      // Find the bone (Group / NullObject / Locator 等 AJ 拡張 OutlinerNode を
-      // uuid → name の順で解決。 旧 findGroupOrThrow は Group しか返さず
-      // NullObject / Locator が取り逃される問題を回避)
-      const resolveNode = (nameOrUuid: string): any => {
-        // @ts-ignore
-        const byUuid = OutlinerNode.uuids?.[nameOrUuid];
-        if (byUuid) return byUuid;
-        const pools: any[] = [...Group.all];
-        // @ts-ignore
-        if (typeof NullObject !== "undefined") pools.push(...NullObject.all);
-        // @ts-ignore
-        if (typeof Locator !== "undefined") pools.push(...Locator.all);
-        return pools.find((n) => n.name === nameOrUuid);
-      };
-
-      const node = resolveNode(bone_name);
+      // Find the bone (Group / NullObject / Locator / AJ 拡張型を uuid → name で解決。
+      // 旧 findGroupOrThrow は Group しか返さず NullObject / Locator が取り逃された)
+      const node = findAnimatableNode(bone_name);
       if (!node) {
         throw new Error(`Bone "${bone_name}" not found.`);
       }
@@ -1212,20 +1190,8 @@ createTool(
         global.animationClipboard = null;
       }
 
-      // AJ 拡張 OutlinerNode (NullObject / Locator 等) を uuid → name で解決。
-      // 旧 findGroupOrThrow は Group しか返さないため、 NullObject / Locator が
-      // copy 側で取り逃される (Bone Animator 復元バグ + 非対称) 問題を回避。
-      const resolveNode = (nameOrUuid: string): any => {
-        // @ts-ignore
-        const byUuid = OutlinerNode.uuids?.[nameOrUuid];
-        if (byUuid) return byUuid;
-        const pools: any[] = [...Group.all];
-        // @ts-ignore
-        if (typeof NullObject !== "undefined") pools.push(...NullObject.all);
-        // @ts-ignore
-        if (typeof Locator !== "undefined") pools.push(...Locator.all);
-        return pools.find((n) => n.name === nameOrUuid);
-      };
+      // AJ 拡張 OutlinerNode 解決は共通 util findAnimatableNode に委譲。
+      const resolveNode = findAnimatableNode;
 
       switch (action) {
         case "copy": {
