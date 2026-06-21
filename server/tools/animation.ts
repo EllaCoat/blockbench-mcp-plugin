@@ -513,17 +513,28 @@ createTool(
       switch (action) {
         case "create":
           keyframes.forEach((kf) => {
+            // BB animator.createKeyframe(data, ...) の data は bedrock 形式
+            // (= data.data_points: [{x,y,z}]) を期待しており、 data.values は
+            // 黙って無視される (= 旧実装は値が常に 0 で作成される silent bug)。
+            // values は createKeyframe 後に writeAxes で書き戻す。
             const keyframe = animator.createKeyframe(
               {
                 time: kf.time,
                 channel,
-                values: kf.values,
                 interpolation: kf.interpolation,
               },
               kf.time,
               channel,
               false
             );
+            if (!keyframe) return;
+
+            if (kf.values !== undefined) {
+              const arr = Array.isArray(kf.values)
+                ? kf.values
+                : [kf.values, kf.values, kf.values]; // number = uniform scale
+              if (arr.length === 3) writeAxes(keyframe, arr);
+            }
 
             if (kf.interpolation === "bezier" && kf.bezier_handles) {
               // @ts-ignore
@@ -1193,6 +1204,18 @@ createTool(
       // AJ 拡張 OutlinerNode 解決は共通 util findAnimatableNode に委譲。
       const resolveNode = findAnimatableNode;
 
+      // BB Keyframe.set() の per-axis setter + uniform 配慮。 manage_keyframes
+      // と同 helper、 createKeyframe の data.values 不到達 fix で paste 側
+      // でも使うため local 定義 (= 個人運用、 共通化は別 fix で検討)。
+      const writeAxes = (kf: any, arr: number[]) => {
+        if (kf.uniform && (arr[0] !== arr[1] || arr[1] !== arr[2])) {
+          kf.uniform = false;
+        }
+        kf.set("x", arr[0]);
+        kf.set("y", arr[1]);
+        kf.set("z", arr[2]);
+      };
+
       switch (action) {
         case "copy": {
           if (!source) {
@@ -1341,17 +1364,23 @@ createTool(
                   values[axisIndex] *= -1;
                 }
 
+                // BB createKeyframe は data.values 受け取らないので writeAxes
+                // で値書き戻す (= manage_keyframes(create) と同 fix pattern)。
                 const keyframe = animator.createKeyframe(
                   {
                     time: kfData.time + (target.time_offset || 0),
                     channel,
-                    values,
                     interpolation: kfData.interpolation,
                   },
                   kfData.time + (target.time_offset || 0),
                   channel,
                   false
                 );
+                if (!keyframe) return;
+
+                if (values && values.length === 3) {
+                  writeAxes(keyframe, values);
+                }
 
                 // Copy bezier data if present
                 if (kfData.interpolation === "bezier") {
