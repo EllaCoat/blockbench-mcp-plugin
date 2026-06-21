@@ -504,6 +504,29 @@ createTool(
         animation.animators[node.uuid] = animator;
       }
 
+      // BB Keyframe.set() は uniform=true 時に axis 引数を無視して x/y/z 全部に
+      // 同じ値を入れる → 非一様値を渡すと最後の z で全 axis が上書きされる。
+      // 非一様値検出時は uniform=false に倒してから書く。
+      // data_point=0 のみ更新 (= edit/create の入力は 1 values 配列、 step 系で
+      // pre/post 別値の意味を勝手に潰さない)。
+      const writeAxes = (kf: any, arr: number[]) => {
+        if (kf.uniform && (arr[0] !== arr[1] || arr[1] !== arr[2])) {
+          kf.uniform = false;
+        }
+        kf.set("x", arr[0]);
+        kf.set("y", arr[1]);
+        kf.set("z", arr[2]);
+      };
+
+      // unsupported channel ガード (= NullObject 用 = position のみ、
+      // Locator (AJ) 用 = function のみ、 等)。 silent skip すると入力が消えるので
+      // throw して呼び出し側に知らせる。
+      if (!animator.channels[channel]) {
+        throw new Error(
+          `Channel "${channel}" is not supported for bone "${bone_name}" (${animator.type || "unknown"} animator).`
+        );
+      }
+
       Undo.initEdit({
         animations: [animation],
         keyframes: [],
@@ -561,11 +584,9 @@ createTool(
               // BB Keyframe.set() は per-axis setter ("x"/"y"/"z") のみ受理。
               // set("values", arr) は通常 keyframe では未知 property に代入されて
               // silent no-op、 uniform=true (= scale 等) では axis 値に配列が
-              // 文字列化されて代入されデータ破壊。 必ず個別 set で書く。
+              // 文字列化されて代入されデータ破壊。 writeAxes 経由で個別 set + uniform 配慮。
               if (kf.values && kf.values.length === 3) {
-                keyframe.set("x", kf.values[0]);
-                keyframe.set("y", kf.values[1]);
-                keyframe.set("z", kf.values[2]);
+                writeAxes(keyframe, kf.values);
               }
               if (kf.interpolation) {
                 keyframe.interpolation = kf.interpolation;
@@ -1002,6 +1023,27 @@ createTool(
         throw new Error("No keyframes found matching selection criteria.");
       }
 
+      // BB Keyframe.set() は uniform=true 時に axis 引数を無視して x/y/z 全部に
+      // 同じ値を入れる → 非一様値を渡すと最後の z で全 axis が上書きされる。
+      // 非一様値検出時は uniform=false に倒してから書く。
+      // batch operation (offset/mirror/fix_loop_seam) は keyframe 値の一様変換
+      // なので全 data_point に同変換適用するのが正しい意味 (= step 系の pre/post
+      // も同じ変換を被るべき)。
+      const writeAxesAll = (kf: any, arr: number[]) => {
+        if (
+          kf.uniform &&
+          (arr[0] !== arr[1] || arr[1] !== arr[2])
+        ) {
+          kf.uniform = false;
+        }
+        const dpCount = Math.max(1, kf.data_points?.length || 1);
+        for (let dp = 0; dp < dpCount; dp++) {
+          kf.set("x", arr[0], dp);
+          kf.set("y", arr[1], dp);
+          kf.set("z", arr[2], dp);
+        }
+      };
+
       Undo.initEdit({
         keyframes: keyframes,
       });
@@ -1014,9 +1056,11 @@ createTool(
             }
             if (parameters.offset_values) {
               const values = kf.getArray();
-              kf.set("x", values[0] + parameters.offset_values[0]);
-              kf.set("y", values[1] + parameters.offset_values[1]);
-              kf.set("z", values[2] + parameters.offset_values[2]);
+              writeAxesAll(kf, [
+                values[0] + parameters.offset_values[0],
+                values[1] + parameters.offset_values[1],
+                values[2] + parameters.offset_values[2],
+              ]);
             }
           });
           break;
@@ -1051,9 +1095,7 @@ createTool(
           keyframes.forEach((kf) => {
             const values = kf.getArray();
             values[axisIndex] *= -1;
-            kf.set("x", values[0]);
-            kf.set("y", values[1]);
-            kf.set("z", values[2]);
+            writeAxesAll(kf, values);
           });
           break;
 
@@ -1131,10 +1173,7 @@ createTool(
         case "fix_loop_seam": {
           // For each affected animator, force the last keyframe of every
           // channel to match the first one so the loop has no visible jump.
-          // NOTE: BB Keyframe.set() only handles per-axis setters ("x"/"y"/"z").
-          // The seemingly natural set("values", arr) is silently a no-op, so we
-          // explicitly write each axis. (manage_keyframes/edit と batch
-          // offset/mirror も同 commit で個別 set に書き直し済。)
+          // writeAxesAll で uniform 配慮 + last の全 data_point に書き込み。
           const seamAnimators = new Set(keyframes.map((kf) => kf.animator));
           seamAnimators.forEach((animator) => {
             ["rotation", "position", "scale"].forEach((channel) => {
@@ -1145,9 +1184,7 @@ createTool(
               const first = channelKfs[0];
               const last = channelKfs[channelKfs.length - 1];
               const arr = first.getArray();
-              last.set("x", arr[0]);
-              last.set("y", arr[1]);
-              last.set("z", arr[2]);
+              writeAxesAll(last, arr);
             });
           });
           break;
@@ -1175,6 +1212,21 @@ createTool(
         global.animationClipboard = null;
       }
 
+      // AJ 拡張 OutlinerNode (NullObject / Locator 等) を uuid → name で解決。
+      // 旧 findGroupOrThrow は Group しか返さないため、 NullObject / Locator が
+      // copy 側で取り逃される (Bone Animator 復元バグ + 非対称) 問題を回避。
+      const resolveNode = (nameOrUuid: string): any => {
+        // @ts-ignore
+        const byUuid = OutlinerNode.uuids?.[nameOrUuid];
+        if (byUuid) return byUuid;
+        const pools: any[] = [...Group.all];
+        // @ts-ignore
+        if (typeof NullObject !== "undefined") pools.push(...NullObject.all);
+        // @ts-ignore
+        if (typeof Locator !== "undefined") pools.push(...Locator.all);
+        return pools.find((n) => n.name === nameOrUuid);
+      };
+
       switch (action) {
         case "copy": {
           if (!source) {
@@ -1192,7 +1244,10 @@ createTool(
             throw new Error("Source animation not found.");
           }
 
-          const srcBone = findGroupOrThrow(source.bone);
+          const srcBone = resolveNode(source.bone);
+          if (!srcBone) {
+            throw new Error(`Source bone "${source.bone}" not found.`);
+          }
 
           const animator = srcAnimation.animators[srcBone.uuid];
           if (!animator) {
@@ -1262,22 +1317,6 @@ createTool(
             throw new Error("Target animation not found.");
           }
 
-          // AJ 拡張 OutlinerNode (NullObject / Locator 等) を uuid → name で解決。
-          // 旧 findGroupOrThrow は Group しか返さず、 取り逃した状態で
-          // new BoneAnimator() 直書きしていたため NullObject / Locator の
-          // animator が壊れていた。
-          const resolveNode = (nameOrUuid: string): any => {
-            // @ts-ignore
-            const byUuid = OutlinerNode.uuids?.[nameOrUuid];
-            if (byUuid) return byUuid;
-            const pools: any[] = [...Group.all];
-            // @ts-ignore
-            if (typeof NullObject !== "undefined") pools.push(...NullObject.all);
-            // @ts-ignore
-            if (typeof Locator !== "undefined") pools.push(...Locator.all);
-            return pools.find((n) => n.name === nameOrUuid);
-          };
-
           const tgtBone = resolveNode(target.bone);
           if (!tgtBone) {
             throw new Error(`Target bone "${target.bone}" not found.`);
@@ -1316,6 +1355,15 @@ createTool(
 
           Object.entries(clipboardData.channels).forEach(
             ([channel, keyframes]: [string, any[]]) => {
+              // unsupported channel (= NullObject に rotation / scale 等) は
+              // silent skip すると入力が消えるため warn + skip。 throw だと
+              // 複数 channel 同時 paste 時に他 channel まで巻き込んで失敗する。
+              if (!animator.channels[channel]) {
+                console.warn(
+                  `[mcp] paste skipping channel "${channel}" (not supported by ${animator.type || "unknown"} animator on "${target.bone}")`
+                );
+                return;
+              }
               keyframes.forEach((kfData) => {
                 const values = [...kfData.values];
 
