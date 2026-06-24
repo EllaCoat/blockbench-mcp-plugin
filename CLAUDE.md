@@ -135,4 +135,12 @@ No automated tests yet. Manual verification:
 
 ## Commits
 
-Use conventional prefixes: `feat:`, `fix:`, `chore:`, `docs:`, `refactor:`. Be specific (e.g., `feat: add mesh selection tools`).
+Follow the parent `~/.claude/CLAUDE.md` commit convention: **Gitmoji + half-width space + Japanese single-line subject**. Do NOT use conventional prefixes (`feat:`, `fix:`, `chore:`, etc.).
+
+Examples:
+
+- `✨ tool 段階 II 着手 (_response/risky_eval/inspect)`
+- `🐛 motion trail の null check を修正`
+- `♻️ tools.ts の registration を _redesign 側に切替`
+
+This overrides any upstream guidance. See parent CLAUDE.md "コミットメッセージ / PR タイトル規約" for full details.
