@@ -3,6 +3,7 @@
 import { z } from "zod";
 import { createTool, type ToolSpec } from "@/lib/factories";
 import { STATUS_EXPERIMENTAL } from "@/lib/constants";
+import { vector3Schema } from "@/lib/zodObjects";
 import {
   nullObjectAdd,
   nullObjectUpdate,
@@ -23,10 +24,7 @@ export const nullObjectOpParameters = z.object({
       "Target null object UUID or name. Required for update/remove."
     ),
   name: z.string().optional().describe("Name (create) or new name (update)."),
-  position: z
-    .tuple([z.number(), z.number(), z.number()])
-    .optional()
-    .describe("Position [x, y, z]."),
+  position: vector3Schema.describe("Position [x, y, z].").optional(),
   parent: z
     .string()
     .optional()

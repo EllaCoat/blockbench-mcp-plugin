@@ -156,14 +156,14 @@
       <td class="col-desc"></td>
     </tr><tr>
       <td class="col-name">min_size</td>
-      <td class="col-type">unknown[]</td>
+      <td class="col-type">number[]</td>
       <td><span class="param-optional">optional</span></td>
-      <td class="col-desc"> <span class="param-meta">[minItems: 3, maxItems: 3]</span></td>
+      <td class="col-desc">3D vector [x, y, z]. <span class="param-meta">[minItems: 3, maxItems: 3]</span></td>
     </tr><tr>
       <td class="col-name">max_size</td>
-      <td class="col-type">unknown[]</td>
+      <td class="col-type">number[]</td>
       <td><span class="param-optional">optional</span></td>
-      <td class="col-desc"> <span class="param-meta">[minItems: 3, maxItems: 3]</span></td>
+      <td class="col-desc">3D vector [x, y, z]. <span class="param-meta">[minItems: 3, maxItems: 3]</span></td>
     </tr><tr>
       <td class="col-name">selected_only</td>
       <td class="col-type">boolean</td>
@@ -336,7 +336,7 @@
       <td class="col-desc">Name (create) or new name (update).</td>
     </tr><tr>
       <td class="col-name">position</td>
-      <td class="col-type">unknown[]</td>
+      <td class="col-type">number[]</td>
       <td><span class="param-optional">optional</span></td>
       <td class="col-desc">Position [x, y, z]. <span class="param-meta">[minItems: 3, maxItems: 3]</span></td>
     </tr><tr>
@@ -867,7 +867,7 @@
       <td class="col-name">operation</td>
       <td class="col-type">&quot;offset&quot; | &quot;scale&quot; | &quot;reverse&quot; | &quot;mirror&quot; | &quot;smooth&quot; | &quot;bake&quot; | &quot;stagger&quot; | &quot;fix_loop_seam&quot;</td>
       <td><span class="param-required">required</span></td>
-      <td class="col-desc">Operation to perform on keyframes. stagger = shift each bone's keyframes progressively by stagger_interval (cascade/wave effect across bones). fix_loop_seam = copy each animator's first keyframe value onto its last keyframe per channel, eliminating the jump when an animation loops.</td>
+      <td class="col-desc">Operation to perform on keyframes. stagger = shift each bone's keyframes progressively by stagger_interval (cascade/wave effect across bones). fix_loop_seam = copy each animator's first keyframe value onto its last keyframe per channel, eliminating the jump when an animation loops; selection is used only to pick which animators are affected — the whole channel's first/last keyframes are matched regardless of range/pattern.</td>
     </tr><tr>
       <td class="col-name">parameters</td>
       <td class="col-type">object</td>
@@ -2482,7 +2482,7 @@
       </section>
 
       <footer class="page-footer">
-        Generated 2026-06-19T10:01:27.733Z from Zod schemas
+        Generated 2026-07-10T23:28:25.152Z from Zod schemas
       </footer>
     </main>
   </div>

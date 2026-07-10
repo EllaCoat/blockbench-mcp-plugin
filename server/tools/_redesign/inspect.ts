@@ -3,6 +3,7 @@
 import { z } from "zod";
 import { createTool, type ToolSpec } from "@/lib/factories";
 import { STATUS_EXPERIMENTAL } from "@/lib/constants";
+import { vector3Schema } from "@/lib/zodObjects";
 import {
   ok,
   err,
@@ -76,8 +77,8 @@ export const inspectParameters = z.object({
   name_contains: z.string().optional(),
   type: z.enum(["cube", "mesh", "group", "any"]).optional(),
   parent_group: z.string().optional(),
-  min_size: z.tuple([z.number(), z.number(), z.number()]).optional(),
-  max_size: z.tuple([z.number(), z.number(), z.number()]).optional(),
+  min_size: vector3Schema.optional(),
+  max_size: vector3Schema.optional(),
   selected_only: z.boolean().optional(),
   limit: z.number().int().positive().optional(),
 

@@ -1,6 +1,6 @@
 {
   "version": "1.6.0",
-  "generatedAt": "2026-06-19T10:01:27.733Z",
+  "generatedAt": "2026-07-10T23:28:25.152Z",
   "tools": [
     {
       "name": "inspect",
@@ -87,35 +87,23 @@
               },
               "min_size": {
                 "type": "array",
+                "items": {
+                  "type": "number"
+                },
                 "minItems": 3,
                 "maxItems": 3,
-                "items": [
-                  {
-                    "type": "number"
-                  },
-                  {
-                    "type": "number"
-                  },
-                  {
-                    "type": "number"
-                  }
-                ]
+                "description": "3D vector [x, y, z].",
+                "markdownDescription": "3D vector [x, y, z]."
               },
               "max_size": {
                 "type": "array",
+                "items": {
+                  "type": "number"
+                },
                 "minItems": 3,
                 "maxItems": 3,
-                "items": [
-                  {
-                    "type": "number"
-                  },
-                  {
-                    "type": "number"
-                  },
-                  {
-                    "type": "number"
-                  }
-                ]
+                "description": "3D vector [x, y, z].",
+                "markdownDescription": "3D vector [x, y, z]."
               },
               "selected_only": {
                 "type": "boolean"
@@ -311,19 +299,11 @@
               },
               "position": {
                 "type": "array",
+                "items": {
+                  "type": "number"
+                },
                 "minItems": 3,
                 "maxItems": 3,
-                "items": [
-                  {
-                    "type": "number"
-                  },
-                  {
-                    "type": "number"
-                  },
-                  {
-                    "type": "number"
-                  }
-                ],
                 "description": "Position [x, y, z].",
                 "markdownDescription": "Position [x, y, z]."
               },
@@ -1471,8 +1451,8 @@
                   "stagger",
                   "fix_loop_seam"
                 ],
-                "description": "Operation to perform on keyframes. stagger = shift each bone's keyframes progressively by stagger_interval (cascade/wave effect across bones). fix_loop_seam = copy each animator's first keyframe value onto its last keyframe per channel, eliminating the jump when an animation loops.",
-                "markdownDescription": "Operation to perform on keyframes. stagger = shift each bone's keyframes progressively by stagger_interval (cascade/wave effect across bones). fix_loop_seam = copy each animator's first keyframe value onto its last keyframe per channel, eliminating the jump when an animation loops."
+                "description": "Operation to perform on keyframes. stagger = shift each bone's keyframes progressively by stagger_interval (cascade/wave effect across bones). fix_loop_seam = copy each animator's first keyframe value onto its last keyframe per channel, eliminating the jump when an animation loops; selection is used only to pick which animators are affected — the whole channel's first/last keyframes are matched regardless of range/pattern.",
+                "markdownDescription": "Operation to perform on keyframes. stagger = shift each bone's keyframes progressively by stagger_interval (cascade/wave effect across bones). fix_loop_seam = copy each animator's first keyframe value onto its last keyframe per channel, eliminating the jump when an animation loops; selection is used only to pick which animators are affected — the whole channel's first/last keyframes are matched regardless of range/pattern."
               },
               "parameters": {
                 "type": "object",
